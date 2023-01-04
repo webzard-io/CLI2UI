@@ -4,11 +4,16 @@ import {
   BaseProps,
   saveApp,
   saveModules,
-  patchApp,
-  patchModules,
+  // patchApp,
+  // patchModules,
+  fetchApp,
+  fetchModules,
+  APPLICATION_NAME,
 } from "../shared";
 import "@sunmao-ui/arco-lib/dist/index.css";
 import "@sunmao-ui/editor/dist/index.css";
+import { type Application, type Module } from "@sunmao-ui/core";
+import { useState, useMemo, useEffect } from "react";
 
 function Editor(props: BaseProps) {
   const {
@@ -17,24 +22,45 @@ function Editor(props: BaseProps) {
     handlers,
     ws,
     utilMethods,
-    applicationPatch,
-    modulesPatch,
+    // applicationPatch,
+    // modulesPatch,
   } = props;
-  const { Editor } = initSunmaoUIEditor({
-    defaultApplication: patchApp(application, applicationPatch),
-    defaultModules: patchModules(modules, modulesPatch),
-    runtimeProps: {
-      libs: getLibs({ ws, handlers, utilMethods }),
-    },
-    storageHandler: {
-      onSaveApp: function (newApp) {
-        saveApp(newApp, application);
-      },
-      onSaveModules: function (newModules) {
-        saveModules(newModules, modules || []);
-      },
-    },
-  });
+  const [_app, setApp] = useState<Application>(application);
+  const [_modules, setModules] = useState<Module[]>(modules);
+
+  const { Editor } = useMemo(
+    () =>
+      initSunmaoUIEditor({
+        // defaultApplication: patchApp(application, applicationPatch),
+        // defaultModules: patchModules(modules, modulesPatch)
+        defaultApplication: _app,
+        defaultModules: _modules,
+        runtimeProps: {
+          libs: getLibs({ ws, handlers, utilMethods }),
+        },
+        storageHandler: {
+          onSaveApp: function (newApp) {
+            saveApp(newApp, _app);
+          },
+          onSaveModules: function (newModules) {
+            saveModules(newModules, _modules || []);
+          },
+        },
+      }),
+    [_app, _modules]
+  );
+
+  useEffect(() => {
+    (async function () {
+      const [app, modules] = await Promise.all([
+        fetchApp(APPLICATION_NAME),
+        fetchModules(),
+      ]);
+
+      setApp(app);
+      setModules(modules);
+    })();
+  }, []);
 
   // TODO: call the useApiService hook when sunmao-ui expose apiService in editor mode
 

@@ -4,10 +4,14 @@ import {
   getLibs,
   useApiService,
   BaseProps,
-  patchApp,
+  // patchApp,
   patchModules,
+  fetchApp,
+  APPLICATION_NAME,
 } from "../shared";
 import { RuntimeModule } from "@sunmao-ui/core";
+import { type Application } from "@sunmao-ui/core";
+import { useState, useEffect } from "react";
 
 function App(props: BaseProps) {
   const {
@@ -16,9 +20,19 @@ function App(props: BaseProps) {
     handlers,
     ws,
     utilMethods,
-    applicationPatch,
+    // applicationPatch,
     modulesPatch,
   } = props;
+
+  const [_app, setApp] = useState<Application>(application);
+  useEffect(() => {
+    (async function () {
+      const [app] = await Promise.all([fetchApp(APPLICATION_NAME)]);
+
+      setApp(app);
+    })();
+  }, []);
+
   const {
     App: SunmaoApp,
     apiService,
@@ -35,7 +49,7 @@ function App(props: BaseProps) {
 
   useApiService({ ws, apiService });
 
-  return <SunmaoApp options={patchApp(application, applicationPatch)} />;
+  return <SunmaoApp options={_app} />;
 }
 
 export default App;

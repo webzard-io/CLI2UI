@@ -1,0 +1,82 @@
+{
+  "kind": "Application",
+  "version": "CLI2UI/v1",
+  "metadata": {
+    "name": "empty"
+  },
+  "spec": {
+    "components": [
+      {
+        "id": "space0",
+        "type": "arco/v1/space",
+        "properties": {
+          "align": "center",
+          "direction": "horizontal",
+          "wrap": false,
+          "size": 24
+        },
+        "traits": [
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "fontSize": "32px",
+                    "width": "",
+                    "fontWeight": "700"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "text1",
+        "type": "core/v2/text",
+        "properties": {
+          "text": "CLI2UI"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "space0",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "button2",
+        "type": "chakra_ui/v1/button",
+        "properties": {
+          "text": {
+            "raw": "Help",
+            "format": "plain"
+          },
+          "isLoading": false,
+          "colorScheme": "gray"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "space0",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

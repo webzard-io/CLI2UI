@@ -13,8 +13,8 @@
     <script>
       let options = {
         application: {
-            kind: "Application",
-          version: "v1",
+          kind: "Application",
+          version: "example/v1",
           metadata: {
             name: "empty",
           },
@@ -23,7 +23,7 @@
           },
         },
         wsUrl: `ws://${location.host}/ws`,
-        reloadWhenWsDisconnected: true,
+        reloadWhenWsDisconnected: false,
         handlers: [],
       };
       /*<!--*/

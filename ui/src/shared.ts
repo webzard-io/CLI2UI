@@ -8,7 +8,7 @@ import {
 } from "@sunmao-ui/runtime";
 import { useEffect } from "react";
 import * as jdp from "jsondiffpatch";
-import CustomLib from './sunmao/lib';
+import CustomLib from "./sunmao/lib";
 
 export function getLibs({
   ws,
@@ -105,7 +105,9 @@ export type MainOptions = {
   modulesPatch?: any;
 };
 
-const PREFIX = "/sunmao-binding-patch";
+// const PREFIX = "/sunmao-binding-patch";
+const PREFIX = "/sunmao-fs";
+export const APPLICATION_NAME = 'app';
 
 const diffpatcher = jdp.create({
   objectHash: function (obj: any, index: number) {
@@ -124,13 +126,14 @@ const diffpatcher = jdp.create({
 });
 
 export function saveApp(app: Application, base: Application) {
-  return fetch(`${PREFIX}/app`, {
+  return fetch(`${PREFIX}/${APPLICATION_NAME}`, {
     method: "put",
     headers: {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      delta: diffpatcher.diff(base, app),
+      // delta: diffpatcher.diff(base, app),
+      value: app,
     }),
   });
 }
@@ -142,7 +145,8 @@ export function saveModules(modules: Module[], base: Module[]) {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      delta: diffpatcher.diff(base, modules),
+      // delta: diffpatcher.diff(base, modules),
+      value: modules,
     }),
   });
 }
@@ -161,4 +165,34 @@ export function patchModules(base: Module[], delta?: jdp.Delta): Module[] {
   return isEmptyDelta(delta)
     ? base
     : diffpatcher.patch(diffpatcher.clone(base), delta!);
+}
+
+/**
+ * get existed sunmao application schema
+ * @param name 
+ * @returns 
+ */
+export async function fetchApp(name: string): Promise<Application> {
+  const application = await (await fetch(`${PREFIX}/${name}`)).json();
+
+  if (application.kind === 'Application') {
+    return application;
+  }
+
+  throw new Error('failed to load schema');
+}
+
+/**
+ * get existed sunmao module schema
+ * @param name 
+ * @returns 
+ */
+export async function fetchModules(): Promise<Module[]> {
+  const response = await (await fetch(`${PREFIX}/modules`)).json();
+
+  if (Array.isArray(response)) {
+    return response;
+  }
+
+  throw new Error('failed to load schema');
 }
