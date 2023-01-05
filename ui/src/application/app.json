@@ -2,18 +2,72 @@
   "kind": "Application",
   "version": "CLI2UI/v1",
   "metadata": {
-    "name": "empty"
+    "name": "PingCLI"
   },
   "spec": {
     "components": [
       {
-        "id": "space0",
-        "type": "arco/v1/space",
+        "id": "PingFormState",
+        "type": "core/v1/dummy",
+        "properties": {},
+        "traits": [
+          {
+            "type": "core/v1/state",
+            "properties": {
+              "key": "data",
+              "initialValue": "{{\n{\n  isExecuting: false,\n}\n}}"
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "Layout",
+        "type": "arco/v1/layout",
         "properties": {
-          "align": "center",
+          "showHeader": true,
+          "showSideBar": false,
+          "sidebarCollapsible": false,
+          "sidebarDefaultCollapsed": false,
+          "showFooter": false
+        },
+        "traits": [
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "layout",
+                  "style": "\n",
+                  "cssProperties": {
+                    "paddingLeft": "32px",
+                    "paddingRight": "32px",
+                    "paddingTop": "16px",
+                    "paddingBottom": "16px",
+                    "marginRight": "",
+                    "backgroundColor": "",
+                    "marginBottom": ""
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "Header",
+        "type": "core/v1/stack",
+        "properties": {
+          "spacing": 12,
           "direction": "horizontal",
+          "align": "center",
           "wrap": false,
-          "size": 24
+          "justify": "flex-start"
         },
         "traits": [
           {
@@ -24,8 +78,50 @@
                   "styleSlot": "content",
                   "style": "",
                   "cssProperties": {
-                    "fontSize": "32px",
-                    "width": "",
+                    "width": "100%"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "Layout",
+                "slot": "header"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "HeaderText",
+        "type": "core/v2/text",
+        "properties": {
+          "text": "Ping CLI"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "Header",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "fontSize": "32px\n",
                     "fontWeight": "700"
                   }
                 }
@@ -35,17 +131,84 @@
         ]
       },
       {
-        "id": "text1",
-        "type": "core/v2/text",
+        "id": "HelpBtn",
+        "type": "arco/v1/button",
         "properties": {
-          "text": "CLI2UI"
+          "type": "default",
+          "status": "default",
+          "long": false,
+          "size": "default",
+          "disabled": false,
+          "loading": false,
+          "shape": "square",
+          "text": "查看"
         },
         "traits": [
           {
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "space0",
+                "id": "Header",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onClick",
+                  "componentId": "HelpModal",
+                  "method": {
+                    "name": "openModal",
+                    "parameters": {}
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "CmdTabs",
+        "type": "arco/v1/tabs",
+        "properties": {
+          "type": "line",
+          "defaultActiveTab": 0,
+          "tabPosition": "top",
+          "size": "default",
+          "updateWhenDefaultValueChanges": false,
+          "tabs": [
+            {
+              "title": "Ping",
+              "hidden": false,
+              "destroyOnHide": true
+            },
+            {
+              "title": "Tab 2",
+              "hidden": false,
+              "destroyOnHide": true
+            },
+            {
+              "title": "Tab 3",
+              "hidden": false,
+              "destroyOnHide": true
+            }
+          ]
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "Layout",
                 "slot": "content"
               },
               "ifCondition": true
@@ -54,25 +217,659 @@
         ]
       },
       {
-        "id": "button2",
-        "type": "chakra_ui/v1/button",
+        "id": "PingTab",
+        "type": "core/v1/stack",
         "properties": {
-          "text": {
-            "raw": "Help",
-            "format": "plain"
-          },
-          "isLoading": false,
-          "colorScheme": "gray"
+          "spacing": 12,
+          "direction": "vertical",
+          "align": "auto",
+          "wrap": false,
+          "justify": "flex-start"
         },
         "traits": [
           {
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "space0",
+                "id": "CmdTabs",
+                "slot": "content"
+              },
+              "ifCondition": "{{CmdTabs.activeTab === 0}}"
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "width": "100%"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "PingForm",
+        "type": "core/v1/stack",
+        "properties": {
+          "spacing": 12,
+          "direction": "vertical",
+          "align": "auto",
+          "wrap": false,
+          "justify": "flex-start"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingTab",
                 "slot": "content"
               },
               "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/validation",
+            "properties": {
+              "validators": [
+                {
+                  "name": "AddressValidation",
+                  "value": "{{AddressInput.value}}",
+                  "rules": [
+                    {
+                      "type": "required",
+                      "validate": "",
+                      "error": {
+                        "message": "请输入 IP 地址。"
+                      },
+                      "minLength": 0,
+                      "maxLength": 0,
+                      "includeList": [],
+                      "excludeList": [],
+                      "min": 0,
+                      "max": 0,
+                      "regex": "",
+                      "flags": "",
+                      "customOptions": {}
+                    },
+                    {
+                      "type": "ipv4",
+                      "validate": "",
+                      "error": {
+                        "message": "请输入正确格式的 IP 地址。"
+                      },
+                      "minLength": 0,
+                      "maxLength": 0,
+                      "includeList": [],
+                      "excludeList": [],
+                      "min": 0,
+                      "max": 0,
+                      "regex": "",
+                      "flags": "",
+                      "customOptions": {}
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "CountField",
+        "type": "arco/v1/formControl",
+        "properties": {
+          "label": {
+            "format": "plain",
+            "raw": "Count"
+          },
+          "layout": "horizontal",
+          "required": false,
+          "hidden": false,
+          "extra": "",
+          "errorMsg": "",
+          "labelAlign": "left",
+          "colon": false,
+          "help": "",
+          "labelCol": {
+            "span": 3,
+            "offset": 0
+          },
+          "wrapperCol": {
+            "span": 21,
+            "offset": 0
+          }
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingForm",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "CountInput",
+        "type": "arco/v1/numberInput",
+        "properties": {
+          "defaultValue": 1,
+          "disabled": "{{PingFormState.data.isExecuting}}",
+          "placeholder": "please input",
+          "error": false,
+          "size": "default",
+          "buttonMode": false,
+          "min": 0,
+          "max": 99,
+          "readOnly": false,
+          "step": 1,
+          "precision": 0,
+          "updateWhenDefaultValueChanges": false
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "CountField",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "AddressField",
+        "type": "arco/v1/formControl",
+        "properties": {
+          "label": {
+            "format": "plain",
+            "raw": "Address"
+          },
+          "layout": "horizontal",
+          "required": true,
+          "hidden": false,
+          "extra": "",
+          "errorMsg": "{{PingForm.validatedResult.AddressValidation.errors[0]?.message||\"\"}}",
+          "labelAlign": "left",
+          "colon": false,
+          "help": "",
+          "labelCol": {
+            "span": 3,
+            "offset": 0
+          },
+          "wrapperCol": {
+            "span": 21,
+            "offset": 0
+          }
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingForm",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {}
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "AddressInput",
+        "type": "arco/v1/input",
+        "properties": {
+          "allowClear": false,
+          "disabled": "{{PingFormState.data.isExecuting}}",
+          "readOnly": false,
+          "defaultValue": "",
+          "updateWhenDefaultValueChanges": false,
+          "placeholder": "please input",
+          "error": "{{PingForm.validatedResult.AddressValidation.isInvalid}}",
+          "size": "default"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "AddressField",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onBlur",
+                  "componentId": "PingForm",
+                  "method": {
+                    "name": "validateAllFields",
+                    "parameters": {}
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "input",
+                  "style": "",
+                  "cssProperties": {
+                    "marginBottom": "6px"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "PingButton",
+        "type": "arco/v1/button",
+        "properties": {
+          "type": "primary",
+          "status": "default",
+          "long": false,
+          "size": "default",
+          "disabled": false,
+          "loading": "{{PingFormState.data.isExecuting}}",
+          "shape": "square",
+          "text": "执行"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingForm",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onClick",
+                  "componentId": "PingForm",
+                  "method": {
+                    "name": "validateAllFields",
+                    "parameters": {}
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                },
+                {
+                  "type": "onClick",
+                  "componentId": "PingFormState",
+                  "method": {
+                    "name": "setValue",
+                    "parameters": {
+                      "key": "data",
+                      "value": "{{{...PingFormState.data, isExecuting: true}}}"
+                    }
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": "{{PingForm.isInvalid}}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "Divider0",
+        "type": "arco/v1/divider",
+        "properties": {
+          "type": "horizontal",
+          "orientation": "center"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingTab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "PingTabResult",
+        "type": "arco/v1/collapse",
+        "properties": {
+          "defaultActiveKey": "{{[\n  \"0\"\n]}}",
+          "options": [
+            {
+              "key": "0",
+              "header": "执行结果\n",
+              "disabled": false,
+              "showExpandIcon": true
+            }
+          ],
+          "updateWhenDefaultValueChanges": false,
+          "accordion": false,
+          "expandIconPosition": "left",
+          "bordered": false,
+          "destroyOnHide": false,
+          "lazyLoad": true
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingTab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": ".arco-collapse-item-content-box {\nbackground: white;\n}",
+                  "cssProperties": {
+                    "backgroundColor": ""
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "text23",
+        "type": "core/v2/text",
+        "properties": {
+          "text": "Hello, Sunmao!"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingTabResult",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "PingStopBtn",
+        "type": "arco/v1/button",
+        "properties": {
+          "type": "primary",
+          "status": "default",
+          "long": false,
+          "size": "default",
+          "disabled": "{{!PingFormState.data.isExecuting}}",
+          "loading": false,
+          "shape": "square",
+          "text": "停止"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "PingTab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onClick",
+                  "componentId": "PingFormState",
+                  "method": {
+                    "name": "setValue",
+                    "parameters": {
+                      "key": "data",
+                      "value": "{{{...PingFormState.data, isExecuting: false}}}"
+                    }
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "width": ""
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "HelpModal",
+        "type": "arco/v1/modal",
+        "properties": {
+          "title": "Help 信息",
+          "mask": true,
+          "simple": false,
+          "okText": "confirm",
+          "cancelText": "cancel",
+          "closable": true,
+          "maskClosable": true,
+          "confirmLoading": false,
+          "defaultOpen": false,
+          "unmountOnExit": true
+        },
+        "traits": []
+      },
+      {
+        "id": "HelpModalCancelBtn",
+        "type": "arco/v1/button",
+        "properties": {
+          "type": "default",
+          "status": "default",
+          "long": false,
+          "size": "default",
+          "disabled": false,
+          "loading": false,
+          "shape": "square",
+          "text": "关闭"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "HelpModal",
+                "slot": "footer"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onClick",
+                  "componentId": "HelpModal",
+                  "method": {
+                    "name": "closeModal",
+                    "parameters": {}
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "HelpModalContent",
+        "type": "core/v1/stack",
+        "properties": {
+          "spacing": 12,
+          "direction": "horizontal",
+          "align": "auto",
+          "wrap": false,
+          "justify": "flex-start"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "HelpModal",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "backgroundColor": "#333",
+                    "color": "white",
+                    "width": "100%",
+                    "paddingTop": "16px",
+                    "paddingLeft": "16px",
+                    "paddingBottom": "16px",
+                    "paddingRight": "16px"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "HelpInfo",
+        "type": "core/v2/text",
+        "properties": {
+          "text": "{{\n`\nusage: ping [-c count] host\n`\n}}"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "HelpModalContent",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "PingFetch",
+        "type": "core/v1/dummy",
+        "properties": {},
+        "traits": [
+          {
+            "type": "core/v1/fetch",
+            "properties": {
+              "url": "",
+              "method": "get",
+              "lazy": false,
+              "disabled": false,
+              "headers": {},
+              "body": {},
+              "bodyType": "json",
+              "onComplete": [],
+              "onError": []
             }
           }
         ]
