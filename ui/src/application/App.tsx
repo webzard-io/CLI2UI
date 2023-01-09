@@ -12,6 +12,7 @@ import {
 import { RuntimeModule } from "@sunmao-ui/core";
 import { type Application } from "@sunmao-ui/core";
 import { useState, useEffect } from "react";
+import { genSchemaComponents } from "./utils";
 
 function App(props: BaseProps) {
   const {
@@ -28,7 +29,8 @@ function App(props: BaseProps) {
   useEffect(() => {
     (async function () {
       const [app] = await Promise.all([fetchApp(APPLICATION_NAME)]);
-
+      const components = genSchemaComponents();
+      app.spec.components = components;
       setApp(app);
     })();
   }, []);

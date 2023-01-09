@@ -7,26 +7,6 @@
   "spec": {
     "components": [
       {
-        "id": "PingFormState",
-        "type": "core/v1/dummy",
-        "properties": {},
-        "traits": [
-          {
-            "type": "core/v1/state",
-            "properties": {
-              "key": "data",
-              "initialValue": "{{\n{\n  isExecuting: false,\n}\n}}"
-            }
-          },
-          {
-            "type": "core/v1/event",
-            "properties": {
-              "handlers": []
-            }
-          }
-        ]
-      },
-      {
         "id": "Layout",
         "type": "arco/v1/layout",
         "properties": {
@@ -100,7 +80,7 @@
         "id": "HeaderText",
         "type": "core/v2/text",
         "properties": {
-          "text": "Ping CLI"
+          "text": "ping"
         },
         "traits": [
           {
@@ -187,17 +167,12 @@
           "updateWhenDefaultValueChanges": false,
           "tabs": [
             {
-              "title": "Ping",
+              "title": "ping",
               "hidden": false,
               "destroyOnHide": true
             },
             {
-              "title": "Tab 2",
-              "hidden": false,
-              "destroyOnHide": true
-            },
-            {
-              "title": "Tab 3",
+              "title": "ping2",
               "hidden": false,
               "destroyOnHide": true
             }
@@ -217,7 +192,7 @@
         ]
       },
       {
-        "id": "PingTab",
+        "id": "pingTab",
         "type": "core/v1/stack",
         "properties": {
           "spacing": 12,
@@ -254,7 +229,7 @@
         ]
       },
       {
-        "id": "PingForm",
+        "id": "pingForm",
         "type": "core/v1/stack",
         "properties": {
           "spacing": 12,
@@ -268,10 +243,10 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingTab",
+                "id": "pingTab",
                 "slot": "content"
               },
-              "ifCondition": true
+              "ifCondition": false
             }
           },
           {
@@ -279,30 +254,19 @@
             "properties": {
               "validators": [
                 {
-                  "name": "AddressValidation",
-                  "value": "{{AddressInput.value}}",
+                  "name": "pingFormCountValidation",
+                  "value": "{{pingFormCountInput.value}}",
+                  "rules": []
+                },
+                {
+                  "name": "pingFormHostValidation",
+                  "value": "{{pingFormHostInput.value}}",
                   "rules": [
                     {
                       "type": "required",
                       "validate": "",
                       "error": {
-                        "message": "请输入 IP 地址。"
-                      },
-                      "minLength": 0,
-                      "maxLength": 0,
-                      "includeList": [],
-                      "excludeList": [],
-                      "min": 0,
-                      "max": 0,
-                      "regex": "",
-                      "flags": "",
-                      "customOptions": {}
-                    },
-                    {
-                      "type": "ipv4",
-                      "validate": "",
-                      "error": {
-                        "message": "请输入正确格式的 IP 地址。"
+                        "message": "该字段不可为空。"
                       },
                       "minLength": 0,
                       "maxLength": 0,
@@ -322,7 +286,7 @@
         ]
       },
       {
-        "id": "CountField",
+        "id": "pingFormCountField",
         "type": "arco/v1/formControl",
         "properties": {
           "label": {
@@ -351,7 +315,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingForm",
+                "id": "pingForm",
                 "slot": "content"
               },
               "ifCondition": true
@@ -360,11 +324,11 @@
         ]
       },
       {
-        "id": "CountInput",
+        "id": "pingFormCountInput",
         "type": "arco/v1/numberInput",
         "properties": {
           "defaultValue": 1,
-          "disabled": "{{PingFormState.data.isExecuting}}",
+          "disabled": "{{pingFormState.data.isExecuting}}",
           "placeholder": "please input",
           "error": false,
           "size": "default",
@@ -381,7 +345,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "CountField",
+                "id": "pingFormCountField",
                 "slot": "content"
               },
               "ifCondition": true
@@ -396,18 +360,18 @@
         ]
       },
       {
-        "id": "AddressField",
+        "id": "pingFormHostField",
         "type": "arco/v1/formControl",
         "properties": {
           "label": {
             "format": "plain",
-            "raw": "Address"
+            "raw": "Count"
           },
           "layout": "horizontal",
-          "required": true,
+          "required": false,
           "hidden": false,
           "extra": "",
-          "errorMsg": "{{PingForm.validatedResult.AddressValidation.errors[0]?.message||\"\"}}",
+          "errorMsg": "",
           "labelAlign": "left",
           "colon": false,
           "help": "",
@@ -425,37 +389,25 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingForm",
+                "id": "pingForm",
                 "slot": "content"
               },
               "ifCondition": true
-            }
-          },
-          {
-            "type": "core/v1/style",
-            "properties": {
-              "styles": [
-                {
-                  "styleSlot": "content",
-                  "style": "",
-                  "cssProperties": {}
-                }
-              ]
             }
           }
         ]
       },
       {
-        "id": "AddressInput",
+        "id": "pingFormHostInput",
         "type": "arco/v1/input",
         "properties": {
           "allowClear": false,
-          "disabled": "{{PingFormState.data.isExecuting}}",
+          "disabled": "{{pingFormState.data.isExecuting}}",
           "readOnly": false,
           "defaultValue": "",
           "updateWhenDefaultValueChanges": false,
           "placeholder": "please input",
-          "error": "{{PingForm.validatedResult.AddressValidation.isInvalid}}",
+          "error": "{{pingForm.validatedResult.pingFormHostValidation.isInvalid}}",
           "size": "default"
         },
         "traits": [
@@ -463,7 +415,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "AddressField",
+                "id": "pingFormHostField",
                 "slot": "content"
               },
               "ifCondition": true
@@ -475,7 +427,7 @@
               "handlers": [
                 {
                   "type": "onBlur",
-                  "componentId": "PingForm",
+                  "componentId": "pingForm",
                   "method": {
                     "name": "validateAllFields",
                     "parameters": {}
@@ -506,7 +458,7 @@
         ]
       },
       {
-        "id": "PingButton",
+        "id": "pingButton",
         "type": "arco/v1/button",
         "properties": {
           "type": "primary",
@@ -514,7 +466,7 @@
           "long": false,
           "size": "default",
           "disabled": false,
-          "loading": "{{PingFormState.data.isExecuting}}",
+          "loading": "{{pingFormState.data.isExecuting}}",
           "shape": "square",
           "text": "执行"
         },
@@ -523,7 +475,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingForm",
+                "id": "pingForm",
                 "slot": "content"
               },
               "ifCondition": true
@@ -535,7 +487,7 @@
               "handlers": [
                 {
                   "type": "onClick",
-                  "componentId": "PingForm",
+                  "componentId": "pingForm",
                   "method": {
                     "name": "validateAllFields",
                     "parameters": {}
@@ -548,19 +500,19 @@
                 },
                 {
                   "type": "onClick",
-                  "componentId": "PingFormState",
+                  "componentId": "pingFormState",
                   "method": {
                     "name": "setValue",
                     "parameters": {
                       "key": "data",
-                      "value": "{{{...PingFormState.data, isExecuting: true}}}"
+                      "value": "{{{...pingFormState.data, isExecuting: true}}}"
                     }
                   },
                   "wait": {
                     "type": "debounce",
                     "time": 0
                   },
-                  "disabled": "{{PingForm.isInvalid}}"
+                  "disabled": "{{pingForm.isInvalid}}"
                 }
               ]
             }
@@ -568,7 +520,7 @@
         ]
       },
       {
-        "id": "Divider0",
+        "id": "pingTabDivider",
         "type": "arco/v1/divider",
         "properties": {
           "type": "horizontal",
@@ -579,7 +531,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingTab",
+                "id": "pingTab",
                 "slot": "content"
               },
               "ifCondition": true
@@ -588,7 +540,7 @@
         ]
       },
       {
-        "id": "PingTabResult",
+        "id": "pingTabResult",
         "type": "arco/v1/collapse",
         "properties": {
           "defaultActiveKey": "{{[\n  \"0\"\n]}}",
@@ -612,7 +564,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingTab",
+                "id": "pingTab",
                 "slot": "content"
               },
               "ifCondition": true
@@ -635,33 +587,14 @@
         ]
       },
       {
-        "id": "text23",
-        "type": "core/v2/text",
-        "properties": {
-          "text": "Hello, Sunmao!"
-        },
-        "traits": [
-          {
-            "type": "core/v2/slot",
-            "properties": {
-              "container": {
-                "id": "PingTabResult",
-                "slot": "content"
-              },
-              "ifCondition": true
-            }
-          }
-        ]
-      },
-      {
-        "id": "PingStopBtn",
+        "id": "pingStopBtn",
         "type": "arco/v1/button",
         "properties": {
           "type": "primary",
           "status": "default",
           "long": false,
           "size": "default",
-          "disabled": "{{!PingFormState.data.isExecuting}}",
+          "disabled": "{{!pingFormState.data.isExecuting}}",
           "loading": false,
           "shape": "square",
           "text": "停止"
@@ -671,7 +604,7 @@
             "type": "core/v2/slot",
             "properties": {
               "container": {
-                "id": "PingTab",
+                "id": "pingTab",
                 "slot": "content"
               },
               "ifCondition": true
@@ -683,12 +616,12 @@
               "handlers": [
                 {
                   "type": "onClick",
-                  "componentId": "PingFormState",
+                  "componentId": "pingFormState",
                   "method": {
                     "name": "setValue",
                     "parameters": {
                       "key": "data",
-                      "value": "{{{...PingFormState.data, isExecuting: false}}}"
+                      "value": "{{{...pingFormState.data, isExecuting: false}}}"
                     }
                   },
                   "wait": {
@@ -712,6 +645,304 @@
                   }
                 }
               ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2Tab",
+        "type": "core/v1/stack",
+        "properties": {
+          "spacing": 12,
+          "direction": "vertical",
+          "align": "auto",
+          "wrap": false,
+          "justify": "flex-start"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "CmdTabs",
+                "slot": "content"
+              },
+              "ifCondition": "{{CmdTabs.activeTab === 1}}"
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "width": "100%"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2Form",
+        "type": "core/v1/stack",
+        "properties": {
+          "spacing": 12,
+          "direction": "vertical",
+          "align": "auto",
+          "wrap": false,
+          "justify": "flex-start"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2Tab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/validation",
+            "properties": {
+              "validators": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2Button",
+        "type": "arco/v1/button",
+        "properties": {
+          "type": "primary",
+          "status": "default",
+          "long": false,
+          "size": "default",
+          "disabled": false,
+          "loading": "{{ping2FormState.data.isExecuting}}",
+          "shape": "square",
+          "text": "执行"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2Form",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onClick",
+                  "componentId": "ping2Form",
+                  "method": {
+                    "name": "validateAllFields",
+                    "parameters": {}
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                },
+                {
+                  "type": "onClick",
+                  "componentId": "ping2FormState",
+                  "method": {
+                    "name": "setValue",
+                    "parameters": {
+                      "key": "data",
+                      "value": "{{{...ping2FormState.data, isExecuting: true}}}"
+                    }
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": "{{ping2Form.isInvalid}}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2TabDivider",
+        "type": "arco/v1/divider",
+        "properties": {
+          "type": "horizontal",
+          "orientation": "center"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2Tab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2TabResult",
+        "type": "arco/v1/collapse",
+        "properties": {
+          "defaultActiveKey": "{{[\n  \"0\"\n]}}",
+          "options": [
+            {
+              "key": "0",
+              "header": "执行结果\n",
+              "disabled": false,
+              "showExpandIcon": true
+            }
+          ],
+          "updateWhenDefaultValueChanges": false,
+          "accordion": false,
+          "expandIconPosition": "left",
+          "bordered": false,
+          "destroyOnHide": false,
+          "lazyLoad": true
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2Tab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": ".arco-collapse-item-content-box {\nbackground: white;\n}",
+                  "cssProperties": {
+                    "backgroundColor": ""
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2StopBtn",
+        "type": "arco/v1/button",
+        "properties": {
+          "type": "primary",
+          "status": "default",
+          "long": false,
+          "size": "default",
+          "disabled": "{{!ping2FormState.data.isExecuting}}",
+          "loading": false,
+          "shape": "square",
+          "text": "停止"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2Tab",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": [
+                {
+                  "type": "onClick",
+                  "componentId": "ping2FormState",
+                  "method": {
+                    "name": "setValue",
+                    "parameters": {
+                      "key": "data",
+                      "value": "{{{...ping2FormState.data, isExecuting: false}}}"
+                    }
+                  },
+                  "wait": {
+                    "type": "debounce",
+                    "time": 0
+                  },
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "core/v1/style",
+            "properties": {
+              "styles": [
+                {
+                  "styleSlot": "content",
+                  "style": "",
+                  "cssProperties": {
+                    "width": ""
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "pingFormState",
+        "type": "core/v1/dummy",
+        "properties": {},
+        "traits": [
+          {
+            "type": "core/v1/state",
+            "properties": {
+              "key": "data",
+              "initialValue": "{{\n{\n  isExecuting: false,\n}\n}}"
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2FormState",
+        "type": "core/v1/dummy",
+        "properties": {},
+        "traits": [
+          {
+            "type": "core/v1/state",
+            "properties": {
+              "key": "data",
+              "initialValue": "{{\n{\n  isExecuting: false,\n}\n}}"
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": []
             }
           }
         ]
@@ -832,7 +1063,7 @@
         "id": "HelpInfo",
         "type": "core/v2/text",
         "properties": {
-          "text": "{{\n`\nusage: ping [-c count] host\n`\n}}"
+          "text": "{{\"usage: ping [-c count] host\"}}"
         },
         "traits": [
           {
@@ -849,27 +1080,6 @@
             "type": "core/v1/style",
             "properties": {
               "styles": []
-            }
-          }
-        ]
-      },
-      {
-        "id": "PingFetch",
-        "type": "core/v1/dummy",
-        "properties": {},
-        "traits": [
-          {
-            "type": "core/v1/fetch",
-            "properties": {
-              "url": "",
-              "method": "get",
-              "lazy": false,
-              "disabled": false,
-              "headers": {},
-              "body": {},
-              "bodyType": "json",
-              "onComplete": [],
-              "onError": []
             }
           }
         ]

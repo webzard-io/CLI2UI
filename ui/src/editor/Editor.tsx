@@ -14,6 +14,7 @@ import "@sunmao-ui/arco-lib/dist/index.css";
 import "@sunmao-ui/editor/dist/index.css";
 import { type Application, type Module } from "@sunmao-ui/core";
 import { useState, useMemo, useEffect } from "react";
+import { genSchemaComponents } from "../application/utils";
 
 function Editor(props: BaseProps) {
   const {
@@ -57,6 +58,8 @@ function Editor(props: BaseProps) {
         fetchModules(),
       ]);
 
+      const components = genSchemaComponents();
+      app.spec.components = components;
       setApp(app);
       setModules(modules);
     })();
