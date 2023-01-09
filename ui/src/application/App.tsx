@@ -51,7 +51,7 @@ function App(props: BaseProps) {
 
   useApiService({ ws, apiService });
 
-  return <SunmaoApp options={_app} />;
+  return <SunmaoApp options={_app} />
 }
 
 export default App;

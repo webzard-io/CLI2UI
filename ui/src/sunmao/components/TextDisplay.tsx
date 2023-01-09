@@ -1,11 +1,6 @@
 import { useEffect } from "react";
-import { implementRuntimeComponent } from "@sunmao-ui/runtime";
+import { implementRuntimeComponent, StringUnion } from "@sunmao-ui/runtime";
 import { Type } from "@sinclair/typebox";
-
-enum Format {
-  Plain = "plain",
-  Code = "code",
-}
 
 export default implementRuntimeComponent({
   version: "custom/v1",
@@ -15,7 +10,7 @@ export default implementRuntimeComponent({
     description: "Display text in different formats.",
     exampleProperties: {
       text: "Test",
-      format: Format.Plain,
+      format: "plain",
     },
     annotations: {
       category: "Display",
@@ -24,7 +19,7 @@ export default implementRuntimeComponent({
   spec: {
     properties: Type.Object({
       text: Type.String(),
-      format: Type.Enum(Format),
+      format: StringUnion(["plain", "code"]),
     }),
     state: Type.Object({
       text: Type.String(),
@@ -40,7 +35,7 @@ export default implementRuntimeComponent({
   }, [mergeState, text]);
 
   const renderContent = () => {
-    if (format === Format.Code) return <pre>{text}</pre>;
+    if (format === 'code') return <pre>{text}</pre>;
 
     return <p>{text}</p>;
   };

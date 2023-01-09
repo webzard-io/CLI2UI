@@ -9,7 +9,7 @@ const routeConfigs = routes.filter((route) => "name" in route) as RouteConfig[];
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    sunmaoFsVitePlugin.default({
+    sunmaoFsVitePlugin({
       schemas: routeConfigs.map((route) => ({
         name: route.name,
         path: path.resolve(__dirname, `./src/application/${route.name}.json`),

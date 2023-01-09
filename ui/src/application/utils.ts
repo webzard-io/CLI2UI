@@ -7,6 +7,7 @@ const firstUpperCase = (str: string) => {
 enum ArgsType {
   String = "string",
   Number = "number",
+  Array = "array",
 }
 
 type CLIJson = {
@@ -47,7 +48,13 @@ const raw: CLIJson = {
     },
     {
       name: "ping2",
-      args: [],
+      args: [
+        {
+          name: "hosts",
+          required: false,
+          type: ArgsType.Array,
+        },
+      ],
     },
   ],
 };
@@ -425,6 +432,35 @@ export const genSchemaComponents = () => {
             },
           ],
         };
+      case ArgsType.Array:
+        return {
+          id: `${cmdName}Form${firstUpperCase(arg.name)}ArrayInput`,
+          type: "custom/v1/arrayInput",
+          properties: {
+            value: [""],
+            type: "string",
+            placeholder: "please input",
+            disabled: `{{${cmdName}FormState.data.isExecuting}}`,
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: `${cmdName}Form${firstUpperCase(arg.name)}Field`,
+                  slot: "content",
+                },
+                ifCondition: true,
+              },
+            },
+            {
+              type: "core/v1/event",
+              properties: {
+                handlers: [],
+              },
+            },
+          ],
+        };
       default:
         return {
           id: `${cmdName}Form${firstUpperCase(arg.name)}Input`,
@@ -507,7 +543,7 @@ export const genSchemaComponents = () => {
               raw: `${arg.name}`,
             },
             layout: "horizontal",
-            required: false,
+            required: arg.required,
             hidden: false,
             extra: "",
             errorMsg: "",
@@ -630,13 +666,15 @@ export const genSchemaComponents = () => {
               type: "core/v1/validation",
               properties: {
                 validators: item.args.map((sub) => {
+                  const inputName =
+                    sub.type === ArgsType.Array
+                      ? `${item.name}Form${firstUpperCase(sub.name)}ArrayInput}`
+                      : `${item.name}Form${firstUpperCase(sub.name)}Input`;
                   const validation = {
                     name: `${item.name}Form${firstUpperCase(
                       sub.name
                     )}Validation`,
-                    value: `{{${item.name}Form${firstUpperCase(
-                      sub.name
-                    )}Input.value}}`,
+                    value: `${inputName}.value}}`,
                     rules: [] as unknown[],
                   };
                   if (sub.required) {

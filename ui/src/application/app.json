@@ -255,12 +255,12 @@
               "validators": [
                 {
                   "name": "pingFormCountValidation",
-                  "value": "{{pingFormCountInput.value}}",
+                  "value": "pingFormCountInput.value}}",
                   "rules": []
                 },
                 {
                   "name": "pingFormHostValidation",
-                  "value": "{{pingFormHostInput.value}}",
+                  "value": "pingFormHostInput.value}}",
                   "rules": [
                     {
                       "type": "required",
@@ -710,7 +710,81 @@
           {
             "type": "core/v1/validation",
             "properties": {
-              "validators": []
+              "validators": [
+                {
+                  "name": "ping2FormHostsValidation",
+                  "value": "ping2FormHostsArrayInput}.value}}",
+                  "rules": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2FormHostsField",
+        "type": "arco/v1/formControl",
+        "properties": {
+          "label": {
+            "format": "plain",
+            "raw": "hosts"
+          },
+          "layout": "horizontal",
+          "required": false,
+          "hidden": false,
+          "extra": "",
+          "errorMsg": "",
+          "labelAlign": "left",
+          "colon": false,
+          "help": "",
+          "labelCol": {
+            "span": 3,
+            "offset": 0
+          },
+          "wrapperCol": {
+            "span": 21,
+            "offset": 0
+          }
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2Form",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "ping2FormHostsArrayInput",
+        "type": "custom/v1/arrayInput",
+        "properties": {
+          "value": [
+            ""
+          ],
+          "type": "string",
+          "placeholder": "please input",
+          "disabled": "{{ping2FormState.data.isExecuting}}"
+        },
+        "traits": [
+          {
+            "type": "core/v2/slot",
+            "properties": {
+              "container": {
+                "id": "ping2FormHostsField",
+                "slot": "content"
+              },
+              "ifCondition": true
+            }
+          },
+          {
+            "type": "core/v1/event",
+            "properties": {
+              "handlers": []
             }
           }
         ]
@@ -1043,7 +1117,7 @@
               "styles": [
                 {
                   "styleSlot": "content",
-                  "style": "",
+                  "style": "overflow:auto",
                   "cssProperties": {
                     "backgroundColor": "#333",
                     "color": "white",
@@ -1061,9 +1135,10 @@
       },
       {
         "id": "HelpInfo",
-        "type": "core/v2/text",
+        "type": "custom/v1/TextDisplay",
         "properties": {
-          "text": "{{\"usage: ping [-c count] host\"}}"
+          "text": "usage: ping [-AaDdfnoQqRrv] [-c count] [-G sweepmaxsize]\n              [-g sweepminsize] [-h sweepincrsize] [-i wait]\n              [-l preload] [-M mask | time] [-m ttl] [-p pattern]\n              [-S src_addr] [-s packetsize] [-t timeout][-W waittime]\n              [-z tos] host",
+          "format": "{{\"code\"}}"
         },
         "traits": [
           {
@@ -1074,12 +1149,6 @@
                 "slot": "content"
               },
               "ifCondition": true
-            }
-          },
-          {
-            "type": "core/v1/style",
-            "properties": {
-              "styles": []
             }
           }
         ]
