@@ -1,8 +1,8 @@
 import { type SunmaoLib } from "@sunmao-ui/runtime";
-import Test from "./components/test";
+import TextDisplay from "./components/TextDisplay";
 
 const lib: SunmaoLib = {
-  components: [Test],
+  components: [TextDisplay],
   traits: [],
 };
 

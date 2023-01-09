@@ -246,7 +246,7 @@
                 "id": "pingTab",
                 "slot": "content"
               },
-              "ifCondition": false
+              "ifCondition": true
             }
           },
           {
@@ -291,7 +291,7 @@
         "properties": {
           "label": {
             "format": "plain",
-            "raw": "Count"
+            "raw": "count"
           },
           "layout": "horizontal",
           "required": false,
@@ -365,7 +365,7 @@
         "properties": {
           "label": {
             "format": "plain",
-            "raw": "Count"
+            "raw": "host"
           },
           "layout": "horizontal",
           "required": false,

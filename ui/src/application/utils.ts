@@ -24,7 +24,11 @@ type CLIJson = {
 
 const raw: CLIJson = {
   title: "ping",
-  help: "usage: ping [-c count] host",
+  help: `usage: ping [-AaDdfnoQqRrv] [-c count] [-G sweepmaxsize]
+              [-g sweepminsize] [-h sweepincrsize] [-i wait]
+              [-l preload] [-M mask | time] [-m ttl] [-p pattern]
+              [-S src_addr] [-s packetsize] [-t timeout][-W waittime]
+              [-z tos] host`,
   cmd: [
     {
       name: "ping",
@@ -307,7 +311,7 @@ export const genSchemaComponents = () => {
               styles: [
                 {
                   styleSlot: "content",
-                  style: "",
+                  style: "overflow:auto",
                   cssProperties: {
                     backgroundColor: "#333",
                     color: "white",
@@ -325,9 +329,10 @@ export const genSchemaComponents = () => {
       },
       {
         id: "HelpInfo",
-        type: "core/v2/text",
+        type: "custom/v1/TextDisplay",
         properties: {
-          text: `{{"${raw.help}"}}`,
+          text: `${raw.help}`,
+          format: '{{"code"}}',
         },
         traits: [
           {
@@ -338,12 +343,6 @@ export const genSchemaComponents = () => {
                 slot: "content",
               },
               ifCondition: true,
-            },
-          },
-          {
-            type: "core/v1/style",
-            properties: {
-              styles: [],
             },
           },
         ],
@@ -492,7 +491,10 @@ export const genSchemaComponents = () => {
     }
   };
 
-  const genCmdFormFields = (cmdName: string, args: CLIJson["cmd"][0]["args"]) => {
+  const genCmdFormFields = (
+    cmdName: string,
+    args: CLIJson["cmd"][0]["args"]
+  ) => {
     let formFieldComponents = [] as unknown[];
     args.forEach((arg) => {
       const components = [
@@ -629,8 +631,12 @@ export const genSchemaComponents = () => {
               properties: {
                 validators: item.args.map((sub) => {
                   const validation = {
-                    name: `${item.name}Form${firstUpperCase(sub.name)}Validation`,
-                    value: `{{${item.name}Form${firstUpperCase(sub.name)}Input.value}}`,
+                    name: `${item.name}Form${firstUpperCase(
+                      sub.name
+                    )}Validation`,
+                    value: `{{${item.name}Form${firstUpperCase(
+                      sub.name
+                    )}Input.value}}`,
                     rules: [] as unknown[],
                   };
                   if (sub.required) {
