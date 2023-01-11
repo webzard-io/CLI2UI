@@ -133,7 +133,7 @@ export function saveApp(app: Application, base: Application) {
     },
     body: JSON.stringify({
       // delta: diffpatcher.diff(base, app),
-      value: app,
+      value: diffpatcher.diff(base, app),
     }),
   });
 }
@@ -146,7 +146,7 @@ export function saveModules(modules: Module[], base: Module[]) {
     },
     body: JSON.stringify({
       // delta: diffpatcher.diff(base, modules),
-      value: modules,
+      value: diffpatcher.diff(base, modules),
     }),
   });
 }
@@ -175,11 +175,12 @@ export function patchModules(base: Module[], delta?: jdp.Delta): Module[] {
 export async function fetchApp(name: string): Promise<Application> {
   const application = await (await fetch(`${PREFIX}/${name}`)).json();
 
-  if (application.kind === 'Application') {
-    return application;
-  }
+  return application;
+  // if (application.kind === 'Application') {
+  //   return application;
+  // }
 
-  throw new Error('failed to load schema');
+  // throw new Error('failed to load schema');
 }
 
 /**

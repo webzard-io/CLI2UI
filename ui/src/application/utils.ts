@@ -1,4 +1,4 @@
-import { ComponentSchema } from "@sunmao-ui/core";
+import { ComponentSchema, Application } from "@sunmao-ui/core";
 
 const firstUpperCase = (str: string) => {
   return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
@@ -46,20 +46,10 @@ const raw: CLIJson = {
         },
       ],
     },
-    {
-      name: "ping2",
-      args: [
-        {
-          name: "hosts",
-          required: false,
-          type: ArgsType.Array,
-        },
-      ],
-    },
   ],
 };
 
-export const genSchemaComponents = () => {
+const genSchemaComponents = () => {
   const genLayout = () => {
     return [
       {
@@ -909,4 +899,19 @@ export const genSchemaComponents = () => {
     ...genCmdInnerTabs(),
     ...genHelpModal(),
   ] as ComponentSchema[];
+};
+
+export const genApp = () => {
+  const components = genSchemaComponents();
+  const app = {
+    kind: "Application",
+    version: "CLI2UI/v1",
+    metadata: {
+      name: "PingCLI",
+    },
+    spec: {
+      components,
+    },
+  } as Application;
+  return app;
 };

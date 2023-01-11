@@ -4,15 +4,16 @@ import {
   getLibs,
   useApiService,
   BaseProps,
-  // patchApp,
+  patchApp,
   patchModules,
   fetchApp,
+  fetchModules,
   APPLICATION_NAME,
 } from "../shared";
 import { RuntimeModule } from "@sunmao-ui/core";
-import { type Application } from "@sunmao-ui/core";
+import { type Application, type Module } from "@sunmao-ui/core";
 import { useState, useEffect } from "react";
-import { genSchemaComponents } from "./utils";
+import { genApp } from "./utils";
 
 function App(props: BaseProps) {
   const {
@@ -22,16 +23,19 @@ function App(props: BaseProps) {
     ws,
     utilMethods,
     // applicationPatch,
-    modulesPatch,
+    // modulesPatch,
   } = props;
-
   const [_app, setApp] = useState<Application>(application);
+  const [_modules, setModules] = useState<Module[]>(modules);
+
   useEffect(() => {
     (async function () {
-      const [app] = await Promise.all([fetchApp(APPLICATION_NAME)]);
-      const components = genSchemaComponents();
-      app.spec.components = components;
-      setApp(app);
+      const [appPatch, modulesPatch] = await Promise.all([
+        fetchApp(APPLICATION_NAME),
+        fetchModules(),
+      ]);
+      setApp(patchApp(genApp(), appPatch));
+      setModules(patchModules(modules, modulesPatch));
     })();
   }, []);
 
@@ -43,15 +47,15 @@ function App(props: BaseProps) {
     libs: getLibs({ ws, handlers, utilMethods }),
   });
 
-  if (modules) {
-    patchModules(modules, modulesPatch).forEach((moduleSchema) => {
+  if (_modules) {
+    _modules.forEach((moduleSchema) => {
       registry.registerModule(moduleSchema as RuntimeModule);
     });
   }
 
   useApiService({ ws, apiService });
 
-  return <SunmaoApp options={_app} />
+  return <SunmaoApp options={_app} />;
 }
 
 export default App;

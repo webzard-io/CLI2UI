@@ -9,6 +9,7 @@
     "vite.config.ts",
     "./src/routes.ts",
     "./src/shared.ts",
+    "./src/sunmao/lib.ts",
     "./src/sunmao/*.ts|tsx"
   ]
 }

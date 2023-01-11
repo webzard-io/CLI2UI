@@ -4,8 +4,8 @@ import {
   BaseProps,
   saveApp,
   saveModules,
-  // patchApp,
-  // patchModules,
+  patchApp,
+  patchModules,
   fetchApp,
   fetchModules,
   APPLICATION_NAME,
@@ -13,8 +13,8 @@ import {
 import "@sunmao-ui/arco-lib/dist/index.css";
 import "@sunmao-ui/editor/dist/index.css";
 import { type Application, type Module } from "@sunmao-ui/core";
-import { useState, useMemo, useEffect } from "react";
-import { genSchemaComponents } from "../application/utils";
+import { useState, useEffect } from "react";
+import { genApp } from "../application/utils";
 
 function Editor(props: BaseProps) {
   const {
@@ -32,15 +32,13 @@ function Editor(props: BaseProps) {
 
   useEffect(() => {
     (async function () {
-      const [app, modules] = await Promise.all([
+      const [appPatch, modulesPatch] = await Promise.all([
         fetchApp(APPLICATION_NAME),
         fetchModules(),
       ]);
 
-      const components = genSchemaComponents();
-      app.spec.components = components;
-      setApp(app);
-      setModules(modules);
+      setApp(patchApp(genApp(), appPatch));
+      setModules(patchModules(modules, modulesPatch));
       setInitialized(true);
     })();
   }, []);
@@ -48,8 +46,6 @@ function Editor(props: BaseProps) {
   if (!initialized) return null;
 
   const { Editor } = initSunmaoUIEditor({
-    // defaultApplication: patchApp(application, applicationPatch),
-    // defaultModules: patchModules(modules, modulesPatch)
     defaultApplication: _app,
     defaultModules: _modules,
     runtimeProps: {
