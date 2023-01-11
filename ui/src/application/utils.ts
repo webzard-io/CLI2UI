@@ -1,16 +1,24 @@
 import { ComponentSchema, Application } from "@sunmao-ui/core";
+import camelCase from "camelcase";
 
-const firstUpperCase = (str: string) => {
-  return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
+const getArgValidationId = (cmdName: string, argName: string) => {
+  return `${cmdName}Form${camelCase(argName, { pascalCase: true })}Validation`;
+};
+const getArgFieldId = (cmdName: string, argName: string) => {
+  return `${cmdName}Form${camelCase(argName, { pascalCase: true })}Field`;
+};
+const getArgInputId = (cmdName: string, argName: string) => {
+  return `${cmdName}Form${camelCase(argName, { pascalCase: true })}Input`;
 };
 
-enum ArgsType {
+export enum ArgsType {
   String = "string",
   Number = "number",
   Array = "array",
+  Boolean = "boolean",
 }
 
-type CLIJson = {
+export type CLIJson = {
   title: string;
   help: string;
   cmd: {
@@ -18,18 +26,18 @@ type CLIJson = {
     args: {
       name: string;
       type: ArgsType;
-      required: boolean;
+      required?: boolean;
     }[];
   }[];
 };
 
-const raw: CLIJson = {
+const pingRaw: CLIJson = {
   title: "ping",
   help: `usage: ping [-AaDdfnoQqRrv] [-c count] [-G sweepmaxsize]
-              [-g sweepminsize] [-h sweepincrsize] [-i wait]
-              [-l preload] [-M mask | time] [-m ttl] [-p pattern]
-              [-S src_addr] [-s packetsize] [-t timeout][-W waittime]
-              [-z tos] host`,
+                [-g sweepminsize] [-h sweepincrsize] [-i wait]
+                [-l preload] [-M mask | time] [-m ttl] [-p pattern]
+                [-S src_addr] [-s packetsize] [-t timeout][-W waittime]
+                [-z tos] host`,
   cmd: [
     {
       name: "ping",
@@ -49,7 +57,167 @@ const raw: CLIJson = {
   ],
 };
 
-const genSchemaComponents = () => {
+const kailRaw: CLIJson = {
+  title: "kail",
+  help: `usage: kail [<flags>] <command> [<args> ...]
+  
+    Tail for kubernetes pods
+    
+    Flags:
+      -h, --help                  Show context-sensitive help (also try --help-long
+                                  and --help-man).
+          --ignore=SELECTOR ...   ignore selector
+      -l, --label=SELECTOR ...    label
+      -p, --pod=NAME ...          pod
+      -n, --ns=NAME ...           namespace
+          --ignore-ns=NAME ...    ignore namespace
+          --svc=NAME ...          service
+          --rc=NAME ...           replication controller
+          --rs=NAME ...           replica set
+          --ds=NAME ...           daemonset
+      -d, --deploy=NAME ...       deployment
+          --sts=NAME ...          statefulset
+      -j, --job=NAME ...          job
+          --node=NAME ...         node
+          --ing=NAME ...          ingress
+          --context=CONTEXT-NAME  kubernetes context
+          --current-ns            use namespace from current context
+      -c, --containers=NAME ...   containers
+          --dry-run               print matching pods and exit
+          --log-file=LOG-FILE     log file output
+          --log-level=error       log level
+          --since=DURATION        Display logs generated since given duration,
+                                  like 5s, 2m, 1.5h or 2h45m. Defaults to 1s.
+      -o, --output=default        Log output mode (default, raw, json, or
+                                  json-pretty, zerolog)
+          --zerolog-timestamp-field="time"
+                                  sets the zerolog timestamp field name, works with
+                                  --output=zerolog
+          --zerolog-level-field="level"
+                                  sets the zerolog level field name, works with
+                                  --output=zerolog
+          --zerolog-message-field="message"
+                                  sets the zerolog message field name, works with
+                                  --output=zerolog
+          --zerolog-error-field="error"
+                                  sets the zerolog error field name, works with
+                                  --output=zerolog
+    
+    Commands:
+      help [<command>...]
+        Show help.
+    
+      run*
+        Display logs
+    
+      version
+        Display current version`,
+  cmd: [
+    {
+      name: "kail",
+      args: [
+        {
+          name: "label",
+          type: ArgsType.Array,
+        },
+        {
+          name: "pod",
+          type: ArgsType.Array,
+        },
+        {
+          name: "ns",
+          type: ArgsType.Array,
+        },
+        {
+          name: "ignore-ns",
+          type: ArgsType.Array,
+        },
+        {
+          name: "svc",
+          type: ArgsType.Array,
+        },
+        {
+          name: "rc",
+          type: ArgsType.Array,
+        },
+        {
+          name: "rs",
+          type: ArgsType.Array,
+        },
+        {
+          name: "ds",
+          type: ArgsType.Array,
+        },
+        {
+          name: "deploy",
+          type: ArgsType.Array,
+        },
+        {
+          name: "sts",
+          type: ArgsType.Array,
+        },
+        {
+          name: "job",
+          type: ArgsType.Array,
+        },
+        {
+          name: "ing",
+          type: ArgsType.Array,
+        },
+        {
+          name: "context",
+          type: ArgsType.String,
+        },
+        {
+          name: "current-ns",
+          type: ArgsType.Boolean,
+        },
+        {
+          name: "containers",
+          type: ArgsType.Array,
+        },
+        {
+          name: "dry-run",
+          type: ArgsType.Boolean,
+        },
+        {
+          name: "log-file",
+          type: ArgsType.String,
+        },
+        {
+          name: "log-level",
+          type: ArgsType.String,
+        },
+        {
+          name: "since",
+          type: ArgsType.String,
+        },
+        {
+          name: "output",
+          type: ArgsType.String,
+        },
+        {
+          name: "zerolog-timestamp-field",
+          type: ArgsType.String,
+        },
+        {
+          name: "zerolog-level-field",
+          type: ArgsType.String,
+        },
+        {
+          name: "zerolog-message-field",
+          type: ArgsType.String,
+        },
+        {
+          name: "zerolog-error-field",
+          type: ArgsType.String,
+        },
+      ],
+    },
+  ],
+};
+
+const genSchemaComponents = (raw: CLIJson) => {
   const genLayout = () => {
     return [
       {
@@ -342,6 +510,18 @@ const genSchemaComponents = () => {
               ifCondition: true,
             },
           },
+          {
+            type: "core/v1/style",
+            properties: {
+              styles: [
+                {
+                  styleSlot: "content",
+                  style: "height:300px;",
+                  cssProperties: {},
+                },
+              ],
+            },
+          },
         ],
       },
     ];
@@ -384,10 +564,14 @@ const genSchemaComponents = () => {
     cmdName: string,
     arg: CLIJson["cmd"][0]["args"][0]
   ) => {
+    const fieldId = getArgFieldId(cmdName, arg.name);
+    const inputId = getArgInputId(cmdName, arg.name);
+    const validationId = getArgValidationId(cmdName, arg.name);
+
     switch (arg.type) {
       case ArgsType.Number:
         return {
-          id: `${cmdName}Form${firstUpperCase(arg.name)}Input`,
+          id: inputId,
           type: "arco/v1/numberInput",
           properties: {
             defaultValue: 1,
@@ -408,7 +592,7 @@ const genSchemaComponents = () => {
               type: "core/v2/slot",
               properties: {
                 container: {
-                  id: `${cmdName}Form${firstUpperCase(arg.name)}Field`,
+                  id: fieldId,
                   slot: "content",
                 },
                 ifCondition: true,
@@ -424,7 +608,7 @@ const genSchemaComponents = () => {
         };
       case ArgsType.Array:
         return {
-          id: `${cmdName}Form${firstUpperCase(arg.name)}ArrayInput`,
+          id: inputId,
           type: "custom/v1/arrayInput",
           properties: {
             value: [""],
@@ -437,7 +621,7 @@ const genSchemaComponents = () => {
               type: "core/v2/slot",
               properties: {
                 container: {
-                  id: `${cmdName}Form${firstUpperCase(arg.name)}Field`,
+                  id: fieldId,
                   slot: "content",
                 },
                 ifCondition: true,
@@ -451,9 +635,34 @@ const genSchemaComponents = () => {
             },
           ],
         };
+      case ArgsType.Boolean:
+        return {
+          id: inputId,
+          type: "arco/v1/switch",
+          properties: {
+            defaultChecked: false,
+            disabled: `{{${cmdName}FormState.data.isExecuting}}`,
+            loading: false,
+            type: "circle",
+            size: "default",
+            updateWhenDefaultValueChanges: false,
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: fieldId,
+                  slot: "content",
+                },
+                ifCondition: true,
+              },
+            },
+          ],
+        };
       default:
         return {
-          id: `${cmdName}Form${firstUpperCase(arg.name)}Input`,
+          id: inputId,
           type: "arco/v1/input",
           properties: {
             allowClear: false,
@@ -462,9 +671,7 @@ const genSchemaComponents = () => {
             defaultValue: "",
             updateWhenDefaultValueChanges: false,
             placeholder: "please input",
-            error: `{{${cmdName}Form.validatedResult.${cmdName}Form${firstUpperCase(
-              arg.name
-            )}Validation.isInvalid}}`,
+            error: `{{${cmdName}Form.validatedResult.${validationId}.isInvalid}}`,
             size: "default",
           },
           traits: [
@@ -472,7 +679,7 @@ const genSchemaComponents = () => {
               type: "core/v2/slot",
               properties: {
                 container: {
-                  id: `${cmdName}Form${firstUpperCase(arg.name)}Field`,
+                  id: fieldId,
                   slot: "content",
                 },
                 ifCondition: true,
@@ -523,9 +730,10 @@ const genSchemaComponents = () => {
   ) => {
     let formFieldComponents = [] as unknown[];
     args.forEach((arg) => {
+      const argFieldId = getArgFieldId(cmdName, arg.name);
       const components = [
         {
-          id: `${cmdName}Form${firstUpperCase(arg.name)}Field`,
+          id: argFieldId,
           type: "arco/v1/formControl",
           properties: {
             label: {
@@ -533,7 +741,7 @@ const genSchemaComponents = () => {
               raw: `${arg.name}`,
             },
             layout: "horizontal",
-            required: arg.required,
+            required: arg.required || false,
             hidden: false,
             extra: "",
             errorMsg: "",
@@ -541,11 +749,11 @@ const genSchemaComponents = () => {
             colon: false,
             help: "",
             labelCol: {
-              span: 3,
+              span: 6,
               offset: 0,
             },
             wrapperCol: {
-              span: 21,
+              span: 18,
               offset: 0,
             },
           },
@@ -656,15 +864,11 @@ const genSchemaComponents = () => {
               type: "core/v1/validation",
               properties: {
                 validators: item.args.map((sub) => {
-                  const inputName =
-                    sub.type === ArgsType.Array
-                      ? `${item.name}Form${firstUpperCase(sub.name)}ArrayInput}`
-                      : `${item.name}Form${firstUpperCase(sub.name)}Input`;
+                  const inputId = getArgInputId(item.name, sub.name);
+                  const validationId = getArgValidationId(item.name, sub.name);
                   const validation = {
-                    name: `${item.name}Form${firstUpperCase(
-                      sub.name
-                    )}Validation`,
-                    value: `${inputName}.value}}`,
+                    name: validationId,
+                    value: `{{${inputId}.value}}`,
                     rules: [] as unknown[],
                   };
                   if (sub.required) {
@@ -902,7 +1106,7 @@ const genSchemaComponents = () => {
 };
 
 export const genApp = () => {
-  const components = genSchemaComponents();
+  const components = genSchemaComponents(kailRaw);
   const app = {
     kind: "Application",
     version: "CLI2UI/v1",
