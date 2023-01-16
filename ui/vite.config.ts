@@ -24,4 +24,12 @@ export default defineConfig({
     // https://github.com/vitejs/vite/issues/1973
     "process.env": {},
   },
+  build: {
+    rollupOptions: {
+      input: {
+        index: path.resolve(__dirname, "./src/index.html"),
+        editor: path.resolve(__dirname, "./src/editor.html"),
+      },
+    },
+  }
 });
