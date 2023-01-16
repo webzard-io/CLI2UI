@@ -7,7 +7,8 @@ import {
   UtilMethodFactory,
 } from "@sunmao-ui/runtime";
 import { useEffect } from "react";
-import * as jdp from "jsondiffpatch";
+import { create as createJdp } from "jsondiffpatch";
+import type { Delta } from "jsondiffpatch";
 import CustomLib from "./sunmao/lib";
 
 export function getLibs({
@@ -107,9 +108,9 @@ export type MainOptions = {
 
 // const PREFIX = "/sunmao-binding-patch";
 const PREFIX = "/sunmao-fs";
-export const APPLICATION_NAME = 'app';
+export const APPLICATION_NAME = "app";
 
-const diffpatcher = jdp.create({
+const diffpatcher = createJdp({
   objectHash: function (obj: any, index: number) {
     if (typeof obj._id !== "undefined") {
       return obj._id;
@@ -151,17 +152,17 @@ export function saveModules(modules: Module[], base: Module[]) {
   });
 }
 
-function isEmptyDelta(delta?: jdp.Delta) {
+function isEmptyDelta(delta?: Delta) {
   return !delta || Object.keys(delta).length === 0;
 }
 
-export function patchApp(base: Application, delta?: jdp.Delta): Application {
+export function patchApp(base: Application, delta?: Delta): Application {
   return isEmptyDelta(delta)
     ? base
     : diffpatcher.patch(diffpatcher.clone(base), delta!);
 }
 
-export function patchModules(base: Module[], delta?: jdp.Delta): Module[] {
+export function patchModules(base: Module[], delta?: Delta): Module[] {
   return isEmptyDelta(delta)
     ? base
     : diffpatcher.patch(diffpatcher.clone(base), delta!);
@@ -169,8 +170,8 @@ export function patchModules(base: Module[], delta?: jdp.Delta): Module[] {
 
 /**
  * get existed sunmao application schema
- * @param name 
- * @returns 
+ * @param name
+ * @returns
  */
 export async function fetchApp(name: string): Promise<Application> {
   const application = await (await fetch(`${PREFIX}/${name}`)).json();
@@ -185,8 +186,8 @@ export async function fetchApp(name: string): Promise<Application> {
 
 /**
  * get existed sunmao module schema
- * @param name 
- * @returns 
+ * @param name
+ * @returns
  */
 export async function fetchModules(): Promise<Module[]> {
   const response = await (await fetch(`${PREFIX}/modules`)).json();
@@ -195,5 +196,5 @@ export async function fetchModules(): Promise<Module[]> {
     return response;
   }
 
-  throw new Error('failed to load schema');
+  throw new Error("failed to load schema");
 }

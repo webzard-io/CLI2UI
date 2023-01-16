@@ -30,6 +30,11 @@ function App(props: BaseProps) {
 
   useEffect(() => {
     (async function () {
+      if (application) {
+        return;
+      }
+
+      // only fetch application schema when not provide from HTML
       const [appPatch, modulesPatch] = await Promise.all([
         fetchApp(APPLICATION_NAME),
         fetchModules(),
@@ -37,7 +42,7 @@ function App(props: BaseProps) {
       setApp(patchApp(genApp(), appPatch));
       setModules(patchModules(modules, modulesPatch));
     })();
-  }, []);
+  }, [application]);
 
   const {
     App: SunmaoApp,

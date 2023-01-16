@@ -32,6 +32,11 @@ function Editor(props: BaseProps) {
 
   useEffect(() => {
     (async function () {
+      if (application) {
+        return;
+      }
+
+      // only fetch application schema when not provide from HTML
       const [appPatch, modulesPatch] = await Promise.all([
         fetchApp(APPLICATION_NAME),
         fetchModules(),
@@ -41,7 +46,7 @@ function Editor(props: BaseProps) {
       setModules(patchModules(modules, modulesPatch));
       setInitialized(true);
     })();
-  }, []);
+  }, [application]);
 
   if (!initialized) return null;
 
