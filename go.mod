@@ -5,6 +5,7 @@ go 1.19
 require github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20221106152110-1b8830abe978
 
 require (
+	github.com/go-cmd/cmd v1.4.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/labstack/echo/v4 v4.8.0 // indirect
