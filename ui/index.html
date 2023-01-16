@@ -3,13 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sunmao Binding Editor</title>
-    <style>
-      #root,
-      .App {
-        height: 100vh;
-      }
-    </style>
+    <title>CLI2UI</title>
     <script>
       let options = {
         application: {
@@ -23,7 +17,7 @@
           },
         },
         wsUrl: `ws://${location.host}/ws`,
-        reloadWhenWsDisconnected: false,
+        reloadWhenWsDisconnected: true,
         handlers: [],
       };
       /*<!--*/
@@ -34,7 +28,7 @@
   <body>
     <div id="root"></div>
     <script type="module">
-      import { renderApp } from "./editor/index.tsx";
+      import { renderApp } from "./src/application";
       renderApp(options);
     </script>
   </body>

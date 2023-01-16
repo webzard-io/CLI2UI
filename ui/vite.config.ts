@@ -23,13 +23,14 @@ export default defineConfig({
     global: "globalThis",
     // https://github.com/vitejs/vite/issues/1973
     "process.env": {},
+    "process.platform": '"web"',
   },
   build: {
     rollupOptions: {
       input: {
-        index: path.resolve(__dirname, "./src/index.html"),
-        editor: path.resolve(__dirname, "./src/editor.html"),
+        index: path.resolve(__dirname, "./index.html"),
+        editor: path.resolve(__dirname, "./editor.html"),
       },
     },
-  }
+  },
 });
