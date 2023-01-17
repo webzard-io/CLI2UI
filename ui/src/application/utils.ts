@@ -16,6 +16,7 @@ export enum ArgsType {
   Number = "number",
   Array = "array",
   Boolean = "boolean",
+  Enum = "enum",
 }
 
 export type CLIJson = {
@@ -27,6 +28,7 @@ export type CLIJson = {
       name: string;
       type: ArgsType;
       required?: boolean;
+      options?: string[];
     }[];
   }[];
 };
@@ -194,7 +196,8 @@ const kailRaw: CLIJson = {
         },
         {
           name: "output",
-          type: ArgsType.String,
+          type: ArgsType.Enum,
+          options: ["default", "raw", "json", "json-pretty", "zerolog"],
         },
         {
           name: "zerolog-timestamp-field",
@@ -567,6 +570,7 @@ const genSchemaComponents = (raw: CLIJson) => {
     const fieldId = getArgFieldId(cmdName, arg.name);
     const inputId = getArgInputId(cmdName, arg.name);
     const validationId = getArgValidationId(cmdName, arg.name);
+    const options = arg.options;
 
     switch (arg.type) {
       case ArgsType.Number:
@@ -653,6 +657,47 @@ const genSchemaComponents = (raw: CLIJson) => {
               properties: {
                 container: {
                   id: fieldId,
+                  slot: "content",
+                },
+                ifCondition: true,
+              },
+            },
+          ],
+        };
+      case ArgsType.Enum:
+        return {
+          id: inputId,
+          type: "arco/v1/select",
+          properties: {
+            allowClear: false,
+            multiple: false,
+            allowCreate: false,
+            bordered: true,
+            defaultValue: undefined,
+            disabled: false,
+            labelInValue: false,
+            loading: false,
+            showSearch: false,
+            unmountOnExit: true,
+            showTitle: false,
+            options: options?.map((op) => ({ label: op, value: op })) || [],
+            placeholder: "Select a option",
+            size: "default",
+            error: false,
+            updateWhenDefaultValueChanges: false,
+            autoFixPosition: false,
+            autoAlignPopupMinWidth: false,
+            autoAlignPopupWidth: true,
+            autoFitPosition: false,
+            position: "bottom",
+            mountToBody: true,
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: "kailFormOutputField",
                   slot: "content",
                 },
                 ifCondition: true,
