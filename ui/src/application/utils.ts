@@ -29,6 +29,10 @@ const getFlagInputId = (cmdName: string, flagName: string) => {
   )}_ASD_Input`;
 };
 
+const getFlagSelectorId = (cmdName: string) => {
+  return `${cmdName}FormFlagSelector`;
+};
+
 export enum FlagType {
   String = "string",
   Number = "number",
@@ -792,8 +796,12 @@ const genSchemaComponents = (raw: CLIJson) => {
     flags: CLIJson["cmd"][0]["flags"]
   ) => {
     let formFieldComponents = [] as unknown[];
+    const flagSelectorId = getFlagSelectorId(cmdName);
+
+    console.log('getFlagSelectorId:',getFlagSelectorId(cmdName))
     flags.forEach((flag) => {
       const argFieldId = getFlagFieldId(cmdName, flag.name);
+      console.log('ifCondition:', `{{ ${flagSelectorId}.value.some(item => item === "${flag.name}") }}`)
       const components = [
         {
           id: argFieldId,
@@ -828,7 +836,7 @@ const genSchemaComponents = (raw: CLIJson) => {
                   id: `${cmdName}Form`,
                   slot: "content",
                 },
-                ifCondition: true,
+                ifCondition: `{{ ${flagSelectorId}.value.some(item => item === "${flag.name}") }}`
               },
             },
           ],
@@ -919,6 +927,56 @@ const genSchemaComponents = (raw: CLIJson) => {
                     },
                   },
                 ],
+              },
+            },
+          ],
+        },
+        {
+          id: `${item.name}FormActionHeader`,
+          type: "core/v1/stack",
+          properties: {
+            spacing: 12,
+            direction: "horizontal",
+            align: "auto",
+            wrap: false,
+            justify: "flex-end",
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: `${item.name}Tab`,
+                  slot: "content",
+                },
+                ifCondition: true,
+              },
+            },
+          ],
+        },
+        {
+          id: getFlagSelectorId(item.name),
+          type: "custom/v1/checkboxMenu",
+          properties: {
+            value: item.flags
+              .filter((flag) => flag.required)
+              .map((flag) => flag.name),
+            text: "过滤 flag",
+            options: item.flags.map((flag) => ({
+              label: flag.name,
+              value: flag.name,
+              disabled: flag.required,
+            })),
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: `${item.name}FormActionHeader`,
+                  slot: "content",
+                },
+                ifCondition: true,
               },
             },
           ],
