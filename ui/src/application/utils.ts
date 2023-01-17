@@ -1,17 +1,35 @@
 import { ComponentSchema, Application } from "@sunmao-ui/core";
 import camelCase from "camelcase";
+import kebabCase from "kebab-case";
 
-const getArgValidationId = (cmdName: string, argName: string) => {
-  return `${cmdName}Form${camelCase(argName, { pascalCase: true })}Validation`;
-};
-const getArgFieldId = (cmdName: string, argName: string) => {
-  return `${cmdName}Form${camelCase(argName, { pascalCase: true })}Field`;
-};
-const getArgInputId = (cmdName: string, argName: string) => {
-  return `${cmdName}Form${camelCase(argName, { pascalCase: true })}Input`;
+const kebabToPascalCase = (str: string) => {
+  return camelCase(str, { pascalCase: true });
 };
 
-export enum ArgsType {
+const pascalCaseToKebabCase = (str: string) => {
+  return kebabCase(str);
+};
+
+const componentIdReg =
+  /^CLI2UI_QWE_([a-zA-Z0-9]+)_ASD_.*_QWE_([a-zA-Z0-9]+)_ASD_/;
+
+const getFlagValidationId = (cmdName: string, flagName: string) => {
+  return `CLI2UI_QEW_${cmdName}_ASD_Form_QEW_${kebabToPascalCase(
+    flagName
+  )}_ASD_Validation`;
+};
+const getFlagFieldId = (cmdName: string, flagName: string) => {
+  return `CLI2UI_QEW_${cmdName}_ASD_Form_QEW_${kebabToPascalCase(
+    flagName
+  )}_ASD_Field`;
+};
+const getFlagInputId = (cmdName: string, flagName: string) => {
+  return `CLI2UI_QEW_${cmdName}_ASD_Form_QEW_${kebabToPascalCase(
+    flagName
+  )}_ASD_Input`;
+};
+
+export enum FlagType {
   String = "string",
   Number = "number",
   Array = "array",
@@ -24,9 +42,9 @@ export type CLIJson = {
   help: string;
   cmd: {
     name: string;
-    args: {
+    flags: {
       name: string;
-      type: ArgsType;
+      type: FlagType;
       required?: boolean;
       options?: string[];
     }[];
@@ -43,16 +61,16 @@ const pingRaw: CLIJson = {
   cmd: [
     {
       name: "ping",
-      args: [
+      flags: [
         {
           name: "count",
           required: false,
-          type: ArgsType.Number,
+          type: FlagType.Number,
         },
         {
           name: "host",
           required: true,
-          type: ArgsType.String,
+          type: FlagType.String,
         },
       ],
     },
@@ -117,103 +135,103 @@ const kailRaw: CLIJson = {
   cmd: [
     {
       name: "kail",
-      args: [
+      flags: [
         {
           name: "label",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "pod",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "ns",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "ignore-ns",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "svc",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "rc",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "rs",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "ds",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "deploy",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "sts",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "job",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "ing",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "context",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "current-ns",
-          type: ArgsType.Boolean,
+          type: FlagType.Boolean,
         },
         {
           name: "containers",
-          type: ArgsType.Array,
+          type: FlagType.Array,
         },
         {
           name: "dry-run",
-          type: ArgsType.Boolean,
+          type: FlagType.Boolean,
         },
         {
           name: "log-file",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "log-level",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "since",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "output",
-          type: ArgsType.Enum,
+          type: FlagType.Enum,
           options: ["default", "raw", "json", "json-pretty", "zerolog"],
         },
         {
           name: "zerolog-timestamp-field",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "zerolog-level-field",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "zerolog-message-field",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
         {
           name: "zerolog-error-field",
-          type: ArgsType.String,
+          type: FlagType.String,
         },
       ],
     },
@@ -565,15 +583,15 @@ const genSchemaComponents = (raw: CLIJson) => {
 
   const genCmdFormFiledInput = (
     cmdName: string,
-    arg: CLIJson["cmd"][0]["args"][0]
+    flag: CLIJson["cmd"][0]["flags"][0]
   ) => {
-    const fieldId = getArgFieldId(cmdName, arg.name);
-    const inputId = getArgInputId(cmdName, arg.name);
-    const validationId = getArgValidationId(cmdName, arg.name);
-    const options = arg.options;
+    const fieldId = getFlagFieldId(cmdName, flag.name);
+    const inputId = getFlagInputId(cmdName, flag.name);
+    const validationId = getFlagValidationId(cmdName, flag.name);
+    const options = flag.options;
 
-    switch (arg.type) {
-      case ArgsType.Number:
+    switch (flag.type) {
+      case FlagType.Number:
         return {
           id: inputId,
           type: "arco/v1/numberInput",
@@ -610,7 +628,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             },
           ],
         };
-      case ArgsType.Array:
+      case FlagType.Array:
         return {
           id: inputId,
           type: "custom/v1/arrayInput",
@@ -639,7 +657,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             },
           ],
         };
-      case ArgsType.Boolean:
+      case FlagType.Boolean:
         return {
           id: inputId,
           type: "arco/v1/switch",
@@ -664,7 +682,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             },
           ],
         };
-      case ArgsType.Enum:
+      case FlagType.Enum:
         return {
           id: inputId,
           type: "arco/v1/select",
@@ -771,11 +789,11 @@ const genSchemaComponents = (raw: CLIJson) => {
 
   const genCmdFormFields = (
     cmdName: string,
-    args: CLIJson["cmd"][0]["args"]
+    flags: CLIJson["cmd"][0]["flags"]
   ) => {
     let formFieldComponents = [] as unknown[];
-    args.forEach((arg) => {
-      const argFieldId = getArgFieldId(cmdName, arg.name);
+    flags.forEach((flag) => {
+      const argFieldId = getFlagFieldId(cmdName, flag.name);
       const components = [
         {
           id: argFieldId,
@@ -783,10 +801,10 @@ const genSchemaComponents = (raw: CLIJson) => {
           properties: {
             label: {
               format: "plain",
-              raw: `${arg.name}`,
+              raw: `${flag.name}`,
             },
             layout: "horizontal",
-            required: arg.required || false,
+            required: flag.required || false,
             hidden: false,
             extra: "",
             errorMsg: "",
@@ -815,7 +833,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             },
           ],
         },
-        genCmdFormFiledInput(cmdName, arg),
+        genCmdFormFiledInput(cmdName, flag),
       ];
       formFieldComponents = formFieldComponents.concat(components);
     });
@@ -908,9 +926,9 @@ const genSchemaComponents = (raw: CLIJson) => {
             {
               type: "core/v1/validation",
               properties: {
-                validators: item.args.map((sub) => {
-                  const inputId = getArgInputId(item.name, sub.name);
-                  const validationId = getArgValidationId(item.name, sub.name);
+                validators: item.flags.map((sub) => {
+                  const inputId = getFlagInputId(item.name, sub.name);
+                  const validationId = getFlagValidationId(item.name, sub.name);
                   const validation = {
                     name: validationId,
                     value: `{{${inputId}.value}}`,
@@ -940,7 +958,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             },
           ],
         },
-        ...genCmdFormFields(item.name, item.args),
+        ...genCmdFormFields(item.name, item.flags),
         {
           id: `${item.name}Button`,
           type: "arco/v1/button",
