@@ -692,7 +692,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             allowCreate: false,
             bordered: true,
             defaultValue: undefined,
-            disabled: false,
+            disabled: `{{${cmdName}FormState.data.isExecuting}}`,
             labelInValue: false,
             loading: false,
             showSearch: false,
@@ -715,7 +715,7 @@ const genSchemaComponents = (raw: CLIJson) => {
               type: "core/v2/slot",
               properties: {
                 container: {
-                  id: "kailFormOutputField",
+                  id: fieldId,
                   slot: "content",
                 },
                 ifCondition: true,
@@ -861,6 +861,27 @@ const genSchemaComponents = (raw: CLIJson) => {
               type: "core/v1/event",
               properties: {
                 handlers: [],
+              },
+            },
+          ],
+        },
+        {
+          id: `${item.name}FormTransformer`,
+          type: "core/v1/dummy",
+          properties: {},
+          traits: [
+            {
+              type: "core/v1/transformer",
+              properties: {
+                value: `{{ { ${item.flags
+                  .map(
+                    (flag) =>
+                      `"${flag.name}": ${getFlagInputId(
+                        item.name,
+                        flag.name
+                      )}.value`
+                  )
+                  .join(",")} } }}`,
               },
             },
           ],
