@@ -1072,6 +1072,26 @@ const genSchemaComponents = (raw: CLIJson) => {
           ],
         },
         {
+          id: `${item.name}TabResultContent`,
+          type: "custom/v1/TextDisplay",
+          properties: {
+            text: "No Result",
+            format: "plain",
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: `${item.name}TabResult`,
+                  slot: "content",
+                },
+                ifCondition: true,
+              },
+            },
+          ],
+        },
+        {
           id: `${item.name}StopBtn`,
           type: "arco/v1/button",
           properties: {
