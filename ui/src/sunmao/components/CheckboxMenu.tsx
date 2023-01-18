@@ -68,7 +68,11 @@ const CheckboxMenu = implementRuntimeComponent({
   }, [mergeState, value]);
 
   const dropList = (
-    <BaseMenu>
+    <BaseMenu
+      onClickMenuItem={() => {
+        return false;
+      }}
+    >
       {options.map((opt) => {
         return (
           <BaseMenu.Item key={opt.value}>
@@ -96,11 +100,7 @@ const CheckboxMenu = implementRuntimeComponent({
       ref={elementRef}
       className={cx(CheckboxMenuStyle, "custom-v1-check-box")}
     >
-      <BaseDropdown
-        droplist={dropList}
-        position="bl"
-        triggerProps={{ autoAlignPopupWidth: true }}
-      >
+      <BaseDropdown droplist={dropList} position="br">
         <BaseButton type="text">
           {text} <IconDown />
         </BaseButton>
