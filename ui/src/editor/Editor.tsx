@@ -33,6 +33,7 @@ function Editor(props: BaseProps) {
   useEffect(() => {
     (async function () {
       if (application) {
+        setInitialized(true);
         return;
       }
 

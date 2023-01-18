@@ -27,10 +27,12 @@ function App(props: BaseProps) {
   } = props;
   const [_app, setApp] = useState<Application>(application);
   const [_modules, setModules] = useState<Module[]>(modules);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     (async function () {
       if (application) {
+        setInitialized(true);
         return;
       }
 
@@ -41,6 +43,7 @@ function App(props: BaseProps) {
       ]);
       setApp(patchApp(genApp(), appPatch));
       setModules(patchModules(modules, modulesPatch));
+      setInitialized(true);
     })();
   }, [application]);
 
@@ -60,7 +63,7 @@ function App(props: BaseProps) {
 
   useApiService({ ws, apiService });
 
-  return <SunmaoApp options={_app} />;
+  return <div>{initialized ? <SunmaoApp options={_app} /> : null}</div>;
 }
 
 export default App;
