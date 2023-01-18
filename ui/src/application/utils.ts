@@ -501,7 +501,7 @@ const genSchemaComponents = (raw: CLIJson) => {
               styles: [
                 {
                   styleSlot: "content",
-                  style: "overflow:auto",
+                  style: "overflow:auto; box-sizing: border-box;",
                   cssProperties: {
                     backgroundColor: "#333",
                     color: "white",
@@ -798,10 +798,8 @@ const genSchemaComponents = (raw: CLIJson) => {
     let formFieldComponents = [] as unknown[];
     const flagSelectorId = getFlagSelectorId(cmdName);
 
-    console.log('getFlagSelectorId:',getFlagSelectorId(cmdName))
     flags.forEach((flag) => {
       const argFieldId = getFlagFieldId(cmdName, flag.name);
-      console.log('ifCondition:', `{{ ${flagSelectorId}.value.some(item => item === "${flag.name}") }}`)
       const components = [
         {
           id: argFieldId,
@@ -836,7 +834,7 @@ const genSchemaComponents = (raw: CLIJson) => {
                   id: `${cmdName}Form`,
                   slot: "content",
                 },
-                ifCondition: `{{ ${flagSelectorId}.value.some(item => item === "${flag.name}") }}`
+                ifCondition: `{{ ${flagSelectorId}.value.some(item => item === "${flag.name}") }}`,
               },
             },
           ],
@@ -965,7 +963,7 @@ const genSchemaComponents = (raw: CLIJson) => {
             options: item.flags.map((flag) => ({
               label: flag.name,
               value: flag.name,
-              disabled: flag.required,
+              disabled: !!flag.required,
             })),
           },
           traits: [
@@ -1170,10 +1168,9 @@ const genSchemaComponents = (raw: CLIJson) => {
         },
         {
           id: `${item.name}TabResultContent`,
-          type: "custom/v1/TextDisplay",
+          type: "custom/v1/result",
           properties: {
-            text: "No Result",
-            format: "plain",
+            data: "",
           },
           traits: [
             {

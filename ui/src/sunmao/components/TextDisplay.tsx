@@ -47,7 +47,7 @@ export default implementRuntimeComponent({
 
   return (
     <div
-      className={cx(css(customStyle?.content), TextDisplayStyle, "custom-text-display")}
+      className={cx(css(customStyle?.content), TextDisplayStyle, "custom-v1-text-display")}
       ref={elementRef}
     >
       {renderContent()}
