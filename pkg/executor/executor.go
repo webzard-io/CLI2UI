@@ -2,6 +2,7 @@ package executor
 
 import (
 	"github.com/go-cmd/cmd"
+	"github.com/google/shlex"
 )
 
 type Executor struct {
@@ -32,11 +33,18 @@ func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}) Executor {
 	}
 }
 
-func (e *Executor) Run(name string, args ...string) error {
+func (e *Executor) Run(script string) error {
+	e.resetState()
+
+	frags, err := shlex.Split(script)
+	if err != nil {
+		return err
+	}
+
 	c := cmd.NewCmdOptions(cmd.Options{
 		Buffered:  false,
 		Streaming: true,
-	}, name, args...)
+	}, frags[0], frags[1:]...)
 	statusCh := c.Start()
 
 	go func() {
@@ -81,4 +89,14 @@ func (e *Executor) Run(name string, args ...string) error {
 	}()
 
 	return nil
+}
+
+func (e *Executor) resetState() {
+	e.State = &ExecuteState{
+		Error:  nil,
+		Done:   false,
+		Stderr: "",
+		Stdout: "",
+	}
+	e.stateCh <- e.State
 }

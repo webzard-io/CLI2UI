@@ -8,8 +8,8 @@ import {
   patchModules,
   fetchApp,
   fetchModules,
-  APPLICATION_NAME,
 } from "../shared";
+import { APPLICATION_NAME } from "../constants";
 import "@sunmao-ui/arco-lib/dist/index.css";
 import "@sunmao-ui/editor/dist/index.css";
 import { type Application, type Module } from "@sunmao-ui/core";

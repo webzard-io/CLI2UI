@@ -519,7 +519,7 @@ const genSchemaComponents = (raw: CLIJson) => {
       },
       {
         id: "HelpInfo",
-        type: "custom/v1/TextDisplay",
+        type: "cli2ui/v1/TextDisplay",
         properties: {
           text: `${raw.help}`,
           format: '{{"code"}}',
@@ -635,7 +635,7 @@ const genSchemaComponents = (raw: CLIJson) => {
       case FlagType.Array:
         return {
           id: inputId,
-          type: "custom/v1/arrayInput",
+          type: "cli2ui/v1/arrayInput",
           properties: {
             value: [""],
             type: "string",
@@ -954,7 +954,7 @@ const genSchemaComponents = (raw: CLIJson) => {
         },
         {
           id: getFlagSelectorId(item.name),
-          type: "custom/v1/checkboxMenu",
+          type: "cli2ui/v1/checkboxMenu",
           properties: {
             value: item.flags
               .filter((flag) => flag.required)
@@ -1168,9 +1168,28 @@ const genSchemaComponents = (raw: CLIJson) => {
         },
         {
           id: `${item.name}TabResultContent`,
-          type: "custom/v1/result",
+          type: "cli2ui/v1/result",
           properties: {
             data: "",
+          },
+          traits: [
+            {
+              type: "core/v2/slot",
+              properties: {
+                container: {
+                  id: `${item.name}TabResult`,
+                  slot: "content",
+                },
+                ifCondition: true,
+              },
+            },
+          ],
+        },
+        {
+          id: `${item.name}TabResultTerminal`,
+          type: "cli2ui/v1/terminal",
+          properties: {
+            text: "Hello CLI2UI",
           },
           traits: [
             {

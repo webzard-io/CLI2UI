@@ -8,7 +8,7 @@ const TextDisplayStyle = css`
 `;
 
 export default implementRuntimeComponent({
-  version: "custom/v1",
+  version: "cli2ui/v1",
   metadata: {
     name: "TextDisplay",
     displayName: "TextDisplay",
@@ -31,7 +31,7 @@ export default implementRuntimeComponent({
     }),
     methods: [],
     slots: {},
-    styleSlots: ['content'],
+    styleSlots: ["content"],
     events: [],
   },
 })(({ text, format, mergeState, elementRef, customStyle }) => {
@@ -47,7 +47,11 @@ export default implementRuntimeComponent({
 
   return (
     <div
-      className={cx(css(customStyle?.content), TextDisplayStyle, "custom-v1-text-display")}
+      className={cx(
+        css(customStyle?.content),
+        TextDisplayStyle,
+        "cli2ui-v1-text-display"
+      )}
       ref={elementRef}
     >
       {renderContent()}

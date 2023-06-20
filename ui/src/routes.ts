@@ -1,4 +1,4 @@
-import { APPLICATION_NAME } from "./shared";
+import { APPLICATION_NAME } from "./constants";
 export type RouteConfig = {
   name: string;
   path: string;

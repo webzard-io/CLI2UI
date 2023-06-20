@@ -1,4 +1,3 @@
-import { sunmaoChakraUILib } from "@sunmao-ui/chakra-ui-lib";
 import { ArcoDesignLib } from "@sunmao-ui/arco-lib";
 import type { Application, Module } from "@sunmao-ui/core";
 import {
@@ -10,6 +9,7 @@ import { useEffect } from "react";
 import { create as createJdp } from "jsondiffpatch";
 import type { Delta } from "jsondiffpatch";
 import CustomLib from "./sunmao/lib";
+import { APPLICATION_NAME } from "./constants";
 
 export function getLibs({
   ws,
@@ -21,7 +21,6 @@ export function getLibs({
   utilMethods?: UtilMethodFactory[];
 }) {
   return [
-    sunmaoChakraUILib,
     ArcoDesignLib,
     CustomLib,
     {
@@ -106,9 +105,7 @@ export type MainOptions = {
   modulesPatch?: any;
 };
 
-// const PREFIX = "/sunmao-binding-patch";
 const PREFIX = "/sunmao-fs";
-export const APPLICATION_NAME = "app";
 
 const diffpatcher = createJdp({
   objectHash: function (obj: any, index: number) {

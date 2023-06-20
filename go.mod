@@ -2,17 +2,20 @@ module CLI2UI
 
 go 1.19
 
-require github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20221106152110-1b8830abe978
+require (
+	github.com/go-cmd/cmd v1.4.1
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
+	github.com/labstack/gommon v0.3.1
+	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230619103146-b5c8fbf1883b
+)
 
 require (
-	github.com/go-cmd/cmd v1.4.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/labstack/echo/v4 v4.8.0 // indirect
-	github.com/labstack/gommon v0.3.1 // indirect
-	github.com/matoous/go-nanoid/v2 v2.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mitchellh/hashstructure v1.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect

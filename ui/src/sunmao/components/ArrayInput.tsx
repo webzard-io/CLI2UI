@@ -45,7 +45,7 @@ const exampleProperties: Static<typeof PropSpec> = {
 };
 
 const ArrayInput = implementRuntimeComponent({
-  version: "custom/v1",
+  version: "cli2ui/v1",
   metadata: {
     name: "arrayInput",
     displayName: "ArrayInput",
@@ -174,7 +174,7 @@ const ArrayInput = implementRuntimeComponent({
   return (
     <div
       ref={elementRef}
-      className={cx(ArrayInputStyle, "custom-v1-array-input")}
+      className={cx(ArrayInputStyle, "cli2ui-v1-array-input")}
     >
       <div className="inputs-wrapper">
         <Space direction="vertical">

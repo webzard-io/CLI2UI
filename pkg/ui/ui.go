@@ -5,18 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/gommon/log"
+	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/arco"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
 
 type UI struct {
 	r *runtime.Runtime
-	b *sunmao.ArcoAppBuilder
+	b *arco.ArcoAppBuilder
 }
 
 func NewUI(stopCh chan struct{}) *UI {
 	r := runtime.New("ui", "patch")
-	b := sunmao.NewArcoApp()
+	app := sunmao.NewApp()
+	b := arco.NewArcoApp(app)
 
 	return &UI{
 		r: r,
@@ -71,7 +73,7 @@ func (u UI) buildUI() {
 							"componentId": "$utils",
 							"method": map[string]interface{}{
 								"name":       fmt.Sprintf("binding/v1/%v", "run"),
-								"parameters": "{{ command_input.value.split(' ') }}",
+								"parameters": "{{ command_input.value }}",
 							},
 						},
 					},
@@ -98,6 +100,12 @@ func (u UI) buildUI() {
 			b.NewText().Content(`done: {{ exec.state.done }}`),
 			b.NewText().Content(`error: {{ exec.state.error ? JSON.stringify(exec.state.error) : "-" }}`),
 			b.NewText().Content(`stdout:`),
+			b.NewComponent().
+				Type("cli2ui/v1/terminal").
+				Properties(map[string]interface{}{
+					"text": "{{ exec.state.stdout }}",
+				}).
+				Style("content", `width: 800px;`),
 			b.NewText().Content(`{{ exec.state.stdout }}`).Style("content", "white-space:pre;"),
 			b.NewText().Content(`stderr:`),
 			b.NewText().Content(`{{ exec.state.stderr }}`).Style("content", "white-space:pre;"),
@@ -111,7 +119,7 @@ func (u UI) buildUI() {
 	`))
 
 	u.r.Handle("run", func(m *runtime.Message, connId int) error {
-		command := make([]string, 0)
+		command := ""
 		b, _ := json.Marshal(m.Params)
 		_ = json.Unmarshal(b, &command)
 
@@ -125,7 +133,7 @@ func (u UI) buildUI() {
 			}
 		}()
 
-		err := e.Run(command[0], command[1:]...)
+		err := e.Run(command)
 		if err != nil {
 			log.Error(err)
 			return err

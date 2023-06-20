@@ -41,7 +41,7 @@ const exampleProperties: Static<typeof PropSpec> = {
 };
 
 const CheckboxMenu = implementRuntimeComponent({
-  version: "custom/v1",
+  version: "cli2ui/v1",
   metadata: {
     name: "checkboxMenu",
     displayName: "CheckboxMenu",
@@ -98,7 +98,7 @@ const CheckboxMenu = implementRuntimeComponent({
   return (
     <div
       ref={elementRef}
-      className={cx(CheckboxMenuStyle, "custom-v1-check-box")}
+      className={cx(CheckboxMenuStyle, "cli2ui-v1-check-box")}
     >
       <BaseDropdown droplist={dropList} position="br">
         <BaseButton type="text">

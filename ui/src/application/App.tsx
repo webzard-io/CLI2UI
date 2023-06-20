@@ -8,8 +8,8 @@ import {
   patchModules,
   fetchApp,
   fetchModules,
-  APPLICATION_NAME,
 } from "../shared";
+import { APPLICATION_NAME } from "../constants";
 import { RuntimeModule } from "@sunmao-ui/core";
 import { type Application, type Module } from "@sunmao-ui/core";
 import { useState, useEffect } from "react";

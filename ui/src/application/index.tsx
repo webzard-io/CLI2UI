@@ -28,19 +28,17 @@ export function renderApp(options: MainOptions) {
   };
 
   ReactDOM.render(
-    <React.StrictMode>
-      <App
-        application={application}
-        modules={modules}
-        ws={ws}
-        handlers={handlers}
-        utilMethods={utilMethods?.map(
-          (u) => () => implementUtilMethod(u.options)(u.impl)
-        )}
-        applicationPatch={applicationPatch}
-        modulesPatch={modulesPatch}
-      />
-    </React.StrictMode>,
+    <App
+      application={application}
+      modules={modules}
+      ws={ws}
+      handlers={handlers}
+      utilMethods={utilMethods?.map(
+        (u) => () => implementUtilMethod(u.options)(u.impl)
+      )}
+      applicationPatch={applicationPatch}
+      modulesPatch={modulesPatch}
+    />,
     document.getElementById("root")!
   );
 }

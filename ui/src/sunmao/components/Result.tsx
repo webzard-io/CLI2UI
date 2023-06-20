@@ -35,7 +35,7 @@ const exampleProperties: Static<typeof PropSpec> = {
 };
 
 const Result = implementRuntimeComponent({
-  version: "custom/v1",
+  version: "cli2ui/v1",
   metadata: {
     name: "result",
     displayName: "Result",
@@ -113,7 +113,7 @@ const Result = implementRuntimeComponent({
 
   return (
     <div
-      className={cx(css(customStyle?.content), ResultStyle, "custom-v1-result")}
+      className={cx(css(customStyle?.content), ResultStyle, "cli2ui-v1-result")}
       ref={elementRef}
     >
       {data ? (
