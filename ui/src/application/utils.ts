@@ -1,17 +1,9 @@
 import { ComponentSchema, Application } from "@sunmao-ui/core";
 import camelCase from "camelcase";
-import kebabCase from "kebab-case";
 
 const kebabToPascalCase = (str: string) => {
   return camelCase(str, { pascalCase: true });
 };
-
-const pascalCaseToKebabCase = (str: string) => {
-  return kebabCase(str);
-};
-
-const componentIdReg =
-  /^CLI2UI_QWE_([a-zA-Z0-9]+)_ASD_.*_QWE_([a-zA-Z0-9]+)_ASD_/;
 
 const getFlagValidationId = (cmdName: string, flagName: string) => {
   return `CLI2UI_QEW_${cmdName}_ASD_Form_QEW_${kebabToPascalCase(

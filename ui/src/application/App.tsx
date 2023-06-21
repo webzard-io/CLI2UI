@@ -14,6 +14,7 @@ import { RuntimeModule } from "@sunmao-ui/core";
 import { type Application, type Module } from "@sunmao-ui/core";
 import { useState, useEffect } from "react";
 import { genApp } from "./utils";
+import { formatCommand } from "../sunmao/format-command";
 
 function App(props: BaseProps) {
   const {
@@ -53,6 +54,9 @@ function App(props: BaseProps) {
     registry,
   } = initSunmaoUI({
     libs: getLibs({ ws, handlers, utilMethods }),
+    dependencies: {
+      formatCommand,
+    },
   });
 
   if (_modules) {

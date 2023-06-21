@@ -4,9 +4,8 @@ import ArrayInput from "./components/ArrayInput";
 import CheckboxMenu from "./components/CheckboxMenu";
 import Result from "./components/Result";
 import Terminal from "./components/Terminal";
+import { formatCommand } from "./format-command";
 import "./style.css";
-
-console.log(Terminal);
 
 const lib: SunmaoLib = {
   components: [TextDisplay, ArrayInput, CheckboxMenu, Result, Terminal],

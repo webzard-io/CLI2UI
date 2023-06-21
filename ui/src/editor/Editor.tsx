@@ -15,6 +15,7 @@ import "@sunmao-ui/editor/dist/index.css";
 import { type Application, type Module } from "@sunmao-ui/core";
 import { useState, useEffect } from "react";
 import { genApp } from "../application/utils";
+import { formatCommand } from "../sunmao/format-command";
 
 function Editor(props: BaseProps) {
   const {
@@ -56,6 +57,9 @@ function Editor(props: BaseProps) {
     defaultModules: _modules,
     runtimeProps: {
       libs: getLibs({ ws, handlers, utilMethods }),
+      dependencies: {
+        formatCommand,
+      },
     },
     storageHandler: {
       onSaveApp: function (newApp) {

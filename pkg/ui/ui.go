@@ -3,7 +3,6 @@ package ui
 import (
 	"CLI2UI/pkg/executor"
 	"encoding/json"
-	"fmt"
 	"github.com/labstack/gommon/log"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/arco"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
@@ -50,74 +49,6 @@ func (u UI) buildUI() {
 
 	b.Component(eState.AsComponent())
 
-	b.Component(b.NewStack().Children(map[string][]sunmao.BaseComponentBuilder{
-		"content": {
-			b.NewText().Content("CLI2UI"),
-			b.NewComponent().Id("command_input").
-				Type("arco/v1/input").
-				Style("input", `
-					width: 600px;
-				`),
-			b.NewComponent().
-				Type("arco/v1/button").
-				Properties(map[string]interface{}{
-					"long": false,
-					"type": "primary",
-					"text": "run",
-				}).
-				Style("content", `width: 100px;`).
-				Trait(b.NewTrait().Type("core/v1/event").Properties(map[string]interface{}{
-					"handlers": []map[string]interface{}{
-						{
-							"type":        "onClick",
-							"componentId": "$utils",
-							"method": map[string]interface{}{
-								"name":       fmt.Sprintf("binding/v1/%v", "run"),
-								"parameters": "{{ command_input.value }}",
-							},
-						},
-					},
-				})),
-			b.NewComponent().
-				Type("arco/v1/button").
-				Properties(map[string]interface{}{
-					"long": false,
-					"type": "default",
-					"text": "stop",
-				}).
-				Style("content", `width: 100px;`).Trait(b.NewTrait().Type("core/v1/event").Properties(map[string]interface{}{
-				"handlers": []map[string]interface{}{
-					{
-						"type":        "onClick",
-						"componentId": "$utils",
-						"method": map[string]interface{}{
-							"name":       fmt.Sprintf("binding/v1/%v", "stop"),
-							"parameters": "",
-						},
-					},
-				},
-			})),
-			b.NewText().Content(`done: {{ exec.state.done }}`),
-			b.NewText().Content(`error: {{ exec.state.error ? JSON.stringify(exec.state.error) : "-" }}`),
-			b.NewText().Content(`stdout:`),
-			b.NewComponent().
-				Type("cli2ui/v1/terminal").
-				Properties(map[string]interface{}{
-					"text": "{{ exec.state.stdout }}",
-				}).
-				Style("content", `width: 800px;`),
-			b.NewText().Content(`{{ exec.state.stdout }}`).Style("content", "white-space:pre;"),
-			b.NewText().Content(`stderr:`),
-			b.NewText().Content(`{{ exec.state.stderr }}`).Style("content", "white-space:pre;"),
-		},
-	}).Properties(map[string]interface{}{
-		"direction": "vertical",
-	}).Style("content", `
-		width: 100%;
-		padding: 1em;
-		margin-bottom: .5em;
-	`))
-
 	u.r.Handle("run", func(m *runtime.Message, connId int) error {
 		command := ""
 		b, _ := json.Marshal(m.Params)
@@ -127,12 +58,14 @@ func (u UI) buildUI() {
 			for {
 				select {
 				case s := <-stateCh:
-					eState.SetState(s, &connId)
+					err := eState.SetState(s, &connId)
+					if err != nil {
+						log.Error(err)
+					}
 					break
 				}
 			}
 		}()
-
 		err := e.Run(command)
 		if err != nil {
 			log.Error(err)
@@ -146,4 +79,39 @@ func (u UI) buildUI() {
 		stopCh <- struct{}{}
 		return nil
 	})
+
+	pingRaw := CLIJson{
+		Name: "ping",
+		Help: `usage: ping [-AaDdfnoQqRrv] [-c count] [-G sweepmaxsize]
+				[-g sweepminsize] [-h sweepincrsize] [-i wait]
+				[-l preload] [-M mask | time] [-m ttl] [-p pattern]
+				[-S src_addr] [-s packetsize] [-t timeout][-W waittime]
+				[-z tos] host`,
+		Commands: []Command{
+			{
+				Name: "ping",
+				Flags: []FlagOrArg{
+					{
+						Name:     "count",
+						Required: false,
+						Type:     FlagArgTypeNumber,
+						Short:    "c",
+					},
+				},
+				Args: []FlagOrArg{
+					{
+						Name:     "host",
+						Required: true,
+						Type:     FlagArgTypeString,
+					},
+				},
+			},
+		},
+	}
+
+	componentSchemas := genSchemaComponents(pingRaw)
+
+	for _, componentSchema := range componentSchemas {
+		b.RawComponent(componentSchema)
+	}
 }

@@ -31,6 +31,12 @@ github.com/valyala/fasttemplate v1.2.1 h1:TVEnxayobAdVkhQfrfes2IzOB6o+z4roRkPF52
 github.com/valyala/fasttemplate v1.2.1/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
 github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230619103146-b5c8fbf1883b h1:bugtGxuV2dJCTEtLY4Fbci0fItZamw0xsUsLlwbNRA0=
 github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230619103146-b5c8fbf1883b/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620084104-c1b63b82a79d h1:S71jgfHKA/gJR6awje9JDrmLxHXhwgwjlAY0Fa8AtpM=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620084104-c1b63b82a79d/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620145321-7bc8575bd452 h1:Wu5PPXFVWXw7tXVjXLcenYu5N9M6kH4jjjCGulhrfPE=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620145321-7bc8575bd452/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620164927-a7c96497a9bb h1:J4eisoZyFlm1eHOqtQjEhqmM74k0rQrU0rtE4dqkvZE=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620164927-a7c96497a9bb/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 h1:HWj/xjIHfjYU5nVXpTM0s39J9CbLn7Cc5a7IC5rwsMQ=
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f h1:OfiFi4JbukWwe3lzw+xunroH1mnC1e2Gy5cxNJApiSY=
