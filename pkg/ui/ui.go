@@ -10,22 +10,25 @@ import (
 )
 
 type UI struct {
-	r *runtime.Runtime
-	b *arco.ArcoAppBuilder
+	r  *runtime.Runtime
+	b  *arco.ArcoAppBuilder
+	bb *CLI2UIAppBuilder
 }
 
 func NewUI(stopCh chan struct{}) *UI {
 	r := runtime.New("ui", "patch")
 	app := sunmao.NewApp()
 	b := arco.NewArcoApp(app)
+	bb := NewCLI2UIApp(app)
 
 	return &UI{
-		r: r,
-		b: b,
+		r:  r,
+		b:  b,
+		bb: bb,
 	}
 }
 
-func (u UI) Run() error {
+func (u *UI) Run() error {
 	u.buildUI()
 
 	err := u.r.LoadApp(u.b.AppBuilder)
@@ -37,9 +40,7 @@ func (u UI) Run() error {
 	return nil
 }
 
-func (u UI) buildUI() {
-	b := u.b
-
+func (u *UI) buildUI() {
 	stopCh := make(chan struct{})
 
 	stateCh := make(chan *executor.ExecuteState)
@@ -47,7 +48,7 @@ func (u UI) buildUI() {
 	e := executor.NewExecutor(stateCh, stopCh)
 	eState := u.r.NewServerState("exec", e.State)
 
-	b.Component(eState.AsComponent())
+	u.b.Component(eState.AsComponent())
 
 	u.r.Handle("run", func(m *runtime.Message, connId int) error {
 		command := ""
@@ -109,9 +110,5 @@ func (u UI) buildUI() {
 		},
 	}
 
-	componentSchemas := genSchemaComponents(pingRaw)
-
-	for _, componentSchema := range componentSchemas {
-		b.RawComponent(componentSchema)
-	}
+	u.genSchemaComponents(pingRaw)
 }

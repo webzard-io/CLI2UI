@@ -6,7 +6,7 @@ require (
 	github.com/go-cmd/cmd v1.4.1
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/labstack/gommon v0.3.1
-	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620164927-a7c96497a9bb
+	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621104457-68418fba80fd
 )
 
 require (

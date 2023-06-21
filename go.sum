@@ -37,6 +37,14 @@ github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620145321-7bc8575bd452 h1:W
 github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620145321-7bc8575bd452/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
 github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620164927-a7c96497a9bb h1:J4eisoZyFlm1eHOqtQjEhqmM74k0rQrU0rtE4dqkvZE=
 github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230620164927-a7c96497a9bb/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621094102-f3ed335551f8 h1:WJtxZDMat/Oo2JOEoCSNtcSeyFNbVhim5Gas452wh6g=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621094102-f3ed335551f8/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621102956-6bae86f4e864 h1:ltLHztbMk3aQ+CVpY2GsL57W8NcmXXQKS2T2+oQmpLQ=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621102956-6bae86f4e864/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621103428-8bf4851367b5 h1:DdU9lm2dx62s97e+BwH9wt3dBA+01gLjTz0DKSU5zOc=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621103428-8bf4851367b5/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621104457-68418fba80fd h1:jBNcLH1QUGIEdN6i2tyCV/JuFdApBunUoQ1pVgdoMik=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621104457-68418fba80fd/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 h1:HWj/xjIHfjYU5nVXpTM0s39J9CbLn7Cc5a7IC5rwsMQ=
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f h1:OfiFi4JbukWwe3lzw+xunroH1mnC1e2Gy5cxNJApiSY=

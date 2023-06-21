@@ -3,6 +3,7 @@ package ui
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/arco"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -114,46 +115,6 @@ type LayoutProperty struct {
 	ShowFooter              bool `json:"showFooter"`
 }
 
-func genLayout() []sunmao.ComponentSchema {
-	return []sunmao.ComponentSchema{
-		{
-			Id:   "Layout",
-			Type: "arco/v1/layout",
-			Properties: structToMap(LayoutProperty{
-				ShowHeader:              true,
-				ShowSideBar:             false,
-				SidebarCollapsible:      false,
-				SidebarDefaultCollapsed: false,
-				ShowFooter:              false,
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "layout",
-								Style:     "",
-								CSSProperties: CSSProperties{
-									PaddingLeft:     "32px",
-									PaddingRight:    "32px",
-									PaddingTop:      "16px",
-									PaddingBottom:   "16px",
-									MarginRight:     "",
-									BackgroundColor: "",
-									MarginBottom:    "",
-								},
-							},
-						},
-					}),
-				},
-			},
-		},
-	}
-}
-
 type Container struct {
 	ID   string `json:"id"`
 	Slot string `json:"slot"`
@@ -205,138 +166,6 @@ type StackProperties struct {
 	Justify   string `json:"justify"`
 }
 
-func genHeader(raw CLIJson) []sunmao.ComponentSchema {
-	return []sunmao.ComponentSchema{
-		{
-			Id:   "Header",
-			Type: "core/v1/stack",
-			Properties: structToMap(StackProperties{
-				Spacing:   12,
-				Direction: "horizontal",
-				Align:     "center",
-				Wrap:      false,
-				Justify:   "flex-start",
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "content",
-								Style:     "",
-								CSSProperties: CSSProperties{
-									Width: "100%",
-								},
-							},
-						},
-					}),
-				},
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "Layout",
-							Slot: "header",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
-		},
-		{
-			Id:   "HeaderText",
-			Type: "core/v2/text",
-			Properties: structToMap(TextProperties{
-				Text: raw.Name,
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "Header",
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "content",
-								Style:     "",
-								CSSProperties: CSSProperties{
-									FontSize:   "32px",
-									FontWeight: "700",
-								},
-							},
-						},
-					}),
-				},
-			},
-		},
-		{
-			Id:   "HelpBtn",
-			Type: "arco/v1/button",
-			Properties: structToMap(ButtonProperties{
-				Type:     "default",
-				Status:   "default",
-				Long:     false,
-				Size:     "default",
-				Disabled: false,
-				Loading:  false,
-				Shape:    "square",
-				Text:     "Help",
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "Header",
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-				{
-					Type: "core/v1/event",
-					Properties: structToMap(EventProperties{
-						Handlers: []EventHandler{
-							{
-								Type:        "onClick",
-								ComponentId: "HelpModal",
-								Method: struct {
-									Name       string      `json:"name"`
-									Parameters interface{} `json:"parameters"`
-								}{
-									Name:       "openModal",
-									Parameters: make(map[string]interface{}),
-								},
-								Wait: struct {
-									Type string `json:"type"`
-									Time int    `json:"time"`
-								}{
-									Type: "debounce",
-									Time: 0,
-								},
-								Disabled: false,
-							},
-						},
-					}),
-				},
-			},
-		},
-	}
-}
-
 type ModalProperties struct {
 	Title          string `json:"title"`
 	Mask           bool   `json:"mask"`
@@ -365,163 +194,60 @@ type Wait struct {
 	Time int    `json:"time"`
 }
 
-func genHelpModal(raw CLIJson) []sunmao.ComponentSchema {
+func (u *UI) genHelpModal(raw CLIJson) []sunmao.BaseComponentBuilder {
+	return []sunmao.BaseComponentBuilder{
+		u.b.NewModal().Id("HelpModal").Properties(structToMap(ModalProperties{
+			Title:          "Help 信息",
+			Mask:           true,
+			Simple:         false,
+			OkText:         "confirm",
+			CancelText:     "cancel",
+			Closable:       true,
+			MaskClosable:   true,
+			ConfirmLoading: false,
+			DefaultOpen:    false,
+			UnmountOnExit:  true,
+		})).Style("content", "width: 800px").Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				u.b.NewStack().Id("HelpModalContent").Properties(structToMap(StackProperties{
+					Spacing:   12,
+					Direction: "horizontal",
+					Align:     "auto",
+					Wrap:      false,
+					Justify:   "flex-start",
+				})).Style("content", `
+					overflow:auto; box-sizing: border-box; background-color: #333;
+					color: white; width: 100%; padding: 16px;
+				`),
+				u.bb.NewTextDisplay().Id("HelpInfo").Content(TextDisplayProperties{
+					Text:   raw.Help,
+					Format: "code",
+				}).Style("content", "height: 300px;"),
+			},
+			"footer": {
+				u.b.NewButton().Id("HelpModalCancelBtn").Properties(structToMap(ButtonProperties{
+					Type:     "default",
+					Status:   "default",
+					Long:     false,
+					Size:     "default",
+					Disabled: false,
+					Loading:  false,
+					Shape:    "square",
+					Text:     "关闭",
+				})).Event([]sunmao.EventHandler{
+					{
+						Type:        "onClick",
+						ComponentId: "HelpModal",
+						Method: sunmao.EventMethod{
+							Name:       "closeModal",
+							Parameters: map[string]interface{}{},
+						},
+					},
+				}),
+			},
+		}),
+	}
 
-	return []sunmao.ComponentSchema{
-		{
-			Id:   "HelpModal",
-			Type: "arco/v1/modal",
-			Properties: structToMap(ModalProperties{
-				Title:          "Help 信息",
-				Mask:           true,
-				Simple:         false,
-				OkText:         "confirm",
-				CancelText:     "cancel",
-				Closable:       true,
-				MaskClosable:   true,
-				ConfirmLoading: false,
-				DefaultOpen:    false,
-				UnmountOnExit:  true,
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "content",
-								CSSProperties: CSSProperties{
-									Width: "800px",
-								},
-							},
-						},
-					}),
-				},
-			},
-		}, {
-			Id:   "HelpModalCancelBtn",
-			Type: "arco/v1/button",
-			Properties: structToMap(ButtonProperties{
-				Type:     "default",
-				Status:   "default",
-				Long:     false,
-				Size:     "default",
-				Disabled: false,
-				Loading:  false,
-				Shape:    "square",
-				Text:     "关闭",
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "HelpModal",
-							Slot: "footer",
-						},
-						IfCondition: true,
-					}),
-				},
-				{
-					Type: "core/v1/event",
-					Properties: structToMap(EventProperties{
-						Handlers: []EventHandler{
-							{
-								Type:        "onClick",
-								ComponentId: "HelpModal",
-								Method: Method{
-									Name:       "closeModal",
-									Parameters: map[string]interface{}{},
-								},
-								Wait: Wait{
-									Type: "debounce",
-									Time: 0,
-								},
-								Disabled: false,
-							},
-						},
-					}),
-				},
-			},
-		}, {
-			Id:   "HelpModalContent",
-			Type: "core/v1/stack",
-			Properties: structToMap(StackProperties{
-				Spacing:   12,
-				Direction: "horizontal",
-				Align:     "auto",
-				Wrap:      false,
-				Justify:   "flex-start",
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "HelpModal",
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "content",
-								Style:     "overflow:auto; box-sizing: border-box;",
-								CSSProperties: CSSProperties{
-									BackgroundColor: "#333",
-									Color:           "white",
-									Width:           "100%",
-									PaddingTop:      "16px",
-									PaddingLeft:     "16px",
-									PaddingBottom:   "16px",
-									PaddingRight:    "16px",
-								},
-							},
-						},
-					}),
-				},
-			},
-		}, {
-			Id:   "HelpInfo",
-			Type: "cli2ui/v1/TextDisplay",
-			Properties: structToMap(TextDisplayProperties{
-				Text:   raw.Help,
-				Format: "code",
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "HelpModalContent",
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "content",
-								Style:     "height:300px;",
-							},
-						},
-					}),
-				},
-			},
-		}}
 }
 
 type TabPropertiesTab struct {
@@ -539,43 +265,25 @@ type TabProperties struct {
 	Tabs                          []TabPropertiesTab `json:"tabs"`
 }
 
-func genCmdTab(raw CLIJson) []sunmao.ComponentSchema {
-	tabs := []TabPropertiesTab{}
+func (u *UI) genCmdTab(raw CLIJson) []sunmao.BaseComponentBuilder {
+	c := u.b.NewTabs().Id("CmdTabs").Properties(structToMap(TabProperties{
+		Type:                          "line",
+		DefaultActiveTab:              0,
+		TabPosition:                   "top",
+		Size:                          "default",
+		UpdateWhenDefaultValueChanges: false,
+		Tabs:                          []TabPropertiesTab{},
+	}))
+
 	for _, item := range raw.Commands {
-		tab := TabPropertiesTab{
+		c.Tab(&arco.ArcoTabsTab{
 			Title:         item.Name,
 			Hidden:        false,
 			DestroyOnHide: true,
-		}
-		tabs = append(tabs, tab)
+		})
 	}
 
-	return []sunmao.ComponentSchema{
-		{
-			Id:   "CmdTabs",
-			Type: "arco/v1/tabs",
-			Properties: structToMap(TabProperties{
-				Type:                          "line",
-				DefaultActiveTab:              0,
-				TabPosition:                   "top",
-				Size:                          "default",
-				UpdateWhenDefaultValueChanges: false,
-				Tabs:                          tabs,
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   "Layout",
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
-		},
-	}
+	return []sunmao.BaseComponentBuilder{c}
 }
 
 type SwitchProperty struct {
@@ -646,18 +354,15 @@ type TextInputTraitContent struct {
 	IfCondition bool      `json:"ifCondition"`
 }
 
-func genCmdFormFiledInput(cmdName string, flag FlagOrArg) sunmao.ComponentSchema {
-	fieldId := getFlagFieldId(cmdName, flag.Name)
+func (u *UI) genCmdFormFiledInput(cmdName string, flag FlagOrArg) []sunmao.BaseComponentBuilder {
 	inputId := getFlagInputId(cmdName, flag.Name)
 	validationId := getFlagValidationId(cmdName, flag.Name)
 	options := flag.Options
 
 	switch flag.Type {
 	case FlagArgTypeNumber:
-		return sunmao.ComponentSchema{
-			Id:   inputId,
-			Type: "arco/v1/numberInput",
-			Properties: map[string]interface{}{
+		return []sunmao.BaseComponentBuilder{
+			u.b.NewNumberInput().Id(inputId).Properties(map[string]interface{}{
 				"defaultValue":                  1,
 				"disabled":                      "{{" + cmdName + "FormState.data.isExecuting}}",
 				"placeholder":                   "please input",
@@ -670,67 +375,27 @@ func genCmdFormFiledInput(cmdName string, flag FlagOrArg) sunmao.ComponentSchema
 				"step":                          1,
 				"precision":                     0,
 				"updateWhenDefaultValueChanges": false,
-			},
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   fieldId,
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
+			}),
 		}
 	case FlagArgTypeArray:
-		return sunmao.ComponentSchema{
-			Id:   inputId,
-			Type: "cli2ui/v1/arrayInput",
-			Properties: map[string]interface{}{
+		return []sunmao.BaseComponentBuilder{
+			u.bb.NewArrayInput().Id(inputId).Properties(map[string]interface{}{
 				"value":       []string{""},
 				"type":        "string",
 				"placeholder": "please input",
 				"disabled":    "{{" + cmdName + "FormState.data.isExecuting}}",
-			},
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   fieldId,
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
+			}),
 		}
 	case FlagArgTypeBoolean:
-		return sunmao.ComponentSchema{
-			Id:   inputId,
-			Type: "arco/v1/switch",
-			Properties: structToMap(SwitchProperty{
+		return []sunmao.BaseComponentBuilder{
+			u.b.NewSwitch().Id(inputId).Properties(structToMap(SwitchProperty{
 				DefaultChecked:                false,
 				Disabled:                      fmt.Sprintf("{{%sFormState.data.isExecuting}}", cmdName),
 				Loading:                       false,
 				Type:                          "circle",
 				Size:                          "default",
 				UpdateWhenDefaultValueChanges: false,
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   fieldId,
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
+			})),
 		}
 	case FlagArgTypeEnum:
 		selectOptions := make([]SelectOption, 0)
@@ -740,10 +405,8 @@ func genCmdFormFiledInput(cmdName string, flag FlagOrArg) sunmao.ComponentSchema
 				Value: op,
 			})
 		}
-		return sunmao.ComponentSchema{
-			Id:   inputId,
-			Type: "arco/v1/select",
-			Properties: structToMap(SelectProperty{
+		return []sunmao.BaseComponentBuilder{
+			u.b.NewSelect().Id(inputId).Properties(structToMap(SelectProperty{
 				AllowClear:                    false,
 				Multiple:                      false,
 				AllowCreate:                   false,
@@ -766,25 +429,11 @@ func genCmdFormFiledInput(cmdName string, flag FlagOrArg) sunmao.ComponentSchema
 				AutoFitPosition:               false,
 				Position:                      "bottom",
 				MountToBody:                   true,
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   fieldId,
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
+			})),
 		}
 	default:
-		return sunmao.ComponentSchema{
-			Id:   inputId,
-			Type: "arco/v1/input",
-			Properties: structToMap(TextInputProperty{
+		return []sunmao.BaseComponentBuilder{
+			u.b.NewInput().Id(inputId).Properties(structToMap(TextInputProperty{
 				AllowClear:                    false,
 				Disabled:                      fmt.Sprintf("{{%sFormState.data.isExecuting}}", cmdName),
 				ReadOnly:                      false,
@@ -793,51 +442,16 @@ func genCmdFormFiledInput(cmdName string, flag FlagOrArg) sunmao.ComponentSchema
 				Placeholder:                   "please input",
 				Error:                         fmt.Sprintf("{{%sForm.validatedResult.%s.isInvalid}}", cmdName, validationId),
 				Size:                          "default",
-			}),
-			Traits: []sunmao.TraitSchema{
+			})).Event([]sunmao.EventHandler{
 				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container:   Container{ID: fieldId, Slot: "content"},
-						IfCondition: true,
-					}),
+					Type:        "onBlur",
+					ComponentId: fmt.Sprintf("%sForm", cmdName),
+					Method: sunmao.EventMethod{
+						Name:       "validateAllFields",
+						Parameters: map[string]interface{}{},
+					},
 				},
-				{
-					Type: "core/v1/event",
-					Properties: structToMap(EventProperties{
-						Handlers: []EventHandler{
-							{
-								Type:        "onBlur",
-								ComponentId: fmt.Sprintf("%sForm", cmdName),
-								Method: Method{
-									Name:       "validateAllFields",
-									Parameters: map[string]interface{}{},
-								},
-								Wait: Wait{
-									Type: "debounce",
-									Time: 0,
-								},
-								Disabled: false,
-							},
-						},
-					}),
-				},
-				{
-					Type: "core/v1/style",
-					Properties: structToMap(struct {
-						Styles []Style `json:"styles"`
-					}{
-						Styles: []Style{
-							{
-								StyleSlot: "input",
-								CSSProperties: CSSProperties{
-									MarginBottom: "6px",
-								},
-							},
-						},
-					}),
-				},
-			},
+			}).Style("input", "margin-bottom: 6px;"),
 		}
 	}
 }
@@ -866,17 +480,15 @@ type Column struct {
 	Offset int `json:"offset"`
 }
 
-func genCmdFormFields(cmdName string, flags []FlagOrArg) []sunmao.ComponentSchema {
-	formFieldComponents := make([]sunmao.ComponentSchema, 0)
+func (u *UI) genCmdFormFields(cmdName string, flags []FlagOrArg) []sunmao.BaseComponentBuilder {
+	formFieldComponents := make([]sunmao.BaseComponentBuilder, 0)
 	flagSelectorId := getFlagSelectorId(cmdName)
 
 	for _, flag := range flags {
 		argFieldId := getFlagFieldId(cmdName, flag.Name)
 
-		formFieldComponents = append(formFieldComponents, sunmao.ComponentSchema{
-			Id:   argFieldId,
-			Type: "arco/v1/formControl",
-			Properties: structToMap(FormControlProperty{
+		u.b.Component(u.b.NewFormControl().Id(argFieldId).
+			Properties(structToMap(FormControlProperty{
 				Label: Label{
 					Format: "plain",
 					Raw:    flag.Name,
@@ -897,22 +509,14 @@ func genCmdFormFields(cmdName string, flags []FlagOrArg) []sunmao.ComponentSchem
 					Span:   18,
 					Offset: 0,
 				},
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   fmt.Sprintf("%sForm", cmdName),
-							Slot: "content",
-						},
-						IfCondition: fmt.Sprintf("{{ %s.value.some(item => item === \"%s\") }}", flagSelectorId, flag.Name),
-					}),
-				},
-			},
-		})
-
-		formFieldComponents = append(formFieldComponents, genCmdFormFiledInput(cmdName, flag))
+			})).
+			Slot(sunmao.Container{
+				ID:   fmt.Sprintf("%sForm", cmdName),
+				Slot: "content",
+			}, fmt.Sprintf("{{ %s.value.some(item => item === \"%s\") }}", flagSelectorId, flag.Name)).
+			Children(map[string][]sunmao.BaseComponentBuilder{
+				"content": u.genCmdFormFiledInput(cmdName, flag),
+			}))
 	}
 
 	return formFieldComponents
@@ -995,9 +599,7 @@ type TerminalProperties struct {
 	Text string `json:"text"`
 }
 
-func genCmdInnerTabs(raw CLIJson) []sunmao.ComponentSchema {
-	tabs := make([]sunmao.ComponentSchema, 0)
-
+func (u *UI) genCmdInnerTabs(raw CLIJson) []sunmao.BaseComponentBuilder {
 	rawCmd := raw.Commands
 
 	for index, item := range rawCmd {
@@ -1077,422 +679,230 @@ func genCmdInnerTabs(raw CLIJson) []sunmao.ComponentSchema {
 
 		flagSelectorId := getFlagSelectorId(item.Name)
 
-		formComponents := []sunmao.ComponentSchema{
-			{
-				Id:         fmt.Sprintf("%sFormState", item.Name),
-				Type:       "core/v1/dummy",
-				Properties: map[string]interface{}{},
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v1/state",
-						Properties: structToMap(StateTraitContent{
-							Key:          "data",
-							InitialValue: "{{{\n{\n  isExecuting: false,\n}\n}}}",
-						}),
-					},
-				},
-			},
-			{
-				Id:         fmt.Sprintf("%sFormTransformer", item.Name),
-				Type:       "core/v1/dummy",
-				Properties: map[string]interface{}{},
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v1/transformer",
-						Properties: structToMap(TransformerProperties{
-							Value: fmt.Sprintf("{{ formatCommand('%s', { %s }, %s.value) }}",
-								item.Name,
-								strings.Join(
-									transformFlags,
-									", ",
-								),
-								flagSelectorId),
-						}),
-					},
-				},
-			},
-			{
-				Id:   fmt.Sprintf("%sTab", item.Name),
-				Type: "core/v1/stack",
-				Properties: structToMap(StackProperties{
-					Spacing:   12,
-					Direction: "vertical",
-					Align:     "auto",
-					Wrap:      false,
-					Justify:   "flex-start",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   "CmdTabs",
-								Slot: "content",
-							},
-							IfCondition: fmt.Sprintf("{{CmdTabs.activeTab === %d}}", index),
-						}),
-					},
-					{
-						Type: "core/v1/style",
-						Properties: structToMap(struct {
-							Styles []Style `json:"styles"`
-						}{
-							Styles: []Style{
-								{
-									StyleSlot: "content",
-									Style:     "",
-									CSSProperties: CSSProperties{
-										Width: "100%",
-									},
-								},
-							},
-						}),
-					},
-				},
-			},
-			{
-				Id:   fmt.Sprintf("%sFormActionHeader", item.Name),
-				Type: "core/v1/stack",
-				Properties: structToMap(StackProperties{
-					Spacing:   12,
-					Direction: "horizontal",
-					Align:     "auto",
-					Wrap:      false,
-					Justify:   "flex-end",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sTab", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-				},
-			},
-			{
-				Id:   flagSelectorId,
-				Type: "cli2ui/v1/checkboxMenu",
-				Properties: structToMap(CheckboxMenuProperties{
-					Value:   requiredFlags,
-					Text:    "flags",
-					Options: checkboxOptions,
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sFormActionHeader", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-				},
-			},
-			{
-				Id:   fmt.Sprintf("%sForm", item.Name),
-				Type: "core/v1/stack",
-				Properties: structToMap(StackProperties{
-					Spacing:   12,
-					Direction: "vertical",
-					Align:     "auto",
-					Wrap:      false,
-					Justify:   "flex-start",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sTab", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-					{
-						Type: "core/v1/validation",
-						Properties: structToMap(ValidationProperties{
-							Validators: validators,
-						}),
-					},
-				},
-			},
-		}
-		resultComponents := []sunmao.ComponentSchema{{
-			Id:   fmt.Sprintf("%sTabDivider", item.Name),
-			Type: "arco/v1/divider",
-			Properties: structToMap(DividerProperties{
-				Type:        "horizontal",
-				Orientation: "center",
-			}),
-			Traits: []sunmao.TraitSchema{
-				{
-					Type: "core/v2/slot",
-					Properties: structToMap(SlotProperties{
-						Container: Container{
-							ID:   fmt.Sprintf("%sTab", item.Name),
-							Slot: "content",
-						},
-						IfCondition: true,
-					}),
-				},
-			},
-		},
-			{
-				Id:   fmt.Sprintf("%sTabResult", item.Name),
-				Type: "arco/v1/collapse",
-				Properties: structToMap(CollapseProperties{
-					DefaultActiveKey: []string{"0"},
-					Options: []CollapseOption{
-						{
-							Key:            "0",
-							Header:         "执行结果\n",
-							Disabled:       false,
-							ShowExpandIcon: true,
-						},
-					},
-					UpdateWhenDefaultValueChanges: false,
-					Accordion:                     false,
-					ExpandIconPosition:            "left",
-					Bordered:                      false,
-					DestroyOnHide:                 false,
-					LazyLoad:                      true,
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sTab", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-					{
-						Type: "core/v1/style",
-						Properties: structToMap(struct {
-							Styles []Style `json:"styles"`
-						}{
-							Styles: []Style{
-								{
-									StyleSlot: "content",
-									Style:     ".arco-collapse-item-content-box {\nbackground: white;\n}",
-									CSSProperties: CSSProperties{
-										BackgroundColor: "",
-									},
-								},
-							},
-						}),
-					},
-				},
-			},
-			{
-				Id:   fmt.Sprintf("%sTabResultContent", item.Name),
-				Type: "cli2ui/v1/result",
-				Properties: structToMap(ResultProperties{
-					Data: "",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sTabResult", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-				},
-			},
-			{
-				Id:   fmt.Sprintf("%sTabResultTerminal", item.Name),
-				Type: "cli2ui/v1/terminal",
-				Properties: structToMap(TerminalProperties{
-					Text: "{{ exec.state.stdout }}",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sTabResult", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-				},
-			},
-			{
-				Id:   fmt.Sprintf("%sStopBtn", item.Name),
-				Type: "arco/v1/button",
-				Properties: structToMap(ButtonProperties{
-					Type:     "primary",
-					Status:   "default",
-					Long:     false,
-					Size:     "default",
-					Disabled: fmt.Sprintf("{{!%sFormState.data.isExecuting}}", item.Name),
-					Loading:  false,
-					Shape:    "square",
-					Text:     "Stop",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sTab", item.Name),
-								Slot: "content",
-							},
-							IfCondition: true,
-						}),
-					},
-					{
-						Type: "core/v1/event",
-						Properties: structToMap(EventProperties{
-							Handlers: []EventHandler{
-								{
-									Type:        "onClick",
-									ComponentId: fmt.Sprintf("%sFormState", item.Name),
-									Method: Method{
-										Name: fmt.Sprintf("setValue"),
-										Parameters: map[string]interface{}{
-											"key":   "data",
-											"value": fmt.Sprintf("{{{...%sFormState.data, isExecuting: false}}}", item.Name),
-										},
-									},
-									Wait: Wait{
-										Type: "debounce",
-										Time: 0,
-									},
-									Disabled: false,
-								},
-								{
-									Type:        "onClick",
-									ComponentId: "$utils",
-									Method: Method{
-										Name:       "binding/v1/stop",
-										Parameters: map[string]interface{}{},
-									},
-								},
-							},
-						}),
-					},
-					{
-						Type: "core/v1/style",
-						Properties: structToMap(struct {
-							Styles []Style `json:"styles"`
-						}{
-							Styles: []Style{
-								{
-									StyleSlot: "content",
-									Style:     "",
-									CSSProperties: CSSProperties{
-										Width: "",
-									},
-								},
-							},
-						}),
-					},
-				},
-			},
-		}
+		u.b.Component(u.b.NewState("data", map[string]interface{}{
+			"isExecuting": false,
+		}).Id(fmt.Sprintf("%sFormState", item.Name)))
 
-		tabs = append(tabs, formComponents...)
-		tabs = append(tabs, genCmdFormFields(item.Name, append(item.Flags, item.Args...))...)
-		tabs = append(tabs,
-			sunmao.ComponentSchema{
-				Id:   fmt.Sprintf("%sButton", item.Name),
-				Type: "arco/v1/button",
-				Properties: structToMap(ButtonProperties{
-					Type:     "primary",
-					Status:   "default",
-					Long:     false,
-					Size:     "default",
-					Disabled: false,
-					Loading:  fmt.Sprintf("{{%sFormState.data.isExecuting}}", item.Name),
-					Shape:    "square",
-					Text:     "Run",
-				}),
-				Traits: []sunmao.TraitSchema{
-					{
-						Type: "core/v2/slot",
-						Properties: structToMap(SlotProperties{
-							Container: Container{
-								ID:   fmt.Sprintf("%sForm", item.Name),
-								Slot: "content",
+		u.b.Component(u.b.NewTransformer(fmt.Sprintf("{{ formatCommand('%s', { %s }, %s.value) }}",
+			item.Name,
+			strings.Join(
+				transformFlags,
+				", ",
+			),
+			flagSelectorId)).Id(fmt.Sprintf("%sFormTransformer", item.Name)))
+
+		u.b.Component(u.b.NewStack().Id(fmt.Sprintf("%sTab", item.Name)).
+			Properties(structToMap(StackProperties{
+				Spacing:   12,
+				Direction: "vertical",
+				Align:     "auto",
+				Wrap:      false,
+				Justify:   "flex-start",
+			})).
+			Slot(sunmao.Container{
+				ID:   "CmdTabs",
+				Slot: "content",
+			}, fmt.Sprintf("{{CmdTabs.activeTab === %d}}", index)).
+			Style("content", "width: 100%").
+			Children(map[string][]sunmao.BaseComponentBuilder{
+				"content": {
+					u.b.NewStack().Id(fmt.Sprintf("%sFormActionHeader", item.Name)).
+						Properties(structToMap(StackProperties{
+							Spacing:   12,
+							Direction: "horizontal",
+							Align:     "auto",
+							Wrap:      false,
+							Justify:   "flex-end",
+						})).
+						Children(map[string][]sunmao.BaseComponentBuilder{
+							"content": {
+								u.bb.NewCheckboxMenu().Id(flagSelectorId).Properties(structToMap(CheckboxMenuProperties{
+									Value:   requiredFlags,
+									Text:    "flags",
+									Options: checkboxOptions,
+								})),
 							},
-							IfCondition: true,
 						}),
-					},
-					{
-						Type: "core/v1/event",
-						Properties: structToMap(EventProperties{
-							Handlers: []EventHandler{
+
+					u.b.NewStack().Id(fmt.Sprintf("%sForm", item.Name)).Properties(structToMap(StackProperties{
+						Spacing:   12,
+						Direction: "vertical",
+						Align:     "auto",
+						Wrap:      false,
+						Justify:   "flex-start",
+					})).Trait(u.b.NewTrait().Type("core/v1/validation").Properties(structToMap(ValidationProperties{
+						Validators: validators,
+					}))).Children(map[string][]sunmao.BaseComponentBuilder{
+						"content": {
+							u.b.NewButton().Id(fmt.Sprintf("%sButton", item.Name)).Properties(structToMap(ButtonProperties{
+								Type:     "primary",
+								Status:   "default",
+								Long:     false,
+								Size:     "default",
+								Disabled: false,
+								Loading:  fmt.Sprintf("{{%sFormState.data.isExecuting}}", item.Name),
+								Shape:    "square",
+								Text:     "Run",
+							})).Event([]sunmao.EventHandler{
 								{
 									Type:        "onClick",
 									ComponentId: fmt.Sprintf("%sForm", item.Name),
-									Method: Method{
+									Method: sunmao.EventMethod{
 										Name:       "validateAllFields",
 										Parameters: map[string]interface{}{},
 									},
-									Wait: Wait{
-										Type: "debounce",
-										Time: 0,
-									},
-									Disabled: false,
 								},
 								{
 									Type:        "onClick",
 									ComponentId: fmt.Sprintf("%sFormState", item.Name),
-									Method: Method{
+									Method: sunmao.EventMethod{
 										Name: fmt.Sprintf("setValue"),
 										Parameters: map[string]interface{}{
 											"key":   "data",
 											"value": fmt.Sprintf("{{{...%sFormState.data, isExecuting: true}}}", item.Name),
 										},
 									},
-									Wait: Wait{
-										Type: "debounce",
-										Time: 0,
-									},
 									Disabled: fmt.Sprintf("{{%sForm.isInvalid}}", item.Name),
 								},
 								{
 									Type:        "onClick",
 									ComponentId: "$utils",
-									Method: Method{
+									Method: sunmao.EventMethod{
 										Name:       "binding/v1/run",
 										Parameters: fmt.Sprintf("{{ %sFormTransformer.value }}", item.Name),
 									},
 								},
+							}),
+						},
+					}),
+
+					u.b.NewDivider().Id(fmt.Sprintf("%sTabDivider", item.Name)).Properties(structToMap(DividerProperties{
+						Type:        "horizontal",
+						Orientation: "center",
+					})),
+
+					u.b.NewCollapse().Id(fmt.Sprintf("%sTabResult", item.Name)).
+						Properties(structToMap(CollapseProperties{
+							DefaultActiveKey: []string{"0"},
+							Options: []CollapseOption{
+								{
+									Key:            "0",
+									Header:         "执行结果",
+									Disabled:       false,
+									ShowExpandIcon: true,
+								},
+							},
+							UpdateWhenDefaultValueChanges: false,
+							Accordion:                     false,
+							ExpandIconPosition:            "left",
+							Bordered:                      false,
+							DestroyOnHide:                 false,
+							LazyLoad:                      true,
+						})).
+						Style("content", ".arco-collapse-item-content-box { background: white; }").
+						Children(map[string][]sunmao.BaseComponentBuilder{
+							"content": {
+								u.bb.NewResult().Id(fmt.Sprintf("%sTabResultContent", item.Name)).Data(""),
+
+								u.bb.NewTerminal().Id(fmt.Sprintf("%sTabResultTerminal", item.Name)).Text("{{ exec.state.stdout }}"),
 							},
 						}),
-					},
+
+					u.b.NewButton().Id(fmt.Sprintf("%sStopBtn", item.Name)).Properties(structToMap(ButtonProperties{
+						Type:     "primary",
+						Status:   "default",
+						Long:     false,
+						Size:     "default",
+						Disabled: fmt.Sprintf("{{!%sFormState.data.isExecuting}}", item.Name),
+						Loading:  false,
+						Shape:    "square",
+						Text:     "Stop",
+					})).Event([]sunmao.EventHandler{
+						{
+							Type:        "onClick",
+							ComponentId: fmt.Sprintf("%sFormState", item.Name),
+							Method: sunmao.EventMethod{
+								Name: fmt.Sprintf("setValue"),
+								Parameters: map[string]interface{}{
+									"key":   "data",
+									"value": fmt.Sprintf("{{{...%sFormState.data, isExecuting: false}}}", item.Name),
+								},
+							},
+						},
+						{
+							Type:        "onClick",
+							ComponentId: "$utils",
+							Method: sunmao.EventMethod{
+								Name:       "binding/v1/stop",
+								Parameters: map[string]interface{}{},
+							},
+						},
+					}),
 				},
-			})
-		tabs = append(tabs, resultComponents...)
+			}))
+
+		u.genCmdFormFields(item.Name, append(item.Flags, item.Args...))
 	}
 
-	return tabs
+	return []sunmao.BaseComponentBuilder{}
 }
 
-func genSchemaComponents(raw CLIJson) []sunmao.ComponentSchema {
-	components := make([]sunmao.ComponentSchema, 0)
+func (u *UI) genLayout(raw CLIJson) []sunmao.BaseComponentBuilder {
+	return []sunmao.BaseComponentBuilder{
+		u.b.NewLayout().
+			Id("Layout").
+			Properties(structToMap(LayoutProperty{
+				ShowHeader:              true,
+				ShowSideBar:             false,
+				SidebarCollapsible:      false,
+				SidebarDefaultCollapsed: false,
+				ShowFooter:              false,
+			})).
+			Style("layout", "padding: 16px 32px;").
+			Children(map[string][]sunmao.BaseComponentBuilder{
+				"header": {
+					u.b.NewStack().Id("Header").Properties(structToMap(StackProperties{
+						Spacing:   12,
+						Direction: "horizontal",
+						Align:     "center",
+						Wrap:      false,
+						Justify:   "flex-start",
+					})).
+						Style("content", "width: 100%").
+						Children(map[string][]sunmao.BaseComponentBuilder{
+							"content": u.genHeader(raw),
+						}),
+				},
+				"content": u.genCmdTab(raw),
+			})}
+}
 
-	components = append(components, genLayout()...)
-	components = append(components, genHeader(raw)...)
-	components = append(components, genCmdTab(raw)...)
-	components = append(components, genCmdInnerTabs(raw)...)
-	components = append(components, genHelpModal(raw)...)
+func (u *UI) genHeader(raw CLIJson) []sunmao.BaseComponentBuilder {
+	return []sunmao.BaseComponentBuilder{
+		u.b.NewText().Id("HeaderText").Content(raw.Name).
+			Style("content", "font-size: 32px; font-weight: 700;"),
+		u.b.NewButton().Id("HelpButton").Properties(structToMap(ButtonProperties{
+			Shape: "square",
+			Text:  "Help",
+			Type:  "default",
+		})).Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "HelpModal",
+				Method: sunmao.EventMethod{
+					Name:       "openModal",
+					Parameters: make(map[string]interface{}),
+				},
+			},
+		}),
+	}
+}
 
-	return components
+func (u *UI) genSchemaComponents(raw CLIJson) {
+	components := u.genLayout(raw)
+	components = append(components, u.genHelpModal(raw)...)
+	components = append(components, u.genCmdInnerTabs(raw)...)
+	for _, c := range components {
+		u.b.Component(c)
+	}
 }
