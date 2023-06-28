@@ -48,7 +48,7 @@ func (e *Executor) Run(script string) error {
 	statusCh := c.Start()
 
 	go func() {
-		for c.Stdout != nil || c.Stderr != nil {
+		for !e.State.Done && (c.Stdout != nil || c.Stderr != nil) {
 			select {
 			case line, open := <-c.Stdout:
 				if !open {
@@ -69,23 +69,15 @@ func (e *Executor) Run(script string) error {
 	}()
 
 	go func() {
-		for {
-			select {
-			case <-e.stopCh:
-				c.Stop()
-				break
-			}
-		}
+		<-e.stopCh
+		c.Stop()
 	}()
 
 	go func() {
-		select {
-		case finalStatus := <-statusCh:
-			e.State.Done = true
-			e.State.Error = finalStatus.Error
-			e.stateCh <- e.State
-			break
-		}
+		finalStatus := <-statusCh
+		e.State.Done = true
+		e.State.Error = finalStatus.Error
+		e.stateCh <- e.State
 	}()
 
 	return nil

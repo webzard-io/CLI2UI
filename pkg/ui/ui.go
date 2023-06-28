@@ -3,6 +3,7 @@ package ui
 import (
 	"CLI2UI/pkg/executor"
 	"encoding/json"
+
 	"github.com/labstack/gommon/log"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/arco"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
@@ -56,14 +57,11 @@ func (u *UI) buildUI() {
 		_ = json.Unmarshal(b, &command)
 
 		go func() {
-			for {
-				select {
-				case s := <-stateCh:
-					err := eState.SetState(s, &connId)
-					if err != nil {
-						log.Error(err)
-					}
-					break
+			for !e.State.Done {
+				s := <-stateCh
+				err := eState.SetState(s, &connId)
+				if err != nil {
+					log.Error(err)
 				}
 			}
 		}()
