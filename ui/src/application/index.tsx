@@ -27,6 +27,22 @@ export function renderApp(options: MainOptions) {
     }
   };
 
+  ws.addEventListener('message', e => {
+    const data = JSON.parse(e.data)
+    
+    if (data.handler !== 'Heartbeat') {
+      return
+    }
+
+    ws.send(JSON.stringify({
+      type: 'Action',
+      handler: 'Heartbeat',
+      // TODO(xinxi.guo): this can be extended later
+      params: "Pong",
+      store: null
+    }))
+  })
+
   ReactDOM.render(
     <App
       application={application}
