@@ -3,6 +3,7 @@ package ui
 import (
 	"CLI2UI/pkg/executor"
 	"encoding/json"
+	"time"
 
 	"github.com/labstack/gommon/log"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/arco"
@@ -51,6 +52,12 @@ func (u *UI) buildUI() {
 
 	u.b.Component(eState.AsComponent())
 
+	hbCh := make(chan struct{})
+	u.r.Handle("Heartbeat", func(m *runtime.Message, connId int) error {
+		hbCh <- struct{}{}
+		return nil
+	})
+
 	u.r.Handle("run", func(m *runtime.Message, connId int) error {
 		command := ""
 		b, _ := json.Marshal(m.Params)
@@ -65,6 +72,30 @@ func (u *UI) buildUI() {
 				}
 			}
 		}()
+
+		go func() {
+			for !e.State.Done {
+				// TODO(xinxi.guo): this can be extended to send more useful messages
+				err := u.r.Ping(&connId, "Ping")
+
+				// this fails when a WebSocket connection drops **loudly**
+				if err != nil {
+					stopCh <- struct{}{}
+					return
+				}
+
+				select {
+				case <-hbCh:
+				// this fails when a WebSocket connection drops **silently**
+				case <-time.After(5 * time.Second):
+					stopCh <- struct{}{}
+					return
+				}
+
+				time.Sleep(5 * time.Second)
+			}
+		}()
+
 		err := e.Run(command)
 		if err != nil {
 			log.Error(err)
