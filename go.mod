@@ -6,7 +6,8 @@ require (
 	github.com/go-cmd/cmd v1.4.1
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/labstack/gommon v0.3.1
-	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230621104457-68418fba80fd
+	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230629025039-bdecbf9563f1
+	golang.org/x/text v0.3.7
 )
 
 require (
@@ -21,6 +22,5 @@ require (
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 )
