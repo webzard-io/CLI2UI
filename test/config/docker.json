@@ -1,15 +1,18 @@
 {
+    "$schema": "../../cli.schema.json",
     "name": "docker",
-    "flagdelim": " ",
+    "flagDelim": " ",
     "command": {
         "name": "docker",
         "flags": [
             {
                 "name": "config",
+                "long": true,
                 "type": "string"
             },
             {
                 "name": "log-level",
+                "long": true,
                 "type": "enum",
                 "default": "info",
                 "options": [
@@ -30,6 +33,7 @@
                         "flags": [
                             {
                                 "name": "driver",
+                                "long": true,
                                 "type": "string"
                             }
                         ],
