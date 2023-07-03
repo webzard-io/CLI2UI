@@ -7,12 +7,15 @@ import (
 func TestScriptGeneration(t *testing.T) {
 	f := docker.Form()
 
-	f.Flags["config"] = "this-config.yaml"
-	f.Flags["log-level"] = "info"
+	f.Flags["config"].Value = "this-config.yaml"
+	f.Flags["config"].Long = true
+
+	f.Flags["log-level"].Value = "info"
+	f.Flags["log-level"].Long = true
 	f.Choice = "volume"
 
 	f.Subcommands["volume"].Choice = "create"
-	f.Subcommands["volume"].Subcommands["create"].Args["name"] = "new-volume"
+	f.Subcommands["volume"].Subcommands["create"].Args["name"].Value = "new-volume"
 
 	s := docker.Script(f)
 

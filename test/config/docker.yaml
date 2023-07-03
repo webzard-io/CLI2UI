@@ -1,14 +1,15 @@
 # yaml-language-server: $schema=../../cli.schema.json
 name: docker
 flagDelim: ' '
-doubleDashesForLongFlags: true
 command:
   name: docker
   flags:
     - name: config
       type: string
+      long: true
     - name: log-level
       type: enum
+      long: true
       default: info
       options:
         - debug
@@ -23,6 +24,7 @@ command:
           flags:
             - name: driver
               type: string
+              long: true
           args:
             - name: name
               type: string
