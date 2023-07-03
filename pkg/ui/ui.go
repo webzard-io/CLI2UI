@@ -8,23 +8,35 @@ import (
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
 
-type UI struct {
-	r    *runtime.Runtime
-	arco *arco.ArcoAppBuilder
-	c2u  *CLI2UIAppBuilder
-	cli  *config.CLI
-}
-
-func NewUI(c config.CLI) UI {
+func NewUI(c config.CLI) *UI {
 	r := runtime.New("ui", "patch")
 	app := sunmao.NewApp()
 	arco := arco.NewArcoApp(app)
 	c2u := NewCLI2UIApp(app)
 
-	return UI{
+	return &UI{
 		r:    r,
 		arco: arco,
 		c2u:  c2u,
 		cli:  &c,
 	}
+}
+
+func (u UI) Run() error {
+	u.buildPage()
+
+	err := u.r.LoadApp(u.arco.AppBuilder)
+	if err != nil {
+		return err
+	}
+
+	u.r.Run()
+	return nil
+}
+
+type UI struct {
+	r    *runtime.Runtime
+	arco *arco.ArcoAppBuilder
+	c2u  *CLI2UIAppBuilder
+	cli  *config.CLI
 }
