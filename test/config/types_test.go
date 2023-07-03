@@ -7,9 +7,46 @@ import (
 	"testing"
 )
 
+func TestNewCLIFromYaml(t *testing.T) {
+	data, err := os.ReadFile("./docker.yaml")
+	if err != nil {
+		t.Error("failed reading docker.yaml")
+	}
+
+	constructed, err := config.NewCLIFromYaml(data)
+	if err != nil {
+		t.Error("failed building CLI from YAML")
+	}
+
+	equal := reflect.DeepEqual(docker, constructed)
+
+	if !equal {
+		t.Error("instance constructed by YAML does not equal to the declared one")
+	}
+}
+
+func TestNewCLIFromJson(t *testing.T) {
+	data, err := os.ReadFile("./docker.json")
+	if err != nil {
+		t.Error("failed reading docker.json")
+	}
+
+	constructed, err := config.NewCLIFromJson(data)
+	if err != nil {
+		t.Error("failed building CLI from JSON")
+	}
+
+	equal := reflect.DeepEqual(docker, constructed)
+
+	if !equal {
+		t.Error("instance constructed by JSON does not equal to the declared one")
+	}
+}
+
 var docker = &config.CLI{
-	Name:      "docker",
-	FlagDelim: " ",
+	Name:                     "docker",
+	FlagDelim:                " ",
+	DoubleDashesForLongFlags: true,
 	Command: config.Command{
 		Name: "docker",
 		Flags: []config.FlagOrArg{
@@ -47,40 +84,4 @@ var docker = &config.CLI{
 			},
 		},
 	},
-}
-
-func TestNewCLIFromYaml(t *testing.T) {
-	data, err := os.ReadFile("./docker.yaml")
-	if err != nil {
-		t.Error("failed reading docker.yaml")
-	}
-
-	constructed, err := config.NewCLIFromYaml(data)
-	if err != nil {
-		t.Error("failed building CLI from YAML")
-	}
-
-	equal := reflect.DeepEqual(docker, constructed)
-
-	if !equal {
-		t.Error("instance constructed by YAML does not equal to the declared one")
-	}
-}
-
-func TestNewCLIFromJson(t *testing.T) {
-	data, err := os.ReadFile("./docker.json")
-	if err != nil {
-		t.Error("failed reading docker.json")
-	}
-
-	constructed, err := config.NewCLIFromJson(data)
-	if err != nil {
-		t.Error("failed building CLI from JSON")
-	}
-
-	equal := reflect.DeepEqual(docker, constructed)
-
-	if !equal {
-		t.Error("instance constructed by JSON does not equal to the declared one")
-	}
 }

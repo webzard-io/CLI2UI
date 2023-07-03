@@ -1,5 +1,7 @@
+# yaml-language-server: $schema=../../cli.schema.json
 name: docker
-flagdelim: ' '
+flagDelim: ' '
+doubleDashesForLongFlags: true
 command:
   name: docker
   flags:

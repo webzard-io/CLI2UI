@@ -10,21 +10,21 @@ type Form struct {
 }
 
 func (c CLI) Script(f Form) string {
-	return parseScript(&f, c.Name, c.FlagDelim)
+	return parseScript(&f, c.Name, c.FlagDelim, c.DoubleDashesForLongFlags)
 }
 
-func parseScript(f *Form, script string, flagDelim string) string {
+func parseScript(f *Form, script string, flagDelim string, doubleDashes bool) string {
 	for k, v := range f.Flags {
 		if v == nil {
 			continue
 		}
 
-		var prefix string
+		prefix := "-"
 
-		if len(k) == 1 {
-			prefix = "-"
-		} else {
-			prefix = "--"
+		// single dash sometimes starts flags with longer names
+		// Ref: https://pkg.go.dev/flag#hdr-Command_line_flag_syntax
+		if doubleDashes && len(k) > 1 {
+			prefix += "-"
 		}
 
 		script = fmt.Sprintf("%s %s%s%s%s", script, prefix, k, flagDelim, v)
@@ -42,7 +42,7 @@ func parseScript(f *Form, script string, flagDelim string) string {
 	}
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
-	return parseScript((f.Subcommands)[f.Choice], script, flagDelim)
+	return parseScript((f.Subcommands)[f.Choice], script, flagDelim, doubleDashes)
 }
 
 func (c CLI) Form() Form {
