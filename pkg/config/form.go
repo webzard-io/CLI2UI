@@ -26,8 +26,6 @@ func parseScript(f *Form, script string, flagDelim string) string {
 
 		prefix := "-"
 
-		// single dash sometimes starts flags with longer names
-		// Ref: https://pkg.go.dev/flag#hdr-Command_line_flag_syntax
 		if v.Long {
 			prefix += "-"
 		}
@@ -36,7 +34,7 @@ func parseScript(f *Form, script string, flagDelim string) string {
 	}
 
 	for _, v := range f.Args {
-		if v == nil {
+		if v.Value == nil {
 			continue
 		}
 		script = fmt.Sprintf("%s %s", script, v.Value)
