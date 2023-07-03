@@ -10,15 +10,15 @@ type Form struct {
 }
 
 func (c *CLI) Script(f *Form) string {
-	return parseScript(f, c.Name)
+	return parseScript(f, c.Name, c.FlagDelim)
 }
 
-func parseScript(f *Form, script string) string {
+func parseScript(f *Form, script string, flagDelim string) string {
 	for k, v := range *f.Flags {
 		if v == nil {
 			continue
 		}
-		script = fmt.Sprintf("%s --%s %s", script, k, v)
+		script = fmt.Sprintf("%s --%s%s%s", script, k, flagDelim, v)
 	}
 
 	for _, v := range *f.Args {
@@ -33,7 +33,7 @@ func parseScript(f *Form, script string) string {
 	}
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
-	return parseScript((*f.Subcommands)[f.Choice], script)
+	return parseScript((*f.Subcommands)[f.Choice], script, flagDelim)
 }
 
 func (c *CLI) Form() *Form {

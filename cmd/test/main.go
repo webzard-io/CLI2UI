@@ -46,7 +46,7 @@ func main() {
 				},
 			},
 		},
-		FlagDelim: "=",
+		FlagDelim: " ",
 	}
 
 	form := docker.Form()
