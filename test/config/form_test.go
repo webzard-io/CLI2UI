@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"CLI2UI/pkg/config"
 	"testing"
 )
 
@@ -17,49 +16,8 @@ func TestScriptGeneration(t *testing.T) {
 
 	s := docker.Script(f)
 
-	if s != "docker --config this-config.yaml --log-level info volume create new-volume" {
+	if s != "docker --config this-config.yaml --log-level info volume create new-volume" &&
+		s != "docker --log-level info --config this-config.yaml volume create new-volume" {
 		t.Errorf("unexpected script generated: %s", s)
 	}
-}
-
-var docker = config.CLI{
-	Name:      "docker",
-	FlagDelim: " ",
-	Command: config.Command{
-		Name: "docker",
-		Flags: []config.FlagOrArg{
-			{
-				Name: "config",
-				Type: config.FlagArgTypeString,
-			},
-			{
-				Name:    "log-level",
-				Type:    config.FlagArgTypeEnum,
-				Default: "info",
-				Options: []string{"debug", "info", "warn", "error", "fatal"},
-			},
-		},
-		Subcommands: []config.Command{
-			{
-				Name: "volume",
-				Subcommands: []config.Command{
-					{
-						Name: "create",
-						Flags: []config.FlagOrArg{
-							{
-								Name: "driver",
-								Type: config.FlagArgTypeString,
-							},
-						},
-						Args: []config.FlagOrArg{
-							{
-								Name: "name",
-								Type: config.FlagArgTypeString,
-							},
-						},
-					},
-				},
-			},
-		},
-	},
 }

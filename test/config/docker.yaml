@@ -1,0 +1,26 @@
+name: docker
+flagdelim: ' '
+command:
+  name: docker
+  flags:
+    - name: config
+      type: string
+    - name: log-level
+      type: enum
+      default: info
+      options:
+        - debug
+        - info
+        - warn
+        - error
+        - fatal
+  subcommands:
+    - name: volume
+      subcommands:
+        - name: create
+          flags:
+            - name: driver
+              type: string
+          args:
+            - name: name
+              type: string
