@@ -1,5 +1,32 @@
 package config
 
+import "encoding/json"
+
+func NewCLIFromJson(j []byte) (*CLI, error) {
+	c := &CLI{
+		// default value
+		FlagDelim: " ",
+	}
+
+	err := json.Unmarshal(j, c)
+	return c, err
+}
+
+type CLI struct {
+	Name      string // an arbitrary for the generated UI
+	Help      string
+	FlagDelim string  // the delimiter used for flags between key and value (e.g. FlagDelim="=" will have --key=value)
+	Command   Command // the entry of the CLI, make sure the name to this Command is the path to the binary to be called
+}
+
+type Command struct {
+	Name        string
+	Description string
+	Flags       []FlagOrArg
+	Args        []FlagOrArg
+	Subcommands []Command // e.g. kubectl get <resource>, here get is a subcommand to kubectl
+}
+
 type FlagArgType string
 
 const (
@@ -10,27 +37,11 @@ const (
 	FlagArgTypeEnum    FlagArgType = "enum"
 )
 
-type CLI struct {
-	Name    string  `json:"name" yaml:"name"`           // CLI name, e.g., "ping", "kubectl", etc.
-	Help    string  `json:"help,omitempty" yaml:"help"` // CLI help message
-	Command Command `json:"command" yaml:"command"`     // List of supported actions by the CLI
-
-	FlagDelim string `json:",omitempty" yaml:",omitempty"`
-}
-
 type FlagOrArg struct {
-	Name        string      `json:"name" yaml:"name"` // Name of the flag parameter
-	Description string      `json:"description,omitempty" yaml:"description"`
-	Type        FlagArgType `json:"type,omitempty" yaml:"type,omitempty"`         // Type of the flag parameter, optional field
-	Required    bool        `json:"required,omitempty" yaml:"required,omitempty"` // Whether the flag parameter is required, optional field
-	Default     string      `json:"default,omitempty" yaml:"default,omitempty"`   // Default value for the flag parameter, optional field
-	Options     []string    `json:"options,omitempty" yaml:"options,omitempty"`   // Enum options when flag type is enum
-}
-
-type Command struct {
-	Name        string      `json:"name" yaml:"name"` // Name of the action, e.g., "apply", "delete", etc.
-	Description string      `json:"description,omitempty" yaml:"description"`
-	Flags       []FlagOrArg `json:"flags,omitempty" yaml:"flags"`             // List of flag parameters for the action
-	Args        []FlagOrArg `json:"args,omitempty" yaml:"args,omitempty"`     // List of positional arguments for the action, optional field
-	Subcommands []Command   `json:"subcommands,omitempty" yaml:"subcommands"` // List of supported actions by the CLI
+	Name        string
+	Description string
+	Type        FlagArgType
+	Required    bool
+	Default     string
+	Options     []string // only required when Type=enum
 }

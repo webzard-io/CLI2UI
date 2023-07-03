@@ -1,13 +1,14 @@
-package main
+package config_test
 
 import (
 	"CLI2UI/pkg/config"
-	"encoding/json"
-	"fmt"
+	"os"
+	"reflect"
+	"testing"
 )
 
-func main() {
-	docker := config.CLI{
+func TestNewCLIFromJson(t *testing.T) {
+	declared := &config.CLI{
 		Name: "docker",
 		Command: config.Command{
 			Name: "docker",
@@ -49,56 +50,19 @@ func main() {
 		FlagDelim: " ",
 	}
 
-	form := docker.Form()
-	b, err := json.Marshal(form)
-
+	data, err := os.ReadFile("./docker.json")
 	if err != nil {
-		panic(err)
+		t.Error("failed reading docker.json")
 	}
 
-	fmt.Println(string(b))
-
-	raw := `
-	{
-		"Flags":{
-			"config":"this-config.yaml",
-			"log-level":"info"
-		},
-		"Args":{
-			
-		},
-		"Subcommands":{
-			"volume":{
-				"Flags":{
-					
-				},
-				"Args":{
-					
-				},
-				"Subcommands":{
-					"create":{
-						"Flags":{
-							"driver":null
-						},
-						"Args":{
-							"name":"new-stuff"
-						},
-						"Subcommands":{
-							
-						},
-						"Choice":""
-					}
-				},
-				"Choice":"create"
-			}
-		},
-		"Choice":"volume"
+	constructed, err := config.NewCLIFromJson(data)
+	if err != nil {
+		t.Error("failed building CLI from JSON")
 	}
-	`
 
-	var f config.Form
-	json.Unmarshal([]byte(raw), &f)
+	equal := reflect.DeepEqual(declared, constructed)
 
-	script := docker.Script(&f)
-	fmt.Println(script)
+	if !equal {
+		t.Error("instance constructed by JSON does not equal to the declared one")
+	}
 }

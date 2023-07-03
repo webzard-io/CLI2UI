@@ -1,0 +1,47 @@
+{
+    "Name": "docker",
+    "FlagDelim": " ",
+    "Command": {
+        "Name": "docker",
+        "Flags": [
+            {
+                "Name": "config",
+                "Type": "string"
+            },
+            {
+                "Name": "log-level",
+                "Type": "enum",
+                "Default": "info",
+                "Options": [
+                    "debug",
+                    "info",
+                    "warn",
+                    "error",
+                    "fatal"
+                ]
+            }
+        ],
+        "Subcommands": [
+            {
+                "Name": "volume",
+                "Subcommands": [
+                    {
+                        "Name": "create",
+                        "Flags": [
+                            {
+                                "Name": "driver",
+                                "Type": "string"
+                            }
+                        ],
+                        "Args": [
+                            {
+                                "Name": "name",
+                                "Type": "string"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

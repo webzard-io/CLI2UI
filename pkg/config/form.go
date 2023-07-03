@@ -3,43 +3,52 @@ package config
 import "fmt"
 
 type Form struct {
-	Flags       *map[string]any
-	Args        *map[string]any
-	Subcommands *map[string]*Form
+	Flags       map[string]any
+	Args        map[string]any
+	Subcommands map[string]*Form
 	Choice      string
 }
 
-func (c *CLI) Script(f *Form) string {
-	return parseScript(f, c.Name, c.FlagDelim)
+func (c CLI) Script(f Form) string {
+	return parseScript(&f, c.Name, c.FlagDelim)
 }
 
 func parseScript(f *Form, script string, flagDelim string) string {
-	for k, v := range *f.Flags {
+	for k, v := range f.Flags {
 		if v == nil {
 			continue
 		}
-		script = fmt.Sprintf("%s --%s%s%s", script, k, flagDelim, v)
+
+		var prefix string
+
+		if len(k) == 1 {
+			prefix = "-"
+		} else {
+			prefix = "--"
+		}
+
+		script = fmt.Sprintf("%s %s%s%s%s", script, prefix, k, flagDelim, v)
 	}
 
-	for _, v := range *f.Args {
+	for _, v := range f.Args {
 		if v == nil {
 			continue
 		}
 		script = fmt.Sprintf("%s %s", script, v)
 	}
 
-	if len(*f.Subcommands) == 0 || f.Choice == "" {
+	if len(f.Subcommands) == 0 || f.Choice == "" {
 		return script
 	}
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
-	return parseScript((*f.Subcommands)[f.Choice], script, flagDelim)
+	return parseScript((f.Subcommands)[f.Choice], script, flagDelim)
 }
 
-func (c *CLI) Form() *Form {
-	f := &Form{}
+func (c CLI) Form() Form {
+	f := Form{}
 
-	parseForm(&c.Command, f)
+	parseForm(&c.Command, &f)
 
 	return f
 }
@@ -53,9 +62,9 @@ func parseForm(c *Command, f *Form) {
 	args := map[string]any{}
 	subcommands := map[string]*Form{}
 
-	f.Flags = &flags
-	f.Args = &args
-	f.Subcommands = &subcommands
+	f.Flags = flags
+	f.Args = args
+	f.Subcommands = subcommands
 
 	for _, f := range c.Flags {
 		flags[f.Name] = nil
@@ -68,6 +77,6 @@ func parseForm(c *Command, f *Form) {
 	for _, c := range c.Subcommands {
 		form := &Form{}
 		parseForm(&c, form)
-		(*f.Subcommands)[c.Name] = form
+		f.Subcommands[c.Name] = form
 	}
 }
