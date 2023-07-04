@@ -101,6 +101,13 @@ type ArrayInputBuilder struct {
 	*sunmao.InnerComponentBuilder[*ArrayInputBuilder]
 }
 
+type ArrayInputProperties struct {
+	Value       []string `json:"value"`
+	Type        string   `json:"type"`
+	Placeholder string   `json:"placeholder"`
+	Disabled    string   `json:"disabled"`
+}
+
 func (b *CLI2UIAppBuilder) NewArrayInput() *ArrayInputBuilder {
 	t := &ArrayInputBuilder{
 		InnerComponentBuilder: sunmao.NewInnerComponent[*ArrayInputBuilder](b.AppBuilder),

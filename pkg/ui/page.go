@@ -2,6 +2,7 @@ package ui
 
 import (
 	"CLI2UI/pkg/config"
+	"fmt"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
@@ -46,6 +47,7 @@ func (u UI) flagsAndArgs(c config.Command) sunmao.BaseComponentBuilder {
 	os, required, inputs := u.parseOptions(c)
 
 	cb := u.c2u.NewCheckboxMenu().
+		Id(optionsCheckboxId(c.Name)).
 		Properties(structToMap(CheckboxMenuProperties{
 			Value:   required,
 			Text:    "Options",
@@ -68,6 +70,7 @@ func (u UI) flagsAndArgs(c config.Command) sunmao.BaseComponentBuilder {
 	contentElements = append(contentElements, inputs...)
 
 	s := u.arco.NewStack().
+		Id(optionValuesFormId(c.Name)).
 		Properties(structToMap(StackProperties{
 			Direction: "vertical",
 			Spacing:   6,
@@ -86,7 +89,7 @@ func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao
 	inputs := []sunmao.BaseComponentBuilder{}
 
 	for _, f := range c.Flags {
-		inputs = append(inputs, u.optionInput(f))
+		inputs = append(inputs, u.optionInput(f, c.Name))
 		os = append(os, CheckboxOption{
 			Label:    f.Name,
 			Value:    f.Name,
@@ -99,7 +102,7 @@ func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao
 	}
 
 	for _, a := range c.Args {
-		inputs = append(inputs, u.optionInput(a))
+		inputs = append(inputs, u.optionInput(a, c.Name))
 		os = append(os, CheckboxOption{
 			Label:    a.Name,
 			Value:    a.Name,
@@ -114,8 +117,9 @@ func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao
 	return os, required, inputs
 }
 
-func (u UI) optionInput(o config.FlagOrArg) sunmao.BaseComponentBuilder {
+func (u UI) optionInput(o config.FlagOrArg, cmd string) sunmao.BaseComponentBuilder {
 	return u.arco.NewFormControl().
+		Id(optionValueInputId(cmd, o.Name)).
 		Properties(structToMap(FormControlProperties{
 			Label: TextProperties{
 				Format: "plain",
@@ -130,7 +134,66 @@ func (u UI) optionInput(o config.FlagOrArg) sunmao.BaseComponentBuilder {
 			WrapperCol: ColumnProperties{
 				Span: 18,
 			},
-		}))
+		})).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {u.inputType(cmd, o)},
+		}).Slot(sunmao.Container{
+		ID:   optionValuesFormId(cmd),
+		Slot: "content",
+	}, fmt.Sprintf("{{ %s.value.some(o => o === \"%s\") }}", optionsCheckboxId(cmd), o.Name))
+}
+
+func (u UI) inputType(cmd string, o config.FlagOrArg) sunmao.BaseComponentBuilder {
+	// TODO(xinxi.guo): disable when command is running
+	switch o.Type {
+	case config.FlagArgTypeNumber:
+		return u.arco.NewNumberInput().
+			Properties(structToMap(NumberInputProperties{
+				DefaultValue: 1,
+				Placeholder:  o.Default,
+				Size:         "default",
+				Max:          99,
+				Step:         1,
+			}))
+	case config.FlagArgTypeArray:
+		return u.c2u.NewArrayInput().
+			Properties(structToMap(ArrayInputProperties{
+				Value:       []string{""},
+				Type:        "string",
+				Placeholder: o.Default,
+			}))
+	case config.FlagArgTypeBoolean:
+		return u.arco.NewSwitch().
+			Properties(structToMap(SwitchProperties{
+				Type: "circle",
+				Size: "default",
+			}))
+	case config.FlagArgTypeEnum:
+		options := []SelectOptionProperties{}
+		for _, o := range o.Options {
+			options = append(options, SelectOptionProperties{
+				Text:  o,
+				Value: o,
+			})
+		}
+		return u.arco.NewSelect().
+			Properties(structToMap(SelectProperties{
+				Bordered:            true,
+				UnmountOnExit:       true,
+				Options:             options,
+				Placeholder:         o.Default,
+				Size:                "default",
+				AutoAlignPopupWidth: true,
+				Position:            "bottom",
+				MountToBody:         true,
+			}))
+	}
+
+	// TODO(xinxi.guo): implement validation
+	return u.arco.NewInput().Properties(structToMap(InputProperties{
+		Placeholder: o.Default,
+		Size:        "default",
+	}))
 }
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {

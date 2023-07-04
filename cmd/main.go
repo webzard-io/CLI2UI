@@ -106,9 +106,10 @@ var docker = &config.CLI{
 		Name: "docker",
 		Flags: []config.FlagOrArg{
 			{
-				Name: "config",
-				Type: config.FlagArgTypeString,
-				Long: true,
+				Name:     "config",
+				Type:     config.FlagArgTypeString,
+				Long:     true,
+				Required: true,
 			},
 			{
 				Name:    "log-level",

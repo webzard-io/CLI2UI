@@ -2,7 +2,12 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func structToMap(s interface{}) map[string]interface{} {
@@ -18,4 +23,24 @@ func structToMap(s interface{}) map[string]interface{} {
 	}
 
 	return result
+}
+
+func kebabToPascalCase(i string) string {
+	words := strings.Split(i, "-")
+	for i, word := range words {
+		words[i] = cases.Title(language.English).String(word)
+	}
+	return strings.Join(words, "")
+}
+
+func optionsCheckboxId(cmd string) string {
+	return fmt.Sprintf("%sOptionsCheckbox", cmd)
+}
+
+func optionValueInputId(cmd string, option string) string {
+	return fmt.Sprintf("Command%sOption%sInput", cmd, kebabToPascalCase(option))
+}
+
+func optionValuesFormId(cmd string) string {
+	return fmt.Sprintf("Command%sOptionValuesForm", cmd)
 }
