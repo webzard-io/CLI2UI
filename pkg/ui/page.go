@@ -3,8 +3,14 @@ package ui
 import "github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 
 func (u UI) buildPage() {
-	l := u.layout()
-	u.arco.Component(l)
+	cs := []sunmao.BaseComponentBuilder{
+		u.layout(),
+		u.helpModal(),
+	}
+
+	for _, c := range cs {
+		u.arco.Component(c)
+	}
 }
 
 func (u UI) layout() sunmao.BaseComponentBuilder {
@@ -27,12 +33,68 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {
 	title := u.arco.NewText().Content(u.cli.Name)
+
 	help := u.arco.NewButton().
 		Properties(structToMap(ButtonProperties{
 			Shape: "square",
 			Text:  "Help",
 			Type:  "default",
-		}))
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "HelpModal",
+				Method: sunmao.EventMethod{
+					Name: "openModal",
+				},
+			},
+		})
 
 	return []sunmao.BaseComponentBuilder{title, help}
+}
+
+func (u UI) helpModal() sunmao.BaseComponentBuilder {
+	help := u.c2u.NewTextDisplay().
+		Style("content", `
+		height: 24rem;
+		overflow: scroll;
+		`).
+		Content(TextDisplayProperties{
+			Text:   u.cli.Help,
+			Format: "code",
+		})
+
+	close := u.arco.NewButton().
+		Properties(structToMap(ButtonProperties{
+			Type:   "default",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Close",
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "HelpModal",
+				Method: sunmao.EventMethod{
+					Name: "closeModal",
+				},
+			},
+		})
+
+	modal := u.arco.NewModal().Id("HelpModal").
+		Properties(structToMap(ModalProperties{
+			Title:         "Help",
+			Mask:          true,
+			Closable:      true,
+			MaskClosable:  true,
+			UnmountOnExit: true,
+		})).
+		Style("content", "width: 80vw").
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {help},
+			"footer":  {close},
+		})
+
+	return modal
 }

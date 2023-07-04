@@ -17,6 +17,11 @@ type TextDisplayComponentBuilder struct {
 	*sunmao.InnerComponentBuilder[*TextDisplayComponentBuilder]
 }
 
+type TextDisplayProperties struct {
+	Text   string `json:"text"`
+	Format string `json:"format"`
+}
+
 func (b *CLI2UIAppBuilder) NewTextDisplay() *TextDisplayComponentBuilder {
 	t := &TextDisplayComponentBuilder{
 		InnerComponentBuilder: sunmao.NewInnerComponent[*TextDisplayComponentBuilder](b.AppBuilder),

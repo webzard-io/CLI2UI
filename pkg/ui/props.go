@@ -3,11 +3,6 @@ package ui
 // this file should be later integrated into https://github.com/webzard-io/sunmao-ui-go-binding/
 // tags generated using: gomodifytags -file pkg/ui/props.go -all -add-tags json
 
-type TextDisplayProperties struct {
-	Text   string `json:"text"`
-	Format string `json:"format"`
-}
-
 type ButtonProperties struct {
 	Text     string `json:"text"`
 	Type     string `json:"type"`
@@ -33,4 +28,17 @@ type LayoutProperties struct {
 	ShowSideBar             bool `json:"showSideBar"`
 	SidebarCollapsible      bool `json:"sidebarCollapsible"`
 	SidebarDefaultCollapsed bool `json:"sidebarDefaultCollapsed"`
+}
+
+type ModalProperties struct {
+	Title          string `json:"title"`
+	DefaultOpen    bool   `json:"defaultOpen"`
+	Mask           bool   `json:"mask"`
+	Simple         bool   `json:"simple"`
+	OkText         string `json:"okText"`
+	CancelText     string `json:"cancelText"`
+	Closable       bool   `json:"closable"`
+	MaskClosable   bool   `json:"maskClosable"`
+	ConfirmLoading bool   `json:"confirmLoading"`
+	UnmountOnExit  bool   `json:"unmountOnExit"`
 }
