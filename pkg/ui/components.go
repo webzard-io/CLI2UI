@@ -39,6 +39,18 @@ type CheckboxMenuBuilder struct {
 	*sunmao.InnerComponentBuilder[*CheckboxMenuBuilder]
 }
 
+type CheckboxOption struct {
+	Label    string `json:"label"`
+	Value    string `json:"value"`
+	Disabled bool   `json:"disabled"`
+}
+
+type CheckboxMenuProperties struct {
+	Value   []string         `json:"value"`
+	Text    string           `json:"text"`
+	Options []CheckboxOption `json:"options"`
+}
+
 func (b *CLI2UIAppBuilder) NewCheckboxMenu() *CheckboxMenuBuilder {
 	t := &CheckboxMenuBuilder{
 		InnerComponentBuilder: sunmao.NewInnerComponent[*CheckboxMenuBuilder](b.AppBuilder),

@@ -1,6 +1,10 @@
 package ui
 
-import "github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
+import (
+	"CLI2UI/pkg/config"
+
+	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
+)
 
 func (u UI) buildPage() {
 	cs := []sunmao.BaseComponentBuilder{
@@ -25,10 +29,39 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 		padding: 0.75rem 1rem;
 		gap: 0.5rem;
 		`).
+		Style("content", `
+		display: flex;
+		flex-direction: column;
+		place-items: center;
+		padding: 0.75rem 1rem;
+		gap: 0.5rem;
+		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"header":  u.headerElements(),
-			"content": {},
+			"content": {u.flagsAndArgs(u.cli.Command)},
 		})
+}
+
+func (u UI) flagsAndArgs(c config.Command) sunmao.BaseComponentBuilder {
+	options, requiredOptions := parseOptions(c)
+
+	cb := u.c2u.NewCheckboxMenu().
+		Properties(structToMap(CheckboxMenuProperties{
+			Value:   requiredOptions,
+			Text:    "Options",
+			Options: options,
+		}))
+
+	s := u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "vertical",
+		})).
+		Style("content", "margin-left: auto;").
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {cb},
+		})
+
+	return s
 }
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {
