@@ -106,10 +106,9 @@ var docker = &config.CLI{
 		Name: "docker",
 		Flags: []config.FlagOrArg{
 			{
-				Name:     "config",
-				Type:     config.FlagArgTypeString,
-				Long:     true,
-				Required: true,
+				Name: "config",
+				Type: config.FlagArgTypeString,
+				Long: true,
 			},
 			{
 				Name:    "log-level",
@@ -134,8 +133,33 @@ var docker = &config.CLI{
 						},
 						Args: []config.FlagOrArg{
 							{
-								Name: "name",
-								Type: config.FlagArgTypeString,
+								Name:     "name",
+								Type:     config.FlagArgTypeString,
+								Required: true,
+							},
+						},
+					},
+					{
+						Name: "delete",
+						Args: []config.FlagOrArg{
+							{
+								Name:     "name",
+								Type:     config.FlagArgTypeString,
+								Required: true,
+							},
+						},
+					},
+				},
+			},
+			{
+				Name: "compose",
+				Subcommands: []config.Command{
+					{
+						Name: "up",
+						Flags: []config.FlagOrArg{
+							{
+								Name: "d",
+								Type: config.FlagArgTypeBoolean,
 							},
 						},
 					},
