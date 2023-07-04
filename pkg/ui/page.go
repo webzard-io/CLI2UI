@@ -9,6 +9,9 @@ func (u UI) buildPage() {
 
 func (u UI) layout() sunmao.BaseComponentBuilder {
 	return u.arco.NewLayout().
+		Properties(structToMap(LayoutProperties{
+			ShowHeader: true,
+		})).
 		Style("header", `
 		display: flex;
 		flex-direction: row;
