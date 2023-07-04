@@ -133,3 +133,18 @@ type InputProperties struct {
 	Error                         bool   `json:"error"`
 	Size                          string `json:"size"`
 }
+
+type TabProperties struct {
+	Title         string `json:"title"`
+	Hidden        bool   `json:"hidden"`
+	DestroyOnHide bool   `json:"destroyOnHide"`
+}
+
+type TabsProperties struct {
+	DefaultActiveTab              int             `json:"defaultActiveTab"`
+	Tabs                          []TabProperties `json:"tabs"`
+	UpdateWhenDefaultValueChanges bool            `json:"updateWhenDefaultValueChanges"`
+	Type                          string          `json:"type"`
+	TabPosition                   string          `json:"tabPosition"`
+	Size                          string          `json:"size"`
+}

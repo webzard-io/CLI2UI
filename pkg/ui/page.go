@@ -38,12 +38,50 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 		gap: 0.5rem;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"header":  u.headerElements(),
-			"content": {u.flagsAndArgs(u.cli.Command)},
+			"header": u.headerElements(),
+			"content": {
+				u.commandStack(u.cli.Command),
+			},
 		})
 }
 
-func (u UI) flagsAndArgs(c config.Command) sunmao.BaseComponentBuilder {
+func (u UI) commandStack(c config.Command) sunmao.BaseComponentBuilder {
+	cs := []sunmao.BaseComponentBuilder{u.optionsInputForm(c)}
+	if len(c.Subcommands) > 0 {
+		cs = append(cs, u.subcommandsTab(c))
+	}
+	return u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "vertical",
+			Spacing:   6,
+		})).
+		Style("content", "width: 100%;").
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": cs,
+		})
+}
+
+func (u UI) subcommandsTab(c config.Command) sunmao.BaseComponentBuilder {
+	tabs := []TabProperties{}
+
+	for _, c := range c.Subcommands {
+		tabs = append(tabs, TabProperties{
+			Title:         c.Name,
+			DestroyOnHide: true,
+		})
+	}
+
+	return u.arco.NewTabs().
+		Properties(structToMap(TabsProperties{
+			Type:        "line",
+			TabPosition: "top",
+			Size:        "default",
+			Tabs:        tabs,
+		})).
+		Style("content", "width: 100%;")
+}
+
+func (u UI) optionsInputForm(c config.Command) sunmao.BaseComponentBuilder {
 	os, required, inputs := u.parseOptions(c)
 
 	cb := u.c2u.NewCheckboxMenu().
@@ -89,7 +127,7 @@ func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao
 	inputs := []sunmao.BaseComponentBuilder{}
 
 	for _, f := range c.Flags {
-		inputs = append(inputs, u.optionInput(f, c.Name))
+		inputs = append(inputs, u.optionInput(c.Name, f))
 		os = append(os, CheckboxOption{
 			Label:    f.Name,
 			Value:    f.Name,
@@ -102,7 +140,7 @@ func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao
 	}
 
 	for _, a := range c.Args {
-		inputs = append(inputs, u.optionInput(a, c.Name))
+		inputs = append(inputs, u.optionInput(c.Name, a))
 		os = append(os, CheckboxOption{
 			Label:    a.Name,
 			Value:    a.Name,
@@ -117,7 +155,7 @@ func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao
 	return os, required, inputs
 }
 
-func (u UI) optionInput(o config.FlagOrArg, cmd string) sunmao.BaseComponentBuilder {
+func (u UI) optionInput(cmd string, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 	return u.arco.NewFormControl().
 		Id(optionValueInputId(cmd, o.Name)).
 		Properties(structToMap(FormControlProperties{
@@ -129,18 +167,19 @@ func (u UI) optionInput(o config.FlagOrArg, cmd string) sunmao.BaseComponentBuil
 			Required:   o.Required,
 			LabelAlign: "left",
 			LabelCol: ColumnProperties{
-				Span: 6,
+				Span: 4,
 			},
 			WrapperCol: ColumnProperties{
-				Span: 18,
+				Span: 20,
 			},
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {u.inputType(cmd, o)},
-		}).Slot(sunmao.Container{
-		ID:   optionValuesFormId(cmd),
-		Slot: "content",
-	}, fmt.Sprintf("{{ %s.value.some(o => o === \"%s\") }}", optionsCheckboxId(cmd), o.Name))
+		}).
+		Slot(sunmao.Container{
+			ID:   optionValuesFormId(cmd),
+			Slot: "content",
+		}, fmt.Sprintf("{{ %s.value.some(o => o === \"%s\") }}", optionsCheckboxId(cmd), o.Name))
 }
 
 func (u UI) inputType(cmd string, o config.FlagOrArg) sunmao.BaseComponentBuilder {
@@ -255,7 +294,7 @@ func (u UI) helpModal() sunmao.BaseComponentBuilder {
 			MaskClosable:  true,
 			UnmountOnExit: true,
 		})).
-		Style("content", "width: 80vw").
+		Style("content", "width: 80vw;").
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {help},
 			"footer":  {close},
