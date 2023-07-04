@@ -43,25 +43,94 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) flagsAndArgs(c config.Command) sunmao.BaseComponentBuilder {
-	options, requiredOptions := parseOptions(c)
+	os, required, inputs := u.parseOptions(c)
 
 	cb := u.c2u.NewCheckboxMenu().
 		Properties(structToMap(CheckboxMenuProperties{
-			Value:   requiredOptions,
+			Value:   required,
 			Text:    "Options",
-			Options: options,
-		}))
+			Options: os,
+		})).
+		Style("content", `
+		display: flex;
+		align-items: flex-end;
+		`)
+
+	cbWrapper := u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "horizontal",
+			Justify:   "flex-end",
+		})).Children(map[string][]sunmao.BaseComponentBuilder{
+		"content": {cb},
+	})
+
+	contentElements := []sunmao.BaseComponentBuilder{cbWrapper}
+	contentElements = append(contentElements, inputs...)
 
 	s := u.arco.NewStack().
 		Properties(structToMap(StackProperties{
 			Direction: "vertical",
+			Spacing:   6,
 		})).
-		Style("content", "margin-left: auto;").
+		Style("content", "width: 100%;").
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {cb},
+			"content": contentElements,
 		})
 
 	return s
+}
+
+func (u UI) parseOptions(c config.Command) ([]CheckboxOption, []string, []sunmao.BaseComponentBuilder) {
+	os := []CheckboxOption{}
+	required := []string{}
+	inputs := []sunmao.BaseComponentBuilder{}
+
+	for _, f := range c.Flags {
+		inputs = append(inputs, u.optionInput(f))
+		os = append(os, CheckboxOption{
+			Label:    f.Name,
+			Value:    f.Name,
+			Disabled: f.Required,
+		})
+
+		if f.Required {
+			required = append(required, f.Name)
+		}
+	}
+
+	for _, a := range c.Args {
+		inputs = append(inputs, u.optionInput(a))
+		os = append(os, CheckboxOption{
+			Label:    a.Name,
+			Value:    a.Name,
+			Disabled: a.Required,
+		})
+
+		if a.Required {
+			required = append(required, a.Name)
+		}
+	}
+
+	return os, required, inputs
+}
+
+func (u UI) optionInput(o config.FlagOrArg) sunmao.BaseComponentBuilder {
+	return u.arco.NewFormControl().
+		Properties(structToMap(FormControlProperties{
+			Label: TextProperties{
+				Format: "plain",
+				Raw:    o.Name,
+			},
+			Layout:     "horizontal",
+			Required:   o.Required,
+			LabelAlign: "left",
+			LabelCol: ColumnProperties{
+				Span: 6,
+			},
+			WrapperCol: ColumnProperties{
+				Span: 18,
+			},
+		}))
 }
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {

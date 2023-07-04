@@ -42,3 +42,27 @@ type ModalProperties struct {
 	ConfirmLoading bool   `json:"confirmLoading"`
 	UnmountOnExit  bool   `json:"unmountOnExit"`
 }
+
+type TextProperties struct {
+	Raw    string `json:"raw"`
+	Format string `json:"format"`
+}
+
+type ColumnProperties struct {
+	Span   int `json:"span"`
+	Offset int `json:"offset"`
+}
+
+type FormControlProperties struct {
+	Label      TextProperties   `json:"label"`
+	Required   bool             `json:"required"`
+	Hidden     bool             `json:"hidden"`
+	Layout     string           `json:"layout"`
+	Extra      string           `json:"extra"`
+	ErrorMsg   string           `json:"errorMsg"`
+	Help       string           `json:"help"`
+	LabelAlign string           `json:"labelAlign"`
+	Colon      bool             `json:"colon"`
+	LabelCol   ColumnProperties `json:"labelCol"`
+	WrapperCol ColumnProperties `json:"wrapperCol"`
+}
