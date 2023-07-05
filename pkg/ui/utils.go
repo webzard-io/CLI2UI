@@ -92,7 +92,7 @@ func clearForm(f *config.Form) {
 	}
 
 	for k := range f.Flags {
-		f.Args[k].Value = nil
+		f.Flags[k].Value = nil
 	}
 
 	for k := range f.Subcommands {
