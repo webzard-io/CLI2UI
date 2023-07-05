@@ -9,6 +9,7 @@ import (
 
 func (u UI) buildPage() {
 	cs := []sunmao.BaseComponentBuilder{
+		u.arco.NewState("value", false).Id("isRunning"),
 		u.layout(),
 		u.helpModal(),
 	}
@@ -51,14 +52,14 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) stopButton() sunmao.BaseComponentBuilder {
-	// TODO(xinxi.guo): implement disable when not running
 	return u.arco.NewButton().
-		Properties(structToMap(ButtonProperties{
-			Type:   "primary",
-			Status: "default",
-			Size:   "default",
-			Shape:  "square",
-			Text:   "Stop",
+		Properties(structToMap(ButtonProperties[string]{
+			Type:     "primary",
+			Status:   "default",
+			Size:     "default",
+			Shape:    "square",
+			Text:     "Stop",
+			Disabled: "{{ !isRunning.value }}",
 		})).
 		Style("content", "width: 100%;").
 		Event([]sunmao.EventHandler{
@@ -67,6 +68,17 @@ func (u UI) stopButton() sunmao.BaseComponentBuilder {
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/Stop",
+				},
+			},
+			{
+				Type:        "onClick",
+				ComponentId: "isRunning",
+				Method: sunmao.EventMethod{
+					Name: "setValue",
+					Parameters: map[string]any{
+						"key":   "value",
+						"value": false,
+					},
 				},
 			},
 		})
@@ -100,14 +112,14 @@ func (u UI) terminal() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) runButton() sunmao.BaseComponentBuilder {
-	// TODO(xinxi.guo): implement disable when running
 	return u.arco.NewButton().
-		Properties(structToMap(ButtonProperties{
-			Text:   "Run",
-			Type:   "primary",
-			Status: "default",
-			Size:   "default",
-			Shape:  "square",
+		Properties(structToMap(ButtonProperties[string]{
+			Text:     "Run",
+			Type:     "primary",
+			Status:   "default",
+			Size:     "default",
+			Shape:    "square",
+			Disabled: "{{ isRunning.value }}",
 		})).
 		Style("content", "width: 100%;").
 		Event([]sunmao.EventHandler{
@@ -116,6 +128,17 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/Run",
+				},
+			},
+			{
+				Type:        "onClick",
+				ComponentId: "isRunning",
+				Method: sunmao.EventMethod{
+					Name: "setValue",
+					Parameters: map[string]any{
+						"key":   "value",
+						"value": true,
+					},
 				},
 			},
 		})
@@ -192,20 +215,20 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuilder {
 	os, required, inputs := u.parseOptions(p, c)
 
-	// TODO(xinxi.guo): disable when len(options) == 0
+	// TODO(xinxi.guo): notify the user when there is no option available
 	cb := u.arco.NewCheckbox().
 		Id(p.optionsCheckboxId()).
-		Properties(structToMap(CheckboxProperties{
+		Properties(structToMap(CheckboxProperties[string]{
 			Options:              os,
 			DefaultCheckedValues: required,
 			Direction:            "horizontal",
+			Disabled:             "{{ isRunning.value }}",
 		})).
 		Style("content", `
 		display: flex;
 		align-items: flex-end;
 		`)
 
-	// TODO(xinxi.guo): notify the user when there is no option available
 	cbWrapper := u.arco.NewStack().
 		Properties(structToMap(StackProperties{
 			Direction: "horizontal",
@@ -309,34 +332,36 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 			},
 		},
 	}
-	// TODO(xinxi.guo): disable when command is running
 	switch o.Type {
 	case config.FlagArgTypeNumber:
 		return u.arco.NewNumberInput().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(NumberInputProperties{
+			Properties(structToMap(NumberInputProperties[string]{
 				DefaultValue: 1,
 				Placeholder:  o.Default,
 				Size:         "default",
 				Max:          99,
 				Step:         1,
+				Disabled:     "{{ isRunning.value }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeArray:
 		return u.c2u.NewArrayInput().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(ArrayInputProperties{
+			Properties(structToMap(ArrayInputProperties[string]{
 				Value:       []string{""},
 				Type:        "string",
 				Placeholder: o.Default,
+				Disabled:    "{{ isRunning.value }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeBoolean:
 		return u.arco.NewSwitch().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(SwitchProperties{
-				Type: "circle",
-				Size: "default",
+			Properties(structToMap(SwitchProperties[string]{
+				Type:     "circle",
+				Size:     "default",
+				Disabled: "{{ isRunning.value }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeEnum:
@@ -349,7 +374,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 		}
 		return u.arco.NewSelect().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(SelectProperties{
+			Properties(structToMap(SelectProperties[string]{
 				Bordered:            true,
 				UnmountOnExit:       true,
 				Options:             options,
@@ -358,6 +383,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				AutoAlignPopupWidth: true,
 				Position:            "bottom",
 				MountToBody:         true,
+				Disabled:            "{{ isRunning.value }}",
 			})).
 			Event(es)
 	}
@@ -365,9 +391,10 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 	// TODO(xinxi.guo): implement validation
 	return u.arco.NewInput().
 		Id(p.optionValueInputId(o.Name)).
-		Properties(structToMap(InputProperties{
+		Properties(structToMap(InputProperties[string]{
 			Placeholder: o.Default,
 			Size:        "default",
+			Disabled:    "{{ isRunning.value }}",
 		})).
 		Event(es)
 }
@@ -376,7 +403,7 @@ func (u UI) headerElements() []sunmao.BaseComponentBuilder {
 	title := u.arco.NewText().Content(u.cli.Name)
 
 	help := u.arco.NewButton().
-		Properties(structToMap(ButtonProperties{
+		Properties(structToMap(ButtonProperties[string]{
 			Shape: "square",
 			Text:  "Help",
 			Type:  "default",
@@ -406,7 +433,7 @@ func (u UI) helpModal() sunmao.BaseComponentBuilder {
 		})
 
 	close := u.arco.NewButton().
-		Properties(structToMap(ButtonProperties{
+		Properties(structToMap(ButtonProperties[string]{
 			Type:   "default",
 			Status: "default",
 			Size:   "default",

@@ -3,13 +3,13 @@ package ui
 // this file should be later integrated into https://github.com/webzard-io/sunmao-ui-go-binding/
 // tags generated using: gomodifytags -file pkg/ui/props.go -all -add-tags json
 
-type ButtonProperties struct {
+type ButtonProperties[T string | bool] struct {
 	Text     string `json:"text"`
 	Type     string `json:"type"`
 	Status   string `json:"status"`
 	Size     string `json:"size"`
 	Shape    string `json:"shape"`
-	Disabled bool   `json:"disabled"`
+	Disabled T      `json:"disabled"`
 	Loading  bool   `json:"loading"`
 	Long     bool   `json:"long"`
 }
@@ -67,13 +67,13 @@ type FormControlProperties struct {
 	WrapperCol ColumnProperties `json:"wrapperCol"`
 }
 
-type NumberInputProperties struct {
+type NumberInputProperties[T bool | string] struct {
 	DefaultValue                  int    `json:"defaultValue"`
 	UpdateWhenDefaultValueChanges bool   `json:"updateWhenDefaultValueChanges"`
 	Min                           int    `json:"min"`
 	Max                           int    `json:"max"`
 	Placeholder                   string `json:"placeholder"`
-	Disabled                      bool   `json:"disabled"`
+	Disabled                      T      `json:"disabled"`
 	ButtonMode                    bool   `json:"buttonMode"`
 	Precision                     int    `json:"precision"`
 	Step                          int    `json:"step"`
@@ -82,10 +82,10 @@ type NumberInputProperties struct {
 	Error                         bool   `json:"error"`
 }
 
-type SwitchProperties struct {
+type SwitchProperties[T bool | string] struct {
 	DefaultChecked                bool   `json:"defaultChecked"`
 	UpdateWhenDefaultValueChanges bool   `json:"updateWhenDefaultValueChanges"`
-	Disabled                      bool   `json:"disabled"`
+	Disabled                      T      `json:"disabled"`
 	Type                          string `json:"type"`
 	Size                          string `json:"size"`
 	Loading                       bool   `json:"loading"`
@@ -97,7 +97,7 @@ type SelectOptionProperties struct {
 	Disabled bool   `json:"disabled"`
 }
 
-type SelectProperties struct {
+type SelectProperties[T string | bool] struct {
 	DefaultValue                  string                   `json:"defaultValue"`
 	Options                       []SelectOptionProperties `json:"options"`
 	UpdateWhenDefaultValueChanges bool                     `json:"updateWhenDefaultValueChanges"`
@@ -106,7 +106,7 @@ type SelectProperties struct {
 	Placeholder                   string                   `json:"placeholder"`
 	Bordered                      bool                     `json:"bordered"`
 	Size                          string                   `json:"size"`
-	Disabled                      bool                     `json:"disabled"`
+	Disabled                      T                        `json:"disabled"`
 	Loading                       bool                     `json:"loading"`
 	ShowSearch                    bool                     `json:"showSearch"`
 	RetainInputValue              bool                     `json:"retainInputValue"`
@@ -123,12 +123,12 @@ type SelectProperties struct {
 	Position                      string                   `json:"position"`
 }
 
-type InputProperties struct {
+type InputProperties[T string | bool] struct {
 	DefaultValue                  string `json:"defaultValue"`
 	Placeholder                   string `json:"placeholder"`
 	UpdateWhenDefaultValueChanges bool   `json:"updateWhenDefaultValueChanges"`
 	AllowClear                    bool   `json:"allowClear"`
-	Disabled                      bool   `json:"disabled"`
+	Disabled                      T      `json:"disabled"`
 	ReadOnly                      bool   `json:"readOnly"`
 	Error                         bool   `json:"error"`
 	Size                          string `json:"size"`
@@ -156,13 +156,13 @@ type CheckboxOptionProperties struct {
 	Intermediate bool   `json:"intermediate"`
 }
 
-type CheckboxProperties struct {
+type CheckboxProperties[T string | bool] struct {
 	Options                       []CheckboxOptionProperties `json:"options"`
 	DefaultCheckedValues          []string                   `json:"defaultCheckedValues"`
 	Direction                     string                     `json:"direction"`
 	ShowCheckAll                  bool                       `json:"showCheckAll"`
 	CheckAllText                  string                     `json:"checkAllText"`
-	Disabled                      bool                       `json:"disabled"`
+	Disabled                      T                          `json:"disabled"`
 	UpdateWhenDefaultValueChanges bool                       `json:"updateWhenDefaultValueChanges"`
 }
 

@@ -86,19 +86,6 @@ func (p Path) traverseForm(f *config.Form) *config.Form {
 	return form
 }
 
-func (p Path) traverseCommand(c *config.Command) *config.Command {
-	command := c
-	for _, c := range p {
-		for _, v := range command.Subcommands {
-			if c == v.Name {
-				command = &v
-				break
-			}
-		}
-	}
-	return command
-}
-
 func clearForm(f *config.Form) {
 	for k := range f.Args {
 		f.Args[k].Value = nil
