@@ -9,8 +9,6 @@ import (
 )
 
 func (u UI) buildPage() {
-	f := u.cli.Form()
-
 	cs := []sunmao.BaseComponentBuilder{
 		u.layout(),
 		u.helpModal(),
@@ -20,7 +18,7 @@ func (u UI) buildPage() {
 		u.arco.Component(c)
 	}
 
-	u.registerEvents(&f)
+	u.registerEvents()
 }
 
 type UpdateSubcommandParams[T int | string] struct {
@@ -36,10 +34,12 @@ type UpdateOptionValueParams struct {
 }
 
 // TODO(xinxi.guo): difference connId/user will have different form to fill in this case
-func (u UI) registerEvents(f *config.Form) {
+func (u UI) registerEvents() {
+	f := *u.fTpl
+
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		p := toStruct[UpdateSubcommandParams[int]](m.Params)
-		form := p.Path.traverseForm(f)
+		form := p.Path.traverseForm(&f)
 		form.Choice = p.Tabs[p.SubcommandIndex].Title
 		clearForm(form)
 		return nil
@@ -47,7 +47,7 @@ func (u UI) registerEvents(f *config.Form) {
 
 	u.r.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
 		p := toStruct[UpdateOptionValueParams](m.Params)
-		form := p.Path.traverseForm(f)
+		form := p.Path.traverseForm(&f)
 
 		_, ok := form.Args[p.OptionName]
 		if ok {
@@ -56,6 +56,12 @@ func (u UI) registerEvents(f *config.Form) {
 			form.Flags[p.OptionName].Value = p.Value
 		}
 
+		return nil
+	})
+
+	u.r.Handle("Run", func(m *runtime.Message, connId int) error {
+		s := u.cli.Script(f)
+		fmt.Println(s)
 		return nil
 	})
 }
@@ -85,8 +91,29 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 			"header": u.headerElements(),
 			"content": {
 				u.commandStack(p, u.cli.Command),
+				u.runButton(),
 			},
 		})
+}
+
+func (u UI) runButton() sunmao.BaseComponentBuilder {
+	// TODO(xinxi.guo): implement disable when running
+	return u.arco.NewButton().
+		Properties(structToMap(ButtonProperties{
+			Text:   "Run",
+			Type:   "primary",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+		})).Event([]sunmao.EventHandler{
+		{
+			Type:        "onClick",
+			ComponentId: "$utils",
+			Method: sunmao.EventMethod{
+				Name: "binding/v1/Run",
+			},
+		},
+	})
 }
 
 func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder {
@@ -125,6 +152,10 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 			DestroyOnHide: true,
 		})
 	}
+
+	defaultTab := tabs[0].Title
+	form := p.traverseForm(u.fTpl)
+	form.Choice = defaultTab
 
 	activeTab := fmt.Sprintf("{{ %s.activeTab }}", p.subcommandTabsId())
 

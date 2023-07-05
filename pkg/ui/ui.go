@@ -13,12 +13,14 @@ func NewUI(c config.CLI) *UI {
 	app := sunmao.NewApp()
 	arco := arco.NewArcoApp(app)
 	c2u := NewCLI2UIApp(app)
+	fTpl := c.Form()
 
 	return &UI{
 		r:    r,
 		arco: arco,
 		c2u:  c2u,
 		cli:  &c,
+		fTpl: &fTpl,
 	}
 }
 
@@ -39,4 +41,5 @@ type UI struct {
 	arco *arco.ArcoAppBuilder
 	c2u  *CLI2UIAppBuilder
 	cli  *config.CLI
+	fTpl *config.Form
 }
