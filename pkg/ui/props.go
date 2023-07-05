@@ -148,3 +148,20 @@ type TabsProperties struct {
 	TabPosition                   string          `json:"tabPosition"`
 	Size                          string          `json:"size"`
 }
+
+type CheckboxOptionProperties struct {
+	Label        string `json:"label"`
+	Value        string `json:"value"`
+	Disabled     bool   `json:"disabled"`
+	Intermediate bool   `json:"intermediate"`
+}
+
+type CheckboxProperties struct {
+	Options                       []CheckboxOptionProperties `json:"options"`
+	DefaultCheckedValues          []string                   `json:"defaultCheckedValues"`
+	Direction                     string                     `json:"direction"`
+	ShowCheckAll                  bool                       `json:"showCheckAll"`
+	CheckAllText                  string                     `json:"checkAllText"`
+	Disabled                      bool                       `json:"disabled"`
+	UpdateWhenDefaultValueChanges bool                       `json:"updateWhenDefaultValueChanges"`
+}

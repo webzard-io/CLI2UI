@@ -32,13 +32,9 @@ type UpdateSubcommandParams[T int | string] struct {
 func (u UI) registerEvents(f *config.Form) {
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		p := toStruct[UpdateSubcommandParams[int]](m.Params)
-
-		form := f
-		for _, c := range p.Path {
-			form = form.Subcommands[c]
-		}
+		form := p.Path.traverseForm(f)
 		form.Choice = p.Tabs[p.SubcommandIndex].Title
-
+		clearForm(form)
 		return nil
 	})
 }
@@ -140,18 +136,19 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 	os, required, inputs := u.parseOptions(p, c)
 
 	// TODO(xinxi.guo): disable when len(options) == 0
-	cb := u.c2u.NewCheckboxMenu().
+	cb := u.arco.NewCheckbox().
 		Id(p.optionsCheckboxId()).
-		Properties(structToMap(CheckboxMenuProperties{
-			Value:   required,
-			Text:    "Options",
-			Options: os,
+		Properties(structToMap(CheckboxProperties{
+			Options:              os,
+			DefaultCheckedValues: required,
+			Direction:            "horizontal",
 		})).
 		Style("content", `
 		display: flex;
 		align-items: flex-end;
 		`)
 
+	// TODO(xinxi.guo): notify the user when there is no option available
 	cbWrapper := u.arco.NewStack().
 		Properties(structToMap(StackProperties{
 			Direction: "horizontal",
@@ -160,7 +157,10 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 		"content": {cb},
 	})
 
-	contentElements := []sunmao.BaseComponentBuilder{cbWrapper}
+	contentElements := []sunmao.BaseComponentBuilder{}
+	if len(os) > 0 {
+		contentElements = append(contentElements, cbWrapper)
+	}
 	contentElements = append(contentElements, inputs...)
 
 	s := u.arco.NewStack().
@@ -177,14 +177,14 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 	return s
 }
 
-func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOption, []string, []sunmao.BaseComponentBuilder) {
-	os := []CheckboxOption{}
+func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, []string, []sunmao.BaseComponentBuilder) {
+	os := []CheckboxOptionProperties{}
 	required := []string{}
 	inputs := []sunmao.BaseComponentBuilder{}
 
 	for _, f := range c.Flags {
 		inputs = append(inputs, u.optionInput(p, c.Name, f))
-		os = append(os, CheckboxOption{
+		os = append(os, CheckboxOptionProperties{
 			Label:    f.Name,
 			Value:    f.Name,
 			Disabled: f.Required,
@@ -197,7 +197,7 @@ func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOption, []string, 
 
 	for _, a := range c.Args {
 		inputs = append(inputs, u.optionInput(p, c.Name, a))
-		os = append(os, CheckboxOption{
+		os = append(os, CheckboxOptionProperties{
 			Label:    a.Name,
 			Value:    a.Name,
 			Disabled: a.Required,
@@ -235,7 +235,7 @@ func (u UI) optionInput(p Path, cmd string, o config.FlagOrArg) sunmao.BaseCompo
 		Slot(sunmao.Container{
 			ID:   p.optionValuesFormId(),
 			Slot: "content",
-		}, fmt.Sprintf("{{ %s.value.some(o => o === \"%s\") }}", p.optionsCheckboxId(), o.Name))
+		}, fmt.Sprintf("{{ %s.checkedValues.some(o => o === \"%s\") }}", p.optionsCheckboxId(), o.Name))
 }
 
 func (u UI) inputType(cmd string, o config.FlagOrArg) sunmao.BaseComponentBuilder {

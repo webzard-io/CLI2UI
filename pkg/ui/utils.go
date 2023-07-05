@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"CLI2UI/pkg/config"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -75,4 +76,26 @@ func toStruct[T any](s any) T {
 	_ = json.Unmarshal(b, &t)
 
 	return t
+}
+
+func (p Path) traverseForm(f *config.Form) *config.Form {
+	form := f
+	for _, c := range p {
+		form = form.Subcommands[c]
+	}
+	return form
+}
+
+func clearForm(f *config.Form) {
+	for k := range f.Args {
+		f.Args[k].Value = nil
+	}
+
+	for k := range f.Flags {
+		f.Args[k].Value = nil
+	}
+
+	for k := range f.Subcommands {
+		clearForm(f.Subcommands[k])
+	}
 }
