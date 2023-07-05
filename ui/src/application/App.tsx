@@ -55,7 +55,7 @@ function App(props: BaseProps) {
   } = initSunmaoUI({
     libs: getLibs({ ws, handlers, utilMethods }),
     dependencies: {
-      // formatCommand,
+      formatCommand,
     },
   });
 

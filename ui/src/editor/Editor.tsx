@@ -58,7 +58,7 @@ function Editor(props: BaseProps) {
     runtimeProps: {
       libs: getLibs({ ws, handlers, utilMethods }),
       dependencies: {
-        // formatCommand,
+        formatCommand,
       },
     },
     storageHandler: {

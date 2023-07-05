@@ -332,27 +332,25 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 			},
 		},
 	}
+
 	switch o.Type {
 	case config.FlagArgTypeNumber:
 		return u.arco.NewNumberInput().
 			Id(p.optionValueInputId(o.Name)).
 			Properties(structToMap(NumberInputProperties[string]{
-				DefaultValue: 1,
-				Placeholder:  o.Default,
-				Size:         "default",
-				Max:          99,
-				Step:         1,
-				Disabled:     "{{ isRunning.value }}",
+				Size:     "default",
+				Max:      99,
+				Step:     1,
+				Disabled: "{{ isRunning.value }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeArray:
 		return u.c2u.NewArrayInput().
 			Id(p.optionValueInputId(o.Name)).
 			Properties(structToMap(ArrayInputProperties[string]{
-				Value:       []string{""},
-				Type:        "string",
-				Placeholder: o.Default,
-				Disabled:    "{{ isRunning.value }}",
+				Value:    []string{""},
+				Type:     "string",
+				Disabled: "{{ isRunning.value }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeBoolean:
@@ -378,7 +376,6 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				Bordered:            true,
 				UnmountOnExit:       true,
 				Options:             options,
-				Placeholder:         o.Default,
 				Size:                "default",
 				AutoAlignPopupWidth: true,
 				Position:            "bottom",
@@ -392,9 +389,8 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 	return u.arco.NewInput().
 		Id(p.optionValueInputId(o.Name)).
 		Properties(structToMap(InputProperties[string]{
-			Placeholder: o.Default,
-			Size:        "default",
-			Disabled:    "{{ isRunning.value }}",
+			Size:     "default",
+			Disabled: "{{ isRunning.value }}",
 		})).
 		Event(es)
 }

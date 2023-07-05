@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ui := ui.NewUI(*ping)
+	ui := ui.NewUI(*docker)
 	err := ui.Run()
 	if err != nil {
 		panic(err)
