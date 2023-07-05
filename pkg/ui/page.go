@@ -4,10 +4,13 @@ import (
 	"CLI2UI/pkg/config"
 	"fmt"
 
+	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
 
 func (u UI) buildPage() {
+	f := u.cli.Form()
+
 	cs := []sunmao.BaseComponentBuilder{
 		u.layout(),
 		u.helpModal(),
@@ -16,10 +19,32 @@ func (u UI) buildPage() {
 	for _, c := range cs {
 		u.arco.Component(c)
 	}
+
+	u.registerEvents(&f)
+}
+
+type UpdateSubcommandParams[T int | string] struct {
+	Path            Path
+	SubcommandIndex T
+	Tabs            []TabProperties
+}
+
+func (u UI) registerEvents(f *config.Form) {
+	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
+		p := toStruct[UpdateSubcommandParams[int]](m.Params)
+
+		form := f
+		for _, c := range p.Path {
+			form = form.Subcommands[c]
+		}
+		form.Choice = p.Tabs[p.SubcommandIndex].Title
+
+		return nil
+	})
 }
 
 func (u UI) layout() sunmao.BaseComponentBuilder {
-	p := Path{u.cli.Name}
+	p := Path{}
 
 	return u.arco.NewLayout().
 		Properties(structToMap(LayoutProperties{
@@ -84,6 +109,8 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 		})
 	}
 
+	activeTab := fmt.Sprintf("{{ %s.activeTab }}", p.subcommandTabsId())
+
 	return u.arco.NewTabs().
 		Id(p.subcommandTabsId()).
 		Properties(structToMap(TabsProperties{
@@ -92,7 +119,21 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 			Size:        "default",
 			Tabs:        tabs,
 		})).
-		Style("content", "width: 100%;")
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onChange",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/UpdateSubcommand",
+					Parameters: UpdateSubcommandParams[string]{
+						SubcommandIndex: activeTab,
+						Path:            p,
+						Tabs:            tabs,
+					},
+				},
+			},
+		})
 }
 
 func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuilder {

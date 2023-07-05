@@ -36,11 +36,12 @@ func kebabToPascalCase(i string) string {
 type Path []string
 
 func (p Path) String() string {
-	for i, s := range p {
-		p[i] = kebabToPascalCase(s)
+	c := []string{}
+	for _, s := range p {
+		c = append(c, kebabToPascalCase(s))
 	}
 
-	return strings.Join(p, "")
+	return strings.Join(c, "")
 }
 
 func (p Path) append(s string) Path {
@@ -65,4 +66,13 @@ func (p Path) subcommandTabsId() string {
 
 func (p Path) commandStackId() string {
 	return fmt.Sprintf("%sCommandStack", p)
+}
+
+func toStruct[T any](s any) T {
+	var t T
+
+	b, _ := json.Marshal(s)
+	_ = json.Unmarshal(b, &t)
+
+	return t
 }
