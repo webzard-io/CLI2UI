@@ -33,28 +33,36 @@ func kebabToPascalCase(i string) string {
 	return strings.Join(words, "")
 }
 
-type Prefix string
+type Path []string
 
-func prefix(p Prefix, cmd string) Prefix {
-	return Prefix(fmt.Sprintf("%s%s", p, kebabToPascalCase(cmd)))
+func (p Path) String() string {
+	for i, s := range p {
+		p[i] = kebabToPascalCase(s)
+	}
+
+	return strings.Join(p, "")
 }
 
-func optionsCheckboxId(p Prefix) string {
+func (p Path) append(s string) Path {
+	return append(p, s)
+}
+
+func (p Path) optionsCheckboxId() string {
 	return fmt.Sprintf("%sOptionsCheckbox", p)
 }
 
-func optionValuesFormId(p Prefix) string {
+func (p Path) optionValuesFormId() string {
 	return fmt.Sprintf("%sOptionValuesForm", p)
 }
 
-func optionValueInputId(p Prefix, option string) string {
+func (p Path) optionValueInputId(option string) string {
 	return fmt.Sprintf("%s%sOptionValueInput", p, kebabToPascalCase(option))
 }
 
-func subcommandTabsId(p Prefix) string {
+func (p Path) subcommandTabsId() string {
 	return fmt.Sprintf("%sSubcommandTabs", p)
 }
 
-func commandStackId(p Prefix) string {
+func (p Path) commandStackId() string {
 	return fmt.Sprintf("%sCommandStack", p)
 }
