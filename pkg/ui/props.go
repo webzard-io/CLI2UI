@@ -165,3 +165,22 @@ type CheckboxProperties struct {
 	Disabled                      bool                       `json:"disabled"`
 	UpdateWhenDefaultValueChanges bool                       `json:"updateWhenDefaultValueChanges"`
 }
+
+type CollapseItemProperties struct {
+	Key            string `json:"key"`
+	Header         string `json:"header"`
+	Disabled       bool   `json:"disabled"`
+	ShowExpandIcon bool   `json:"showExpandIcon"`
+	DestroyOnHide  bool   `json:"destroyOnHide"`
+}
+
+type CollapseProperties struct {
+	DefaultActiveKey              []string                 `json:"defaultActiveKey"`
+	Accordion                     bool                     `json:"accordion"`
+	ExpandIconPosition            string                   `json:"expandIconPosition"`
+	Bordered                      bool                     `json:"bordered"`
+	Options                       []CollapseItemProperties `json:"options"`
+	UpdateWhenDefaultValueChanges bool                     `json:"updateWhenDefaultValueChanges"`
+	LazyLoad                      bool                     `json:"lazyLoad"`
+	DestroyOnHide                 bool                     `json:"destroyOnHide"`
+}

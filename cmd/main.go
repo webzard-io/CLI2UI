@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ui := ui.NewUI(*docker)
+	ui := ui.NewUI(*ping)
 	err := ui.Run()
 	if err != nil {
 		panic(err)
@@ -164,6 +164,32 @@ var docker = &config.CLI{
 						},
 					},
 				},
+			},
+		},
+	},
+}
+
+var ping = &config.CLI{
+	Name:      "ping",
+	FlagDelim: "",
+	Help: `usage: ping [-AaDdfnoQqRrv] [-c count] [-G sweepmaxsize]
+	[-g sweepminsize] [-h sweepincrsize] [-i wait]
+	[-l preload] [-M mask | time] [-m ttl] [-p pattern]
+	[-S src_addr] [-s packetsize] [-t timeout][-W waittime]
+	[-z tos] host`,
+	Command: config.Command{
+		Name: "ping",
+		Flags: []config.FlagOrArg{
+			{
+				Name: "c",
+				Type: config.FlagArgTypeNumber,
+			},
+		},
+		Args: []config.FlagOrArg{
+			{
+				Name:     "host",
+				Required: true,
+				Type:     config.FlagArgTypeString,
 			},
 		},
 	},

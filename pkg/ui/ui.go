@@ -26,6 +26,7 @@ func NewUI(c config.CLI) *UI {
 
 func (u UI) Run() error {
 	u.buildPage()
+	u.registerEvents()
 
 	err := u.r.LoadApp(u.arco.AppBuilder)
 	if err != nil {

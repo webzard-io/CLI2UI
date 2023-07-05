@@ -4,7 +4,6 @@ import (
 	"CLI2UI/pkg/config"
 	"fmt"
 
-	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
 
@@ -17,53 +16,6 @@ func (u UI) buildPage() {
 	for _, c := range cs {
 		u.arco.Component(c)
 	}
-
-	u.registerEvents()
-}
-
-type UpdateSubcommandParams[T int | string] struct {
-	Path            Path
-	SubcommandIndex T
-	Tabs            []TabProperties
-}
-
-type UpdateOptionValueParams struct {
-	Path       Path
-	OptionName string
-	Value      any
-}
-
-// TODO(xinxi.guo): difference connId/user will have different form to fill in this case
-func (u UI) registerEvents() {
-	f := *u.fTpl
-
-	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
-		p := toStruct[UpdateSubcommandParams[int]](m.Params)
-		form := p.Path.traverseForm(&f)
-		form.Choice = p.Tabs[p.SubcommandIndex].Title
-		clearForm(form)
-		return nil
-	})
-
-	u.r.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
-		p := toStruct[UpdateOptionValueParams](m.Params)
-		form := p.Path.traverseForm(&f)
-
-		_, ok := form.Args[p.OptionName]
-		if ok {
-			form.Args[p.OptionName].Value = p.Value
-		} else {
-			form.Flags[p.OptionName].Value = p.Value
-		}
-
-		return nil
-	})
-
-	u.r.Handle("Run", func(m *runtime.Message, connId int) error {
-		s := u.cli.Script(f)
-		fmt.Println(s)
-		return nil
-	})
 }
 
 func (u UI) layout() sunmao.BaseComponentBuilder {
@@ -92,6 +44,57 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 			"content": {
 				u.commandStack(p, u.cli.Command),
 				u.runButton(),
+				u.terminal(),
+				u.stopButton(),
+			},
+		})
+}
+
+func (u UI) stopButton() sunmao.BaseComponentBuilder {
+	// TODO(xinxi.guo): implement disable when not running
+	return u.arco.NewButton().
+		Properties(structToMap(ButtonProperties{
+			Type:   "primary",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Stop",
+		})).
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/Stop",
+				},
+			},
+		})
+}
+
+func (u UI) terminal() sunmao.BaseComponentBuilder {
+	return u.arco.NewCollapse().
+		Properties(structToMap(CollapseProperties{
+			DefaultActiveKey: []string{"0"},
+			Options: []CollapseItemProperties{
+				{
+					Key:            "0",
+					Header:         "Result (Standard I/O)",
+					ShowExpandIcon: true,
+				},
+			},
+			ExpandIconPosition: "left",
+			LazyLoad:           true,
+		})).
+		Style("content", `
+		width: 100%;
+		.arco-collapse-item-content-box { 
+			background: white;
+		}
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				u.c2u.NewTerminal().Text("{{ execState.state.stdout }}"),
 			},
 		})
 }
@@ -105,15 +108,17 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 			Status: "default",
 			Size:   "default",
 			Shape:  "square",
-		})).Event([]sunmao.EventHandler{
-		{
-			Type:        "onClick",
-			ComponentId: "$utils",
-			Method: sunmao.EventMethod{
-				Name: "binding/v1/Run",
+		})).
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/Run",
+				},
 			},
-		},
-	})
+		})
 }
 
 func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder {
