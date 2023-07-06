@@ -3,17 +3,18 @@ package main
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/ui"
+	"log"
 )
 
 func main() {
-	ui := ui.NewUI(*docker)
+	ui := ui.NewUI(docker)
 	err := ui.Run()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
-var docker = &config.CLI{
+var docker = config.CLI{
 	Name:      "docker",
 	FlagDelim: " ",
 	Help: `Usage:  docker [OPTIONS] COMMAND
@@ -169,7 +170,7 @@ var docker = &config.CLI{
 	},
 }
 
-var ping = &config.CLI{
+var ping = config.CLI{
 	Name:      "ping",
 	FlagDelim: "",
 	Help: `usage: ping [-AaDdfnoQqRrv] [-c count] [-G sweepmaxsize]
