@@ -17,6 +17,11 @@ type TextDisplayComponentBuilder struct {
 	*sunmao.InnerComponentBuilder[*TextDisplayComponentBuilder]
 }
 
+type TextDisplayProperties struct {
+	Text   string `json:"text"`
+	Format string `json:"format"`
+}
+
 func (b *CLI2UIAppBuilder) NewTextDisplay() *TextDisplayComponentBuilder {
 	t := &TextDisplayComponentBuilder{
 		InnerComponentBuilder: sunmao.NewInnerComponent[*TextDisplayComponentBuilder](b.AppBuilder),
@@ -32,6 +37,18 @@ func (b *TextDisplayComponentBuilder) Content(v TextDisplayProperties) *TextDisp
 
 type CheckboxMenuBuilder struct {
 	*sunmao.InnerComponentBuilder[*CheckboxMenuBuilder]
+}
+
+type CheckboxMenuOptionProperties struct {
+	Label    string `json:"label"`
+	Value    string `json:"value"`
+	Disabled bool   `json:"disabled"`
+}
+
+type CheckboxMenuProperties struct {
+	Value   []string                       `json:"value"`
+	Text    string                         `json:"text"`
+	Options []CheckboxMenuOptionProperties `json:"options"`
 }
 
 func (b *CLI2UIAppBuilder) NewCheckboxMenu() *CheckboxMenuBuilder {
@@ -82,6 +99,13 @@ func (b *TerminalBuilder) Text(value interface{}) *TerminalBuilder {
 
 type ArrayInputBuilder struct {
 	*sunmao.InnerComponentBuilder[*ArrayInputBuilder]
+}
+
+type ArrayInputProperties[T bool | string] struct {
+	Value       []string `json:"value"`
+	Type        string   `json:"type"`
+	Placeholder string   `json:"placeholder"`
+	Disabled    T        `json:"disabled"`
 }
 
 func (b *CLI2UIAppBuilder) NewArrayInput() *ArrayInputBuilder {

@@ -30,7 +30,7 @@ func parseScript(f *Form, script string, flagDelim string) string {
 			prefix += "-"
 		}
 
-		script = fmt.Sprintf("%s %s%s%s%s", script, prefix, k, flagDelim, v.Value)
+		script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, flagDelim, v.Value)
 	}
 
 	for _, v := range f.Args {
