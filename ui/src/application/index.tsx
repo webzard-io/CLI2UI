@@ -1,5 +1,4 @@
 import { implementUtilMethod } from "@sunmao-ui/runtime";
-import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { MainOptions } from "../shared";
@@ -17,7 +16,12 @@ export function renderApp(options: MainOptions) {
   } = options;
   const ws = new WebSocket(wsUrl);
   ws.onopen = () => {
-    console.log("ws connected");
+    ws.send(JSON.stringify({
+      type: 'Action',
+      handlers: 'EstablishedConnection',
+      params: {},
+      store: null
+    }))
   };
   ws.onclose = () => {
     if (reloadWhenWsDisconnected) {
