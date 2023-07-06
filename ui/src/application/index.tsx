@@ -18,7 +18,7 @@ export function renderApp(options: MainOptions) {
   ws.onopen = () => {
     ws.send(JSON.stringify({
       type: 'Action',
-      handlers: 'EstablishedConnection',
+      handler: 'EstablishedConnection',
       params: {},
       store: null
     }))

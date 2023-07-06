@@ -3,11 +3,21 @@ package main
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/ui"
+	"fmt"
 	"log"
+	"runtime"
+	"time"
 )
 
 func main() {
-	ui := ui.NewUI(docker)
+	go func() {
+		for {
+			fmt.Println("Number of goroutines: ", runtime.NumGoroutine())
+			time.Sleep(time.Second * 1)
+		}
+	}()
+
+	ui := ui.NewUI(ping)
 	err := ui.Run()
 	if err != nil {
 		log.Fatal(err)

@@ -12,18 +12,17 @@ type Executor struct {
 }
 
 type ExecuteState struct {
-	Error  error  `json:"error"`
-	Done   bool   `json:"done"`
-	Stdout string `json:"stdout"`
-	Stderr string `json:"stderr"`
+	Error     error  `json:"error"`
+	Done      bool   `json:"done"`
+	Stdout    string `json:"stdout"`
+	Stderr    string `json:"stderr"`
+	ConnId    int    `json:"connId"`
+	IsRunning bool   `json:"isRunning"`
 }
 
-func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}) Executor {
+func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}, connId int) Executor {
 	state := &ExecuteState{
-		Error:  nil,
-		Done:   false,
-		Stderr: "",
-		Stdout: "",
+		ConnId: connId,
 	}
 
 	return Executor{
