@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	ui := ui.NewUI(docker)
+	ui := ui.NewUI(ping)
 	err := ui.Run()
 	if err != nil {
 		log.Fatal(err)

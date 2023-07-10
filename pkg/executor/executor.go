@@ -12,19 +12,15 @@ type Executor struct {
 }
 
 type ExecuteState struct {
-	Error  error  `json:"error"`
-	Done   bool   `json:"done"`
-	Stdout string `json:"stdout"`
-	Stderr string `json:"stderr"`
+	Error     error  `json:"error"`
+	Done      bool   `json:"done"`
+	Stdout    string `json:"stdout"`
+	Stderr    string `json:"stderr"`
+	IsRunning bool   `json:"isRunning"`
 }
 
 func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}) Executor {
-	state := &ExecuteState{
-		Error:  nil,
-		Done:   false,
-		Stderr: "",
-		Stdout: "",
-	}
+	state := &ExecuteState{}
 
 	return Executor{
 		State:   state,
@@ -49,6 +45,7 @@ func (e *Executor) Run(script string) error {
 
 	go func() {
 		for !e.State.Done && (c.Stdout != nil || c.Stderr != nil) {
+			e.State.IsRunning = true
 			select {
 			case line, open := <-c.Stdout:
 				if !open {
@@ -77,6 +74,7 @@ func (e *Executor) Run(script string) error {
 		finalStatus := <-statusCh
 		e.State.Done = true
 		e.State.Error = finalStatus.Error
+		e.State.IsRunning = false
 		e.stateCh <- e.State
 	}()
 
@@ -85,10 +83,11 @@ func (e *Executor) Run(script string) error {
 
 func (e *Executor) resetState() {
 	e.State = &ExecuteState{
-		Error:  nil,
-		Done:   false,
-		Stderr: "",
-		Stdout: "",
+		Error:     nil,
+		Done:      false,
+		Stderr:    "",
+		Stdout:    "",
+		IsRunning: false,
 	}
 	e.stateCh <- e.State
 }
