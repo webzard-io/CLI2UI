@@ -15,7 +15,7 @@ type FlagOrArgValue struct {
 }
 
 func (c CLI) Script(f Form) string {
-	return parseScript(&f, c.Name, c.FlagDelim, c.BoolFlagIncludeValue)
+	return parseScript(&f, c.Name, c.FlagDelim, c.ExplicitBool)
 }
 
 func parseScript(f *Form, script string, flagDelim string, boolIncludeValue bool) string {
