@@ -15,10 +15,10 @@ type FlagOrArgValue struct {
 }
 
 func (c CLI) Script(f Form) string {
-	return parseScript(&f, c.Name, c.FlagDelim)
+	return parseScript(&f, c.Name, c.FlagDelim, c.ExplicitBool)
 }
 
-func parseScript(f *Form, script string, flagDelim string) string {
+func parseScript(f *Form, script string, flagDelim string, boolIncludeValue bool) string {
 	for k, v := range f.Flags {
 		if v.Value == nil {
 			continue
@@ -30,7 +30,16 @@ func parseScript(f *Form, script string, flagDelim string) string {
 			prefix += "-"
 		}
 
-		script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, flagDelim, v.Value)
+		switch tv := v.Value.(type) {
+		case bool:
+			if boolIncludeValue {
+				script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, flagDelim, tv)
+			} else {
+				script = fmt.Sprintf("%s %s%s", script, prefix, k)
+			}
+		default:
+			script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, flagDelim, tv)
+		}
 	}
 
 	for _, v := range f.Args {
@@ -45,7 +54,7 @@ func parseScript(f *Form, script string, flagDelim string) string {
 	}
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
-	return parseScript((f.Subcommands)[f.Choice], script, flagDelim)
+	return parseScript((f.Subcommands)[f.Choice], script, flagDelim, boolIncludeValue)
 }
 
 func (c CLI) Form() Form {
