@@ -9,7 +9,6 @@ import (
 
 func (u UI) buildPage() {
 	cs := []sunmao.BaseComponentBuilder{
-		u.arco.NewState("value", false).Id("isRunning"),
 		u.layout(),
 		u.helpModal(),
 	}
@@ -59,7 +58,7 @@ func (u UI) stopButton() sunmao.BaseComponentBuilder {
 			Size:     "default",
 			Shape:    "square",
 			Text:     "Stop",
-			Disabled: "{{ !isRunning.value }}",
+			Disabled: "{{ !exec.state.isRunning }}",
 		})).
 		Style("content", "width: 100%;").
 		Event([]sunmao.EventHandler{
@@ -68,17 +67,6 @@ func (u UI) stopButton() sunmao.BaseComponentBuilder {
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/Stop",
-				},
-			},
-			{
-				Type:        "onClick",
-				ComponentId: "isRunning",
-				Method: sunmao.EventMethod{
-					Name: "setValue",
-					Parameters: map[string]any{
-						"key":   "value",
-						"value": false,
-					},
 				},
 			},
 		})
@@ -119,7 +107,7 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 			Status:   "default",
 			Size:     "default",
 			Shape:    "square",
-			Disabled: "{{ isRunning.value }}",
+			Disabled: "{{ exec.state.isRunning }}",
 		})).
 		Style("content", "width: 100%;").
 		Event([]sunmao.EventHandler{
@@ -128,17 +116,6 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/Run",
-				},
-			},
-			{
-				Type:        "onClick",
-				ComponentId: "isRunning",
-				Method: sunmao.EventMethod{
-					Name: "setValue",
-					Parameters: map[string]any{
-						"key":   "value",
-						"value": true,
-					},
 				},
 			},
 		})
@@ -222,7 +199,7 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 			Options:              os,
 			DefaultCheckedValues: required,
 			Direction:            "horizontal",
-			Disabled:             "{{ isRunning.value }}",
+			Disabled:             "{{ exec.state.isRunning }}",
 		})).
 		Style("content", `
 		display: flex;
@@ -341,7 +318,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				Size:     "default",
 				Max:      99,
 				Step:     1,
-				Disabled: "{{ isRunning.value }}",
+				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeArray:
@@ -350,7 +327,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 			Properties(structToMap(ArrayInputProperties[string]{
 				Value:    []string{""},
 				Type:     "string",
-				Disabled: "{{ isRunning.value }}",
+				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeBoolean:
@@ -359,7 +336,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 			Properties(structToMap(SwitchProperties[string]{
 				Type:     "circle",
 				Size:     "default",
-				Disabled: "{{ isRunning.value }}",
+				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
 	case config.FlagArgTypeEnum:
@@ -380,7 +357,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				AutoAlignPopupWidth: true,
 				Position:            "bottom",
 				MountToBody:         true,
-				Disabled:            "{{ isRunning.value }}",
+				Disabled:            "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
 	}
@@ -390,7 +367,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 		Id(p.optionValueInputId(o.Name)).
 		Properties(structToMap(InputProperties[string]{
 			Size:     "default",
-			Disabled: "{{ isRunning.value }}",
+			Disabled: "{{ exec.state.isRunning }}",
 		})).
 		Event(es)
 }

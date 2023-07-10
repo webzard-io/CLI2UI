@@ -52,9 +52,8 @@ type UpdateOptionValueParams struct {
 	Value      any
 }
 
-// TODO(xinxi.guo): different connId/user will have different form/exec/state to use
 func (u UI) registerEvents() {
-	execState := u.r.NewServerState("exec", nil)
+	execState := u.r.NewServerState("exec", executor.ExecuteState{})
 	u.arco.Component(execState.AsComponent())
 
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
