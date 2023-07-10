@@ -1,6 +1,9 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Form struct {
 	Flags       map[string]*OptionValue
@@ -19,7 +22,8 @@ func (c CLI) Script(f Form) string {
 }
 
 func parseScript(f *Form, script string, optionDelim string, explicitBool bool) string {
-	for k, v := range f.Flags {
+	for _, k := range orderedKeys(f.Flags) {
+		v := f.Flags[k]
 		if v.Value == nil {
 			continue
 		}
@@ -42,7 +46,8 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 		}
 	}
 
-	for _, v := range f.Args {
+	for _, k := range orderedKeys(f.Args) {
+		v := f.Args[k]
 		if v.Value == nil {
 			continue
 		}
@@ -55,6 +60,18 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
 	return parseScript((f.Subcommands)[f.Choice], script, optionDelim, explicitBool)
+}
+
+func orderedKeys(m map[string]*OptionValue) []string {
+	keys := []string{}
+
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	return keys
 }
 
 func (c CLI) Form() Form {
