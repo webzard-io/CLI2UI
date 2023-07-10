@@ -16,14 +16,11 @@ type ExecuteState struct {
 	Done      bool   `json:"done"`
 	Stdout    string `json:"stdout"`
 	Stderr    string `json:"stderr"`
-	ConnId    int    `json:"connId"`
 	IsRunning bool   `json:"isRunning"`
 }
 
-func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}, connId int) Executor {
-	state := &ExecuteState{
-		ConnId: connId,
-	}
+func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}) Executor {
+	state := &ExecuteState{}
 
 	return Executor{
 		State:   state,

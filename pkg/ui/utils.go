@@ -99,7 +99,3 @@ func clearForm(f *config.Form) {
 		clearForm(f.Subcommands[k])
 	}
 }
-
-func executorId(connId int) string {
-	return fmt.Sprintf("SessionExecutor%d", connId)
-}

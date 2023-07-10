@@ -106,7 +106,7 @@ func (u UI) terminal() sunmao.BaseComponentBuilder {
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.c2u.NewTerminal().Text("{{ execState.state.stdout }}"),
+				u.c2u.NewTerminal().Text("{{ exec.state.stdout }}"),
 			},
 		})
 }

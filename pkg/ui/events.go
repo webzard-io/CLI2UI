@@ -3,7 +3,6 @@ package ui
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/executor"
-	"fmt"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -13,36 +12,28 @@ import (
 var sessions = map[int]*session{}
 
 type session struct {
-	f         *config.Form
-	exec      *executor.Executor
-	execState *runtime.ServerState
-	stateCh   chan *executor.ExecuteState
-	stopCh    chan struct{}
-	hbCh      chan struct{}
-	connId    int
+	f       *config.Form
+	exec    *executor.Executor
+	stateCh chan *executor.ExecuteState
+	stopCh  chan struct{}
+	hbCh    chan struct{}
 }
 
 func (u UI) GetOrCreateSession(connId int) *session {
 	s, ok := sessions[connId]
 	if !ok {
-		f := new(config.Form)
-		*f = *u.fTpl
-		fmt.Println(*f)
+		f := toStruct[config.Form](u.fTpl)
 		stopCh := make(chan struct{})
 		stateCh := make(chan *executor.ExecuteState)
 		hbCh := make(chan struct{})
-		exec := executor.NewExecutor(stateCh, stopCh, connId)
-		execState := u.r.NewServerState(executorId(connId), exec.State)
-		u.arco.Component(execState.AsComponent())
+		exec := executor.NewExecutor(stateCh, stopCh)
 
-		s := &session{
-			f:         f,
-			exec:      &exec,
-			execState: execState,
-			stateCh:   stateCh,
-			stopCh:    stopCh,
-			hbCh:      hbCh,
-			connId:    connId,
+		s = &session{
+			f:       &f,
+			exec:    &exec,
+			stateCh: stateCh,
+			stopCh:  stopCh,
+			hbCh:    hbCh,
 		}
 		sessions[connId] = s
 	}
@@ -63,6 +54,9 @@ type UpdateOptionValueParams struct {
 
 // TODO(xinxi.guo): different connId/user will have different form/exec/state to use
 func (u UI) registerEvents() {
+	execState := u.r.NewServerState("exec", nil)
+	u.arco.Component(execState.AsComponent())
+
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		s := u.GetOrCreateSession(connId)
 
@@ -101,7 +95,7 @@ func (u UI) registerEvents() {
 		go func() {
 			for !sess.exec.State.Done {
 				s := <-sess.stateCh
-				err := sess.execState.SetState(s, &connId)
+				err := execState.SetState(s, &connId)
 				if err != nil {
 					log.Error(err)
 				}
@@ -147,9 +141,7 @@ func (u UI) registerEvents() {
 	})
 
 	u.r.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
-		fmt.Println(connId)
 		u.GetOrCreateSession(connId)
-		fmt.Printf("Connection ID: %d\n", connId)
 		return nil
 	})
 }
