@@ -23,14 +23,14 @@ type session struct {
 func (u UI) GetOrCreateSession(connId int) *session {
 	s, ok := sessions[connId]
 	if !ok {
-		f := toStruct[config.Form](u.fTpl)
+		f := u.fTpl.Clone()
 		stopCh := make(chan struct{})
 		stateCh := make(chan *executor.ExecuteState)
 		hbCh := make(chan struct{})
 		exec := executor.NewExecutor(stateCh, stopCh)
 
 		s = &session{
-			f:       &f,
+			f:       f,
 			exec:    &exec,
 			stateCh: stateCh,
 			stopCh:  stopCh,
@@ -68,7 +68,7 @@ func (u UI) registerEvents() {
 		p := toStruct[UpdateSubcommandParams[int]](m.Params)
 		form := p.Path.traverseForm(s.f)
 		form.Choice = p.Tabs[p.SubcommandIndex].Title
-		clearForm(form.Subcommands[form.Choice])
+		form.Subcommands[form.Choice].Clear()
 		return nil
 	})
 
@@ -162,7 +162,8 @@ func (u UI) registerEvents() {
 		s := u.GetOrCreateSession(connId)
 		p := toStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
 		f := p.Path.traverseForm(s.f)
-		updateCheckedOptions(f, p.CheckedValues)
+		updateCheckedOptions(&f.Flags, p.CheckedValues)
+		updateCheckedOptions(&f.Args, p.CheckedValues)
 		return nil
 	})
 }

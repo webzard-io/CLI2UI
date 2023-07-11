@@ -13,10 +13,11 @@ type Form struct {
 }
 
 type OptionValue struct {
-	Value    any
-	Long     bool
-	Enabled  bool
-	Required bool
+	Value        any
+	Long         bool
+	Enabled      bool
+	required     bool
+	defaultValue any
 }
 
 func (c CLI) Script(f Form) string {
@@ -97,21 +98,31 @@ func parseForm(c *Command, f *Form) {
 	f.Args = args
 	f.Subcommands = subcommands
 
-	// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
 	for _, f := range c.Flags {
+		dv := f.Default
+		if dv == nil {
+			// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
+			dv = fmt.Sprintf("<%s>", f.Name)
+		}
 		flags[f.Name] = &OptionValue{
-			Long:     f.Long,
-			Value:    fmt.Sprintf("<%s>", f.Name),
-			Required: f.Required,
-			Enabled:  f.Required,
+			Long:         f.Long,
+			Value:        dv,
+			required:     f.Required,
+			Enabled:      f.Required,
+			defaultValue: dv,
 		}
 	}
 
 	for _, a := range c.Args {
+		dv := a.Default
+		if dv == nil {
+			dv = fmt.Sprintf("<%s>", a.Name)
+		}
 		args[a.Name] = &OptionValue{
-			Value:    fmt.Sprintf("<%s>", a.Name),
-			Required: a.Required,
-			Enabled:  a.Required,
+			Value:        fmt.Sprintf("<%s>", a.Name),
+			required:     a.Required,
+			Enabled:      a.Required,
+			defaultValue: dv,
 		}
 	}
 
@@ -120,4 +131,55 @@ func parseForm(c *Command, f *Form) {
 		parseForm(&c, form)
 		f.Subcommands[c.Name] = form
 	}
+}
+
+func (f Form) Clear() {
+	for _, v := range f.Args {
+		v.Value = v.defaultValue
+		v.Enabled = v.required
+	}
+
+	for _, v := range f.Flags {
+		v.Value = v.defaultValue
+		v.Enabled = v.required
+	}
+
+	for _, k := range f.Subcommands {
+		k.Clear()
+	}
+}
+
+func (f Form) Clone() *Form {
+	t := &Form{
+		Flags:       map[string]*OptionValue{},
+		Args:        map[string]*OptionValue{},
+		Subcommands: map[string]*Form{},
+		Choice:      f.Choice,
+	}
+
+	for k, v := range f.Flags {
+		t.Flags[k] = &OptionValue{
+			Value:        v.Value,
+			Long:         v.Long,
+			Enabled:      v.Enabled,
+			required:     v.required,
+			defaultValue: v.defaultValue,
+		}
+	}
+
+	for k, v := range f.Args {
+		t.Args[k] = &OptionValue{
+			Value:        v.Value,
+			Long:         v.Long,
+			Enabled:      v.Enabled,
+			required:     v.required,
+			defaultValue: v.defaultValue,
+		}
+	}
+
+	for k, v := range f.Subcommands {
+		t.Subcommands[k] = v.Clone()
+	}
+
+	return t
 }
