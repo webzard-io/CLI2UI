@@ -47,6 +47,11 @@ type UpdateSubcommandParams[T int | string] struct {
 	Tabs            []TabProperties
 }
 
+type UpdateCheckedOptionsParams[T []string | string] struct {
+	Path          Path
+	CheckedValues T
+}
+
 type UpdateOptionValueParams struct {
 	Path       Path
 	OptionName string
@@ -63,7 +68,7 @@ func (u UI) registerEvents() {
 		p := toStruct[UpdateSubcommandParams[int]](m.Params)
 		form := p.Path.traverseForm(s.f)
 		form.Choice = p.Tabs[p.SubcommandIndex].Title
-		clearForm(form)
+		clearForm(form.Subcommands[form.Choice])
 		return nil
 	})
 
@@ -151,5 +156,13 @@ func (u UI) registerEvents() {
 		s := u.cli.Script(*sess.f)
 		sess.exec.State.Stdout = fmt.Sprintf("Command to be run:\r\n$ %s", s)
 		return execState.SetState(sess.exec.State, &connId)
+	})
+
+	u.r.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
+		s := u.GetOrCreateSession(connId)
+		p := toStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
+		f := p.Path.traverseForm(s.f)
+		updateCheckedOptions(f, p.CheckedValues)
+		return nil
 	})
 }

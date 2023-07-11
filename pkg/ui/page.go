@@ -236,7 +236,20 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 		Style("content", `
 		display: flex;
 		align-items: flex-end;
-		`)
+		`).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onChange",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/UpdateCheckedOptions",
+					Parameters: UpdateCheckedOptionsParams[string]{
+						Path:          p,
+						CheckedValues: fmt.Sprintf("{{ %s.checkedValues }}", p.optionsCheckboxId()),
+					},
+				},
+			},
+		})
 
 	cbWrapper := u.arco.NewStack().
 		Properties(structToMap(StackProperties{

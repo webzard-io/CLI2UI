@@ -13,8 +13,10 @@ type Form struct {
 }
 
 type OptionValue struct {
-	Value any
-	Long  bool
+	Value    any
+	Long     bool
+	Enabled  bool
+	Required bool
 }
 
 func (c CLI) Script(f Form) string {
@@ -24,7 +26,7 @@ func (c CLI) Script(f Form) string {
 func parseScript(f *Form, script string, optionDelim string, explicitBool bool) string {
 	for _, k := range orderedKeys(f.Flags) {
 		v := f.Flags[k]
-		if v.Value == nil {
+		if !v.Enabled {
 			continue
 		}
 
@@ -48,7 +50,7 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 
 	for _, k := range orderedKeys(f.Args) {
 		v := f.Args[k]
-		if v.Value == nil {
+		if !v.Enabled {
 			continue
 		}
 		script = fmt.Sprintf("%s %s", script, v.Value)
@@ -95,16 +97,21 @@ func parseForm(c *Command, f *Form) {
 	f.Args = args
 	f.Subcommands = subcommands
 
+	// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
 	for _, f := range c.Flags {
 		flags[f.Name] = &OptionValue{
-			Value: nil,
-			Long:  f.Long,
+			Long:     f.Long,
+			Value:    fmt.Sprintf("<%s>", f.Name),
+			Required: f.Required,
+			Enabled:  f.Required,
 		}
 	}
 
 	for _, a := range c.Args {
 		args[a.Name] = &OptionValue{
-			Value: nil,
+			Value:    fmt.Sprintf("<%s>", a.Name),
+			Required: a.Required,
+			Enabled:  a.Required,
 		}
 	}
 
