@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: ping
+help: ICMP Ping
+optionDelim: ""
+command:
+  name: ping
+  flags:
+    - name: c
+      type: number
+  args:
+    - name: host
+      type: string
+      required: true

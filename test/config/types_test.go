@@ -44,19 +44,19 @@ func TestNewCLIFromJson(t *testing.T) {
 }
 
 var docker = &config.CLI{
-	Name:      "docker",
-	FlagDelim: " ",
+	Name:        "docker",
+	OptionDelim: " ",
 	Command: config.Command{
 		Name: "docker",
-		Flags: []config.FlagOrArg{
+		Flags: []config.Option{
 			{
 				Name: "config",
-				Type: config.FlagArgTypeString,
+				Type: config.OptionTypeString,
 				Long: true,
 			},
 			{
 				Name:    "log-level",
-				Type:    config.FlagArgTypeEnum,
+				Type:    config.OptionTypeEnum,
 				Long:    true,
 				Default: "info",
 				Options: []string{"debug", "info", "warn", "error", "fatal"},
@@ -68,17 +68,17 @@ var docker = &config.CLI{
 				Subcommands: []config.Command{
 					{
 						Name: "create",
-						Flags: []config.FlagOrArg{
+						Flags: []config.Option{
 							{
 								Name: "driver",
-								Type: config.FlagArgTypeString,
+								Type: config.OptionTypeString,
 								Long: true,
 							},
 						},
-						Args: []config.FlagOrArg{
+						Args: []config.Option{
 							{
 								Name: "name",
-								Type: config.FlagArgTypeString,
+								Type: config.OptionTypeString,
 							},
 						},
 					},

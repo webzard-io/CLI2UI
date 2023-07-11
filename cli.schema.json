@@ -10,13 +10,13 @@
                 "help": {
                     "type": "string"
                 },
-                "flagDelim": {
+                "optionDelim": {
                     "type": "string"
                 },
                 "command": {
                     "$ref": "#/$defs/Command"
                 },
-                "boolFlagIncludeValue": {
+                "explicitBool": {
                     "type": "boolean"
                 }
             },
@@ -32,18 +32,21 @@
                 "name": {
                     "type": "string"
                 },
+                "display": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
                 "flags": {
                     "items": {
-                        "$ref": "#/$defs/FlagOrArg"
+                        "$ref": "#/$defs/Option"
                     },
                     "type": "array"
                 },
                 "args": {
                     "items": {
-                        "$ref": "#/$defs/FlagOrArg"
+                        "$ref": "#/$defs/Option"
                     },
                     "type": "array"
                 },
@@ -60,12 +63,15 @@
                 "name"
             ]
         },
-        "FlagOrArg": {
+        "Option": {
             "properties": {
                 "name": {
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                },
+                "display": {
                     "type": "string"
                 },
                 "long": {

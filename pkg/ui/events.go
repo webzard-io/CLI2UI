@@ -3,6 +3,7 @@ package ui
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/executor"
+	"fmt"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -142,5 +143,13 @@ func (u UI) registerEvents() {
 	u.r.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
 		u.GetOrCreateSession(connId)
 		return nil
+	})
+
+	// TODO(xinxi.guo): display the output in a designated area
+	u.r.Handle("DryRun", func(m *runtime.Message, connId int) error {
+		sess := u.GetOrCreateSession(connId)
+		s := u.cli.Script(*sess.f)
+		sess.exec.State.Stdout = fmt.Sprintf("Command to be run:\r\n$ %s", s)
+		return execState.SetState(sess.exec.State, &connId)
 	})
 }

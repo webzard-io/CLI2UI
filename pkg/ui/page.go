@@ -44,6 +44,7 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 			"content": {
 				u.commandStack(p, u.cli.Command),
 				u.runButton(),
+				u.dryRunButton(),
 				u.terminal(),
 				u.stopButton(),
 			},
@@ -94,7 +95,32 @@ func (u UI) terminal() sunmao.BaseComponentBuilder {
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
+				u.arco.NewText().Content("Standard Output"),
 				u.c2u.NewTerminal().Text("{{ exec.state.stdout }}"),
+				u.arco.NewText().Content("Standard Error"),
+				u.c2u.NewTerminal().Text("{{ exec.state.stderr }}"),
+			},
+		})
+}
+
+func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
+	return u.arco.NewButton().
+		Properties(structToMap(ButtonProperties[string]{
+			Type:     "secondary",
+			Status:   "default",
+			Size:     "default",
+			Shape:    "square",
+			Text:     "Dry run",
+			Disabled: "{{ exec.state.isRunning }}",
+		})).
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/DryRun",
+				},
 			},
 		})
 }
@@ -122,7 +148,12 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder {
-	cs := []sunmao.BaseComponentBuilder{u.optionsInputForm(p, c)}
+	cs := []sunmao.BaseComponentBuilder{
+		u.arco.NewText().
+			Content(fmt.Sprintf("Command description: %s", c.Description)).
+			Style("content", "color: var(--color-text-2)"),
+		u.optionsInputForm(p, c),
+	}
 
 	if len(c.Subcommands) > 0 {
 		cs = append(cs, u.subcommandsTab(p, c))
@@ -151,6 +182,7 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder {
 	tabs := []TabProperties{}
 
+	// TODO(xinxi.guo): use `c.DisplayName()` instead once possible
 	for _, c := range c.Subcommands {
 		tabs = append(tabs, TabProperties{
 			Title:         c.Name,
@@ -242,7 +274,7 @@ func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, 
 	for _, f := range c.Flags {
 		inputs = append(inputs, u.optionInput(p, f))
 		os = append(os, CheckboxOptionProperties{
-			Label:    f.Name,
+			Label:    f.DisplayName(),
 			Value:    f.Name,
 			Disabled: f.Required,
 		})
@@ -255,7 +287,7 @@ func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, 
 	for _, a := range c.Args {
 		inputs = append(inputs, u.optionInput(p, a))
 		os = append(os, CheckboxOptionProperties{
-			Label:    a.Name,
+			Label:    a.DisplayName(),
 			Value:    a.Name,
 			Disabled: a.Required,
 		})
@@ -268,12 +300,12 @@ func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, 
 	return os, required, inputs
 }
 
-func (u UI) optionInput(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
+func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	return u.arco.NewFormControl().
 		Properties(structToMap(FormControlProperties{
 			Label: TextProperties{
 				Format: "plain",
-				Raw:    o.Name,
+				Raw:    o.DisplayName(),
 			},
 			Layout:     "horizontal",
 			Required:   o.Required,
@@ -286,7 +318,12 @@ func (u UI) optionInput(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder 
 			},
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {u.inputType(p, o)},
+			"content": {
+				u.inputType(p, o),
+				u.arco.NewText().
+					Content(fmt.Sprintf("Option description: %s", o.Description)).
+					Style("content", "color: var(--color-text-2);"),
+			},
 		}).
 		Slot(sunmao.Container{
 			ID:   p.optionValuesFormId(),
@@ -294,7 +331,7 @@ func (u UI) optionInput(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder 
 		}, fmt.Sprintf("{{ %s.checkedValues.some(o => o === \"%s\") }}", p.optionsCheckboxId(), o.Name))
 }
 
-func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
+func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	es := []sunmao.EventHandler{
 		{
 			Type:        "onChange",
@@ -311,7 +348,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 	}
 
 	switch o.Type {
-	case config.FlagArgTypeNumber:
+	case config.OptionTypeNumber:
 		return u.arco.NewNumberInput().
 			Id(p.optionValueInputId(o.Name)).
 			Properties(structToMap(NumberInputProperties[string]{
@@ -321,7 +358,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
-	case config.FlagArgTypeArray:
+	case config.OptionTypeArray:
 		return u.c2u.NewArrayInput().
 			Id(p.optionValueInputId(o.Name)).
 			Properties(structToMap(ArrayInputProperties[string]{
@@ -330,7 +367,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
-	case config.FlagArgTypeBoolean:
+	case config.OptionTypeBoolean:
 		return u.arco.NewSwitch().
 			Id(p.optionValueInputId(o.Name)).
 			Properties(structToMap(SwitchProperties[string]{
@@ -339,7 +376,7 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(es)
-	case config.FlagArgTypeEnum:
+	case config.OptionTypeEnum:
 		options := []SelectOptionProperties{}
 		for _, o := range o.Options {
 			options = append(options, SelectOptionProperties{
@@ -373,7 +410,12 @@ func (u UI) inputType(p Path, o config.FlagOrArg) sunmao.BaseComponentBuilder {
 }
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {
-	title := u.arco.NewText().Content(u.cli.Name)
+	title := u.arco.NewText().
+		Content(u.cli.Name).Style("content",
+		`
+		font-size: 1.25rem;
+		font-weight: bold;
+		`)
 
 	help := u.arco.NewButton().
 		Properties(structToMap(ButtonProperties[string]{
