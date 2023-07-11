@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: docker 容器
+optionDelim: " "
+help: A self-sufficient runtime for containers
+command:
+  name: docker
+  description: some description
+  flags:
+    - name: config
+      display: 配置文件
+      type: string
+      long: true
+      description: hello
+    - name: log-level
+      display: 日志等级
+      type: enum
+      long: true
+      default: info
+      options:
+        - debug
+        - info
+        - warn
+        - error
+        - fatal
+  subcommands:
+    - name: images
+      display: 所有镜像
+      description: 获取所有本地镜像
+    - name: search
+      display: 搜索镜像
+      flags:
+        - name: limit
+          display: 限制搜索结果数量
+          type: number
+          long: true
+      args:
+        - name: name
+          display: 关键词
+          required: true
+          type: string
+    - name: volume
+      display: 卷
+      subcommands:
+        - name: create
+          flags:
+            - name: driver
+              type: string
+              long: true
+          args:
+            - name: name
+              type: string
+              required: true
+        - name: rm
+          args:
+            - name: name
+              type: string
+              required: true
+        - name: ls
+    - name: ps
+      flags:
+        - name: a
+          type: boolean
+        - name: q
+          type: boolean

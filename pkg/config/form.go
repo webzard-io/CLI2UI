@@ -3,22 +3,22 @@ package config
 import "fmt"
 
 type Form struct {
-	Flags       map[string]*FlagOrArgValue
-	Args        map[string]*FlagOrArgValue
+	Flags       map[string]*OptionValue
+	Args        map[string]*OptionValue
 	Subcommands map[string]*Form
 	Choice      string
 }
 
-type FlagOrArgValue struct {
+type OptionValue struct {
 	Value any
 	Long  bool
 }
 
 func (c CLI) Script(f Form) string {
-	return parseScript(&f, c.Name, c.FlagDelim, c.ExplicitBool)
+	return parseScript(&f, c.Command.Name, c.OptionDelim, c.ExplicitBool)
 }
 
-func parseScript(f *Form, script string, flagDelim string, boolIncludeValue bool) string {
+func parseScript(f *Form, script string, optionDelim string, explicitBool bool) string {
 	for k, v := range f.Flags {
 		if v.Value == nil {
 			continue
@@ -32,13 +32,13 @@ func parseScript(f *Form, script string, flagDelim string, boolIncludeValue bool
 
 		switch tv := v.Value.(type) {
 		case bool:
-			if boolIncludeValue {
-				script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, flagDelim, tv)
+			if explicitBool {
+				script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, optionDelim, tv)
 			} else {
 				script = fmt.Sprintf("%s %s%s", script, prefix, k)
 			}
 		default:
-			script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, flagDelim, tv)
+			script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, optionDelim, tv)
 		}
 	}
 
@@ -54,7 +54,7 @@ func parseScript(f *Form, script string, flagDelim string, boolIncludeValue bool
 	}
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
-	return parseScript((f.Subcommands)[f.Choice], script, flagDelim, boolIncludeValue)
+	return parseScript((f.Subcommands)[f.Choice], script, optionDelim, explicitBool)
 }
 
 func (c CLI) Form() Form {
@@ -70,8 +70,8 @@ func parseForm(c *Command, f *Form) {
 		return
 	}
 
-	flags := map[string]*FlagOrArgValue{}
-	args := map[string]*FlagOrArgValue{}
+	flags := map[string]*OptionValue{}
+	args := map[string]*OptionValue{}
 	subcommands := map[string]*Form{}
 
 	f.Flags = flags
@@ -79,14 +79,14 @@ func parseForm(c *Command, f *Form) {
 	f.Subcommands = subcommands
 
 	for _, f := range c.Flags {
-		flags[f.Name] = &FlagOrArgValue{
+		flags[f.Name] = &OptionValue{
 			Value: nil,
 			Long:  f.Long,
 		}
 	}
 
 	for _, a := range c.Args {
-		args[a.Name] = &FlagOrArgValue{
+		args[a.Name] = &OptionValue{
 			Value: nil,
 		}
 	}
