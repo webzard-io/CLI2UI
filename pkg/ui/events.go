@@ -3,7 +3,6 @@ package ui
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/executor"
-	"fmt"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -56,6 +55,9 @@ type UpdateOptionValueParams struct {
 func (u UI) registerEvents() {
 	execState := u.r.NewServerState("exec", executor.ExecuteState{})
 	u.arco.Component(execState.AsComponent())
+
+	dryRunState := u.r.NewServerState("dryRun", "")
+	u.arco.Component(dryRunState.AsComponent())
 
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		s := u.GetOrCreateSession(connId)
@@ -145,11 +147,9 @@ func (u UI) registerEvents() {
 		return nil
 	})
 
-	// TODO(xinxi.guo): display the output in a designated area
 	u.r.Handle("DryRun", func(m *runtime.Message, connId int) error {
 		sess := u.GetOrCreateSession(connId)
 		s := u.cli.Script(*sess.f)
-		sess.exec.State.Stdout = fmt.Sprintf("Command to be run:\r\n$ %s", s)
-		return execState.SetState(sess.exec.State, &connId)
+		return dryRunState.SetState(s, &connId)
 	})
 }

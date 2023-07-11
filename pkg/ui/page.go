@@ -11,6 +11,7 @@ func (u UI) buildPage() {
 	cs := []sunmao.BaseComponentBuilder{
 		u.layout(),
 		u.helpModal(),
+		u.dryRunModal(),
 	}
 
 	for _, c := range cs {
@@ -122,7 +123,78 @@ func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
 					Name: "binding/v1/DryRun",
 				},
 			},
+			{
+				Type:        "onClick",
+				ComponentId: "DryRunModal",
+				Method: sunmao.EventMethod{
+					Name: "openModal",
+				},
+			},
 		})
+}
+
+func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
+	copy := u.arco.NewButton().
+		Properties(structToMap(ButtonProperties[string]{
+			Type:   "secondary",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Copy",
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Parameters: "{{ navigator.clipboard.writeText(dryRun.state); }}",
+				},
+			},
+		})
+
+	code := u.arco.NewText().Content("{{ `$ ${dryRun.state}` }}")
+
+	close := u.arco.NewButton().
+		Properties(structToMap(ButtonProperties[string]{
+			Type:   "default",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Close",
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "DryRunModal",
+				Method: sunmao.EventMethod{
+					Name: "closeModal",
+				},
+			},
+		})
+
+	modal := u.arco.NewModal().Id("DryRunModal").
+		Properties(structToMap(ModalProperties{
+			Title:         "Dry Run Result",
+			Mask:          true,
+			Closable:      true,
+			MaskClosable:  true,
+			UnmountOnExit: true,
+		})).
+		Style("content", `
+		width: 80vw;
+		.arco-modal-content {
+			background: black;
+			color: white;
+			font-size: 1rem;
+			font-family: monospace;
+		}
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {code},
+			"footer":  {copy, close},
+		})
+
+	return modal
 }
 
 func (u UI) runButton() sunmao.BaseComponentBuilder {
@@ -224,7 +296,6 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuilder {
 	os, required, inputs := u.parseOptions(p, c)
 
-	// TODO(xinxi.guo): notify the user when there is no option available
 	cb := u.arco.NewCheckbox().
 		Id(p.optionsCheckboxId()).
 		Properties(structToMap(CheckboxProperties[string]{
@@ -249,6 +320,9 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 	contentElements := []sunmao.BaseComponentBuilder{}
 	if len(os) > 0 {
 		contentElements = append(contentElements, cbWrapper)
+	} else {
+		t := u.arco.NewText().Content(fmt.Sprintf("No options available for \"%s\"", c.Name))
+		contentElements = append(contentElements, t)
 	}
 	contentElements = append(contentElements, inputs...)
 
