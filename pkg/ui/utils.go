@@ -86,16 +86,18 @@ func (p Path) traverseForm(f *config.Form) *config.Form {
 	return form
 }
 
-func clearForm(f *config.Form) {
-	for k := range f.Args {
-		f.Args[k].Value = nil
-	}
-
-	for k := range f.Flags {
-		f.Flags[k].Value = nil
-	}
-
-	for k := range f.Subcommands {
-		clearForm(f.Subcommands[k])
+func updateCheckedOptions(v *map[string]*config.OptionValue, checked []string) {
+	for k, v := range *v {
+		found := false
+		for _, cv := range checked {
+			if k == cv {
+				v.Enabled = true
+				found = true
+				break
+			}
+		}
+		if !found {
+			v.Enabled = false
+		}
 	}
 }

@@ -22,14 +22,14 @@ type session struct {
 func (u UI) GetOrCreateSession(connId int) *session {
 	s, ok := sessions[connId]
 	if !ok {
-		f := toStruct[config.Form](u.fTpl)
+		f := u.fTpl.Clone()
 		stopCh := make(chan struct{})
 		stateCh := make(chan *executor.ExecuteState)
 		hbCh := make(chan struct{})
 		exec := executor.NewExecutor(stateCh, stopCh)
 
 		s = &session{
-			f:       &f,
+			f:       f,
 			exec:    &exec,
 			stateCh: stateCh,
 			stopCh:  stopCh,
@@ -44,6 +44,11 @@ type UpdateSubcommandParams[T int | string] struct {
 	Path            Path
 	SubcommandIndex T
 	Tabs            []TabProperties
+}
+
+type UpdateCheckedOptionsParams[T []string | string] struct {
+	Path          Path
+	CheckedValues T
 }
 
 type UpdateOptionValueParams struct {
@@ -65,7 +70,7 @@ func (u UI) registerEvents() {
 		p := toStruct[UpdateSubcommandParams[int]](m.Params)
 		form := p.Path.traverseForm(s.f)
 		form.Choice = p.Tabs[p.SubcommandIndex].Title
-		clearForm(form)
+		form.Subcommands[form.Choice].Clear()
 		return nil
 	})
 
@@ -151,5 +156,14 @@ func (u UI) registerEvents() {
 		sess := u.GetOrCreateSession(connId)
 		s := u.cli.Script(*sess.f)
 		return dryRunState.SetState(s, &connId)
+	})
+
+	u.r.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
+		s := u.GetOrCreateSession(connId)
+		p := toStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
+		f := p.Path.traverseForm(s.f)
+		updateCheckedOptions(&f.Flags, p.CheckedValues)
+		updateCheckedOptions(&f.Args, p.CheckedValues)
+		return nil
 	})
 }

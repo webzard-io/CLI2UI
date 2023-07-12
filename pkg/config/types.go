@@ -60,7 +60,7 @@ type Option struct {
 	Long        bool       `json:"long,omitempty" yaml:"long,omitempty"` // if true, the flag will be specified in the form of `--flag` instead of `-flag`
 	Description string     `json:"description,omitempty" yaml:"description,omitempty"`
 	Required    bool       `json:"required,omitempty" yaml:"required,omitempty"`
-	Default     string     `json:"default,omitempty" yaml:"default,omitempty"`
+	Default     any        `json:"default,omitempty" yaml:"default,omitempty"`
 	Options     []string   `json:"options,omitempty" yaml:"options,omitempty"` // only required when Type=enum
 }
 
