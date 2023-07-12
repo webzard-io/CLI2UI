@@ -6,46 +6,38 @@ import (
 )
 
 type Executor struct {
-	State   *ExecuteState
-	stateCh chan *ExecuteState
-	stopCh  chan struct{}
+	State   *state        `json:"state"`
+	StateCh chan struct{} `json:"stateCh"`
+	StopCh  chan struct{} `json:"stopCh"`
 }
 
-type ExecuteState struct {
-	Error     error  `json:"error"`
-	Done      bool   `json:"done"`
+type state struct {
 	Stdout    string `json:"stdout"`
 	Stderr    string `json:"stderr"`
+	Error     error  `json:"error"`
 	IsRunning bool   `json:"isRunning"`
 }
 
-func NewExecutor(stateCh chan *ExecuteState, stopCh chan struct{}) Executor {
-	state := &ExecuteState{}
-
-	return Executor{
-		State:   state,
-		stateCh: stateCh,
-		stopCh:  stopCh,
-	}
-}
-
-func (e *Executor) Run(script string) error {
+func (e *Executor) Run(script string) (chan struct{}, error) {
 	e.resetState()
+	e.State.IsRunning = true
 
 	frags, err := shlex.Split(script)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	c := cmd.NewCmdOptions(cmd.Options{
 		Buffered:  false,
 		Streaming: true,
 	}, frags[0], frags[1:]...)
-	statusCh := c.Start()
 
+	finStatusCh := c.Start()
+
+	stdioStatusCh := make(chan struct{})
 	go func() {
-		for !e.State.Done && (c.Stdout != nil || c.Stderr != nil) {
-			e.State.IsRunning = true
+		defer close(stdioStatusCh)
+		for c.Stdout != nil || c.Stderr != nil {
 			select {
 			case line, open := <-c.Stdout:
 				if !open {
@@ -53,41 +45,51 @@ func (e *Executor) Run(script string) error {
 					continue
 				}
 				e.State.Stdout = e.State.Stdout + line + "\r\n"
-				e.stateCh <- e.State
 			case line, open := <-c.Stderr:
 				if !open {
 					c.Stderr = nil
 					continue
 				}
 				e.State.Stderr = e.State.Stderr + line + "\r\n"
-				e.stateCh <- e.State
 			}
+			e.StateCh <- struct{}{}
 		}
 	}()
 
 	go func() {
-		<-e.stopCh
-		c.Stop()
+		select {
+		case <-e.StopCh:
+			c.Stop()
+		case <-stdioStatusCh:
+		}
 	}()
+
+	finishedCh := make(chan struct{})
 
 	go func() {
-		finalStatus := <-statusCh
-		e.State.Done = true
+		finalStatus := <-finStatusCh
 		e.State.Error = finalStatus.Error
+		<-stdioStatusCh
 		e.State.IsRunning = false
-		e.stateCh <- e.State
+		e.StateCh <- struct{}{}
+		close(finishedCh)
 	}()
 
-	return nil
+	return finishedCh, nil
+}
+
+func NewExecutor() Executor {
+	return Executor{
+		StateCh: make(chan struct{}),
+		StopCh:  make(chan struct{}),
+	}
 }
 
 func (e *Executor) resetState() {
-	e.State = &ExecuteState{
-		Error:     nil,
-		Done:      false,
-		Stderr:    "",
+	e.State = &state{
 		Stdout:    "",
+		Stderr:    "",
+		Error:     nil,
 		IsRunning: false,
 	}
-	e.stateCh <- e.State
 }
