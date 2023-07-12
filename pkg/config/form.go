@@ -183,3 +183,7 @@ func (f Form) Clone() *Form {
 
 	return t
 }
+
+func (o *OptionValue) ResetValue() {
+	o.Value = o.defaultValue
+}
