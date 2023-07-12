@@ -37,7 +37,7 @@ func (u UI) GetOrCreateSession(connId int) *session {
 type UpdateSubcommandParams[T int | string] struct {
 	Path            Path
 	SubcommandIndex T
-	Tabs            []TabProperties
+	Values          []string
 }
 
 type UpdateCheckedOptionsParams[T []string | string] struct {
@@ -63,7 +63,7 @@ func (u UI) registerEvents() {
 
 		p := toStruct[UpdateSubcommandParams[int]](m.Params)
 		form := p.Path.traverseForm(s.f)
-		form.Choice = p.Tabs[p.SubcommandIndex].Title
+		form.Choice = p.Values[p.SubcommandIndex]
 		form.Subcommands[form.Choice].Clear()
 		return nil
 	})
