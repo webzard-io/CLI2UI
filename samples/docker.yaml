@@ -4,13 +4,12 @@ optionDelim: " "
 help: A self-sufficient runtime for containers
 command:
   name: docker
-  description: some description
+  description: 管理 docker
   flags:
     - name: config
       display: 配置文件
       type: string
       long: true
-      description: hello
     - name: log-level
       display: 日志等级
       type: enum
@@ -42,23 +41,32 @@ command:
       display: 卷
       subcommands:
         - name: create
+          display: 创建
           flags:
             - name: driver
+              display: 驱动
               type: string
               long: true
           args:
             - name: name
+              display: 名称
               type: string
               required: true
         - name: rm
+          display: 删除
           args:
             - name: name
+              display: 名称
               type: string
               required: true
         - name: ls
+          display: 查询
     - name: ps
+      display: 容器状态
       flags:
         - name: a
+          display: 全部
           type: boolean
         - name: q
+          display: 静默
           type: boolean

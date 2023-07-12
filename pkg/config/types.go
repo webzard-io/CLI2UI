@@ -71,3 +71,11 @@ func (o Option) DisplayName() string {
 	}
 	return name
 }
+
+func (c Command) DisplayName() string {
+	name := c.Display
+	if name == "" {
+		name = c.Name
+	}
+	return name
+}

@@ -253,13 +253,14 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 
 func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder {
 	tabs := []TabProperties{}
+	values := []string{}
 
-	// TODO(xinxi.guo): use `c.DisplayName()` instead once possible
 	for _, c := range c.Subcommands {
 		tabs = append(tabs, TabProperties{
-			Title:         c.Name,
+			Title:         c.DisplayName(),
 			DestroyOnHide: true,
 		})
+		values = append(values, c.Name)
 	}
 
 	defaultTab := tabs[0].Title
@@ -286,7 +287,7 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 					Parameters: UpdateSubcommandParams[string]{
 						SubcommandIndex: activeTab,
 						Path:            p,
-						Tabs:            tabs,
+						Values:          values,
 					},
 				},
 			},
@@ -334,7 +335,7 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 	if len(os) > 0 {
 		contentElements = append(contentElements, cbWrapper)
 	} else {
-		t := u.arco.NewText().Content(fmt.Sprintf("No options available for \"%s\"", c.Name))
+		t := u.arco.NewText().Content(fmt.Sprintf("No options available for \"%s\"", c.DisplayName()))
 		contentElements = append(contentElements, t)
 	}
 	contentElements = append(contentElements, inputs...)

@@ -98,6 +98,7 @@ func updateCheckedOptions(v *map[string]*config.OptionValue, checked []string) {
 		}
 		if !found {
 			v.Enabled = false
+			v.ResetValue()
 		}
 	}
 }
