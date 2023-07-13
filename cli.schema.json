@@ -84,7 +84,7 @@
                     "type": "boolean"
                 },
                 "default": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "options": {
                     "items": {

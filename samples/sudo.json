@@ -1,0 +1,16 @@
+{
+    "$schema": "../cli.schema.json",
+    "name": "Dangerous!",
+    "command": {
+        "name": "sudo",
+        "args": [
+            {
+                "name": "command",
+                "display": "Enter anything",
+                "required": true,
+                "type": "string",
+                "default": "echo 1"
+            }
+        ]
+    }
+}

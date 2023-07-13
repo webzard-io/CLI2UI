@@ -2,9 +2,28 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 
 	yaml "gopkg.in/yaml.v3"
 )
+
+func NewCLI(b []byte) (*CLI, error) {
+	c := &CLI{
+		OptionDelim: " ",
+	}
+
+	err := json.Unmarshal(b, c)
+	if err == nil {
+		return c, nil
+	}
+
+	err = yaml.Unmarshal(b, c)
+	if err == nil {
+		return c, nil
+	}
+
+	return nil, errors.New("failed parsing CLI config")
+}
 
 func NewCLIFromJson(j []byte) (*CLI, error) {
 	c := &CLI{
@@ -60,7 +79,7 @@ type Option struct {
 	Long        bool       `json:"long,omitempty" yaml:"long,omitempty"` // if true, the flag will be specified in the form of `--flag` instead of `-flag`
 	Description string     `json:"description,omitempty" yaml:"description,omitempty"`
 	Required    bool       `json:"required,omitempty" yaml:"required,omitempty"`
-	Default     any        `json:"default,omitempty" yaml:"default,omitempty"`
+	Default     any        `json:"default,omitempty" yaml:"default,omitempty" jsonschema:"type=object"`
 	Options     []string   `json:"options,omitempty" yaml:"options,omitempty"` // only required when Type=enum
 }
 
