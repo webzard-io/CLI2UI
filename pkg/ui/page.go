@@ -263,9 +263,8 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 		values = append(values, c.Name)
 	}
 
-	defaultTab := tabs[0].Title
 	form := p.traverseForm(u.fTpl)
-	form.Choice = defaultTab
+	form.Choice = values[0]
 
 	activeTab := fmt.Sprintf("{{ %s.activeTab }}", p.subcommandTabsId())
 
