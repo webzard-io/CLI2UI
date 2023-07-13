@@ -10,6 +10,7 @@ type Form struct {
 	Args        map[string]*OptionValue
 	Subcommands map[string]*Form
 	Choice      string
+	format      Format
 }
 
 type OptionValue struct {
@@ -20,11 +21,11 @@ type OptionValue struct {
 	defaultValue any
 }
 
-func (c CLI) Script(f Form) string {
+func (c CLI) Script(f Form) (string, Format) {
 	return parseScript(&f, c.Command.Name, c.OptionDelim, c.ExplicitBool)
 }
 
-func parseScript(f *Form, script string, optionDelim string, explicitBool bool) string {
+func parseScript(f *Form, script string, optionDelim string, explicitBool bool) (string, Format) {
 	for _, k := range orderedKeys(f.Flags) {
 		v := f.Flags[k]
 		if !v.Enabled {
@@ -58,7 +59,7 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 	}
 
 	if len(f.Subcommands) == 0 || f.Choice == "" {
-		return script
+		return script, f.format
 	}
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: curl
+command:
+  name: curl
+  format: json
+  flags:
+    - name: L
+      type: boolean
+    - name: o
+      type: string
+  args:
+    - name: url
+      type: string
+      required: true

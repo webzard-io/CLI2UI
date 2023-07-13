@@ -28,7 +28,7 @@ func TestScriptGeneration(t *testing.T) {
 		Enabled: true,
 	}
 
-	s := docker.Script(f)
+	s, _ := docker.Script(f)
 
 	if s != "docker --config this-config.yaml --log-level info volume create new-volume" {
 		t.Errorf("unexpected script generated: %s", s)
