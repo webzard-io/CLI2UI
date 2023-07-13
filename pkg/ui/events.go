@@ -117,6 +117,9 @@ func (u UI) registerEvents() {
 			}
 		}()
 
+		// force an update to the state so the run button is disabled
+		sess.exec.StateCh <- struct{}{}
+
 		go func() {
 			for sess.exec.State.IsRunning {
 				// TODO(xinxi.guo): this can be extended to send more useful messages

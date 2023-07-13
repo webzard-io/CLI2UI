@@ -29,8 +29,8 @@ github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6Kllzaw
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasttemplate v1.2.1 h1:TVEnxayobAdVkhQfrfes2IzOB6o+z4roRkPF52WA1u4=
 github.com/valyala/fasttemplate v1.2.1/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
-github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230707070419-69c52d4c8882 h1:964ZccyqdO+qFKmK40wm5wSFxeXJ0RlFD1uizUoCs2I=
-github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230707070419-69c52d4c8882/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230712103532-d43bc039515c h1:xjFjj05xyK/zqbuxtw0FDVpYCGOON9ya48M8Y4YBl14=
+github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230712103532-d43bc039515c/go.mod h1:u65nVp7VmMwI8ODbE2r43uA68MEnyF0CunIRjh1N49s=
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 h1:HWj/xjIHfjYU5nVXpTM0s39J9CbLn7Cc5a7IC5rwsMQ=
 golang.org/x/crypto v0.0.0-20210817164053-32db794688a5/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f h1:OfiFi4JbukWwe3lzw+xunroH1mnC1e2Gy5cxNJApiSY=
