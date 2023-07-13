@@ -98,6 +98,7 @@ func parseForm(c *Command, f *Form) {
 	f.Flags = flags
 	f.Args = args
 	f.Subcommands = subcommands
+	f.format = c.Format
 
 	for _, f := range c.Flags {
 		dv := f.Default
@@ -156,6 +157,7 @@ func (f Form) Clone() *Form {
 		Args:        map[string]*OptionValue{},
 		Subcommands: map[string]*Form{},
 		Choice:      f.Choice,
+		format:      f.format,
 	}
 
 	for k, v := range f.Flags {
