@@ -8,6 +8,45 @@ import { implementRuntimeComponent } from "@sunmao-ui/runtime";
 import "xterm/css/xterm.css";
 import { useEffect, useRef } from "react";
 
+class SequentialWriter {
+  private currentWrite: Promise<void> | null = null;
+  private pendingText: string | null = null;
+  private terminal: BaseTerminal;
+
+  constructor(terminal: BaseTerminal) {
+    this.terminal = terminal;
+  }
+
+  public write(text: string) {
+    // when there is no active writer, start writing
+    if (!this.currentWrite) {
+      this.currentWrite = new Promise((resolve) => {
+        this.terminal.reset();
+        this.terminal.write(text, () => {
+          resolve();
+          // reset active writer
+          this.currentWrite = null;
+
+          // when there is some pending text, write it and reset the pending state
+          if (this.pendingText) {
+            this.write(this.pendingText);
+            this.pendingText = null;
+          }
+        });
+      });
+      return;
+    }
+
+    /**
+     * Keep the text as pending state so we can handle it later.
+     *
+     * During the current active write process, we will only
+     * keep the latest pending text and drop the expired texts.
+     */
+    this.pendingText = text;
+  }
+}
+
 export default implementRuntimeComponent({
   version: "cli2ui/v1",
   metadata: {
@@ -35,10 +74,10 @@ export default implementRuntimeComponent({
   },
 })(({ text = "", mergeState, elementRef, customStyle }) => {
   const terminalRef = useRef<BaseTerminal | null>(null);
+  const writerRef = useRef<SequentialWriter | null>(null);
 
   useEffect(() => {
-    terminalRef.current?.reset();
-    terminalRef.current?.write(text);
+    writerRef.current?.write(text);
     mergeState({ text: text });
   }, [mergeState, text]);
 
@@ -58,8 +97,6 @@ export default implementRuntimeComponent({
       // cols: 80,
       cursorWidth: 1,
     });
-    terminal.reset();
-    terminal.write(text);
 
     const fitAddon = new FitAddon();
     terminal.loadAddon(new WebLinksAddon());
@@ -69,6 +106,9 @@ export default implementRuntimeComponent({
     fitAddon.fit();
 
     terminalRef.current = terminal;
+    writerRef.current = new SequentialWriter(terminal);
+
+    writerRef.current.write(text);
   }, [text]);
 
   return (
