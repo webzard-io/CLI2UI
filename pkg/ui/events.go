@@ -58,6 +58,9 @@ func (u UI) registerEvents() {
 	dryRunState := u.r.NewServerState("dryRun", "")
 	u.arco.Component(dryRunState.AsComponent())
 
+	formatState := u.r.NewServerState("format", "")
+	u.arco.Component(formatState.AsComponent())
+
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		s := u.GetOrCreateSession(connId)
 
@@ -93,7 +96,10 @@ func (u UI) registerEvents() {
 	u.r.Handle("Run", func(m *runtime.Message, connId int) error {
 		sess := u.GetOrCreateSession(connId)
 
-		finishedCh, err := sess.exec.Run(u.cli.Script(*sess.f))
+		script, f := u.cli.Script(*sess.f)
+		formatState.SetState(f, &connId)
+
+		finishedCh, err := sess.exec.Run(script)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -159,7 +165,7 @@ func (u UI) registerEvents() {
 
 	u.r.Handle("DryRun", func(m *runtime.Message, connId int) error {
 		sess := u.GetOrCreateSession(connId)
-		s := u.cli.Script(*sess.f)
+		s, _ := u.cli.Script(*sess.f)
 		return dryRunState.SetState(s, &connId)
 	})
 

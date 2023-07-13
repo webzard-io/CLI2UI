@@ -53,6 +53,14 @@ type CLI struct {
 	ExplicitBool bool    `json:"explicitBool,omitempty" yaml:"explicitBool,omitempty"` // if true, boolean flags will be specified in the form of `--flag=true` instead of `--flag`
 }
 
+type Format string
+
+const (
+	UnknownFormat Format = ""
+	FormatJson    Format = "json"
+	FormatYaml    Format = "yaml"
+)
+
 type Command struct {
 	Name        string    `json:"name" yaml:"name"`
 	Display     string    `json:"display,omitempty" yaml:"display,omitempty"`
@@ -60,6 +68,7 @@ type Command struct {
 	Flags       []Option  `json:"flags,omitempty" yaml:"flags,omitempty"`
 	Args        []Option  `json:"args,omitempty" yaml:"args,omitempty"`
 	Subcommands []Command `json:"subcommands,omitempty" yaml:"subcommands,omitempty"` // e.g. kubectl get <resource>, here get is a subcommand to kubectl
+	Format      Format    `json:"format,omitempty" yaml:"format,omitempty"`
 }
 
 type OptionType string
