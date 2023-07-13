@@ -220,12 +220,13 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder {
-	cs := []sunmao.BaseComponentBuilder{
-		u.arco.NewText().
-			Content(fmt.Sprintf("Command description: %s", c.Description)).
-			Style("content", "color: var(--color-text-2)"),
-		u.optionsInputForm(p, c),
+	cs := []sunmao.BaseComponentBuilder{}
+	if c.Description != "" {
+		cs = append(cs, u.arco.NewText().
+			Content(c.Description).
+			Style("content", "color: var(--color-text-2)"))
 	}
+	cs = append(cs, u.optionsInputForm(p, c))
 
 	if len(c.Subcommands) > 0 {
 		cs = append(cs, u.subcommandsTab(p, c))
@@ -333,9 +334,6 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 	contentElements := []sunmao.BaseComponentBuilder{}
 	if len(os) > 0 {
 		contentElements = append(contentElements, cbWrapper)
-	} else {
-		t := u.arco.NewText().Content(fmt.Sprintf("No options available for \"%s\"", c.DisplayName()))
-		contentElements = append(contentElements, t)
 	}
 	contentElements = append(contentElements, inputs...)
 
@@ -388,6 +386,13 @@ func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, 
 }
 
 func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
+	cs := []sunmao.BaseComponentBuilder{u.inputType(p, o)}
+	if o.Description != "" {
+		cs = append(cs, u.arco.NewText().
+			Content(o.Description).
+			Style("content", "color: var(--color-text-2);"))
+	}
+
 	return u.arco.NewFormControl().
 		Properties(structToMap(FormControlProperties{
 			Label: TextProperties{
@@ -405,12 +410,7 @@ func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 			},
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {
-				u.inputType(p, o),
-				u.arco.NewText().
-					Content(fmt.Sprintf("Option description: %s", o.Description)).
-					Style("content", "color: var(--color-text-2);"),
-			},
+			"content": cs,
 		}).
 		Slot(sunmao.Container{
 			ID:   p.optionValuesFormId(),

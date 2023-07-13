@@ -55,6 +55,9 @@
                         "$ref": "#/$defs/Command"
                     },
                     "type": "array"
+                },
+                "format": {
+                    "type": "string"
                 }
             },
             "additionalProperties": false,
@@ -83,9 +86,7 @@
                 "required": {
                     "type": "boolean"
                 },
-                "default": {
-                    "type": "object"
-                },
+                "default": true,
                 "options": {
                     "items": {
                         "type": "string"
