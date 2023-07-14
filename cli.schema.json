@@ -92,6 +92,12 @@
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "annotations": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
                 }
             },
             "additionalProperties": false,

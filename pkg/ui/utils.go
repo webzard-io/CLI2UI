@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -101,4 +102,52 @@ func updateCheckedOptions(v *map[string]*config.OptionValue, checked []string) {
 			v.ResetValue()
 		}
 	}
+}
+
+func updateValueEvent(field string, p Path, o config.Option) []sunmao.EventHandler {
+	return []sunmao.EventHandler{
+		{
+			Type:        "onChange",
+			ComponentId: "$utils",
+			Method: sunmao.EventMethod{
+				Name: "binding/v1/UpdateOptionValue",
+				Parameters: UpdateOptionValueParams{
+					OptionName: o.Name,
+					Path:       p,
+					Value:      fmt.Sprintf("{{ %s.%s }}", p.optionValueInputId(o.Name), field),
+				},
+			},
+		},
+	}
+}
+
+type Validator[T any] interface {
+	Validate(T) bool
+}
+
+func (u UI) stringComponent(o config.Option, p Path) (sunmao.BaseComponentBuilder, []Validator[string]) {
+	var comp sunmao.BaseComponentBuilder
+	vs := []Validator[string]{}
+
+	comp = u.arco.NewInput().
+		Id(p.optionValueInputId(o.Name)).
+		Properties(structToMap(InputProperties[string]{
+			Size:     "default",
+			Disabled: "{{ exec.state.isRunning }}",
+		})).
+		Event(updateValueEvent("value", p, o))
+
+	for _, a := range o.Annotations {
+		switch a {
+		case config.TypeAnnotationDate:
+			comp = u.arco.NewDatePicker().
+				Id(p.optionValueInputId(o.Name)).
+				Properties(structToMap(DatePickerProperties[string]{
+					Disabled: "{{ exec.state.isRunning }}",
+				})).
+				Event(updateValueEvent("dateString", p, o))
+		}
+	}
+
+	return comp, vs
 }

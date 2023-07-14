@@ -184,3 +184,7 @@ type CollapseProperties struct {
 	LazyLoad                      bool                     `json:"lazyLoad"`
 	DestroyOnHide                 bool                     `json:"destroyOnHide"`
 }
+
+type DatePickerProperties[T string | bool] struct {
+	Disabled T `json:"disabled"`
+}

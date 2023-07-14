@@ -8,7 +8,7 @@ require (
 	github.com/invopop/jsonschema v0.7.0
 	github.com/labstack/gommon v0.3.1
 	github.com/urfave/cli/v2 v2.25.7
-	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230713111849-8cef9865d0d2
+	github.com/yuyz0112/sunmao-ui-go-binding v0.0.0-20230714035722-bc29aa3f6957
 	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v3 v3.0.1
 )

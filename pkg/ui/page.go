@@ -419,21 +419,7 @@ func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 }
 
 func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
-	es := []sunmao.EventHandler{
-		{
-			Type:        "onChange",
-			ComponentId: "$utils",
-			Method: sunmao.EventMethod{
-				Name: "binding/v1/UpdateOptionValue",
-				Parameters: UpdateOptionValueParams{
-					OptionName: o.Name,
-					Path:       p,
-					Value:      fmt.Sprintf("{{ %s.value }}", p.optionValueInputId(o.Name)),
-				},
-			},
-		},
-	}
-
+	// TODO(xinxi.guo): typeComponent() will ultimately replace all these
 	switch o.Type {
 	case config.OptionTypeNumber:
 		return u.arco.NewNumberInput().
@@ -444,7 +430,7 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 				Step:     1,
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
-			Event(es)
+			Event(updateValueEvent("value", p, o))
 	case config.OptionTypeArray:
 		return u.c2u.NewArrayInput().
 			Id(p.optionValueInputId(o.Name)).
@@ -453,7 +439,7 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 				Type:     "string",
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
-			Event(es)
+			Event(updateValueEvent("value", p, o))
 	case config.OptionTypeBoolean:
 		return u.arco.NewSwitch().
 			Id(p.optionValueInputId(o.Name)).
@@ -462,7 +448,7 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 				Size:     "default",
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
-			Event(es)
+			Event(updateValueEvent("value", p, o))
 	case config.OptionTypeEnum:
 		options := []SelectOptionProperties{}
 		for _, o := range o.Options {
@@ -483,17 +469,12 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 				MountToBody:         true,
 				Disabled:            "{{ exec.state.isRunning }}",
 			})).
-			Event(es)
+			Event(updateValueEvent("value", p, o))
 	}
 
 	// TODO(xinxi.guo): implement validation
-	return u.arco.NewInput().
-		Id(p.optionValueInputId(o.Name)).
-		Properties(structToMap(InputProperties[string]{
-			Size:     "default",
-			Disabled: "{{ exec.state.isRunning }}",
-		})).
-		Event(es)
+	comp, _ := u.stringComponent(o, p)
+	return comp
 }
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {

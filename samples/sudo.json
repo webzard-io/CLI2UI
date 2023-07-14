@@ -10,6 +10,15 @@
                 "required": true,
                 "type": "string",
                 "default": "echo 1"
+            },
+            {
+                "name": "date",
+                "display": "Date Picker",
+                "required": true,
+                "type": "string",
+                "annotations": [
+                    "date"
+                ]
             }
         ]
     }
