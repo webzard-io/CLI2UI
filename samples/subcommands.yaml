@@ -3,14 +3,20 @@ name: Subcommands
 command:
   name: subcommands
   subcommands:
-    - name: Subcommand 1
+    - name: sub_1
+      display: Subcommand 1
       subcommands:
-        - name: Subcommand 2
+        - name: sub_2
+          display: Subcommand 2
           subcommands:
-            - name: Subcommand 3
+            - name: sub_3
+              display: Subcommand 3
               subcommands:
-                - name: Subcommand 4
+                - name: sub_4
+                  display: Subcommand 4
                   subcommands:
-                    - name: Subcommand 5
+                    - name: sub_5
+                      display: Subcommand 5
                       subcommands:
-                        - name: Subcommand 6
+                        - name: sub_6
+                          display: Subcommand 6

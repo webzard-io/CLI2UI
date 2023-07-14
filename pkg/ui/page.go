@@ -36,12 +36,42 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 
 func (u UI) mainContent() sunmao.BaseComponentBuilder {
 	return u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "horizontal",
+		})).
 		Style("content", `
-		display: grid;
 		flex: 1;
+		background-color: rgb(241, 245, 249);
 		`).Children(map[string][]sunmao.BaseComponentBuilder{
-		"content": {},
+		"content": {
+			u.optionSection(),
+			u.outputSection(),
+		},
 	})
+}
+
+func (u UI) optionSection() sunmao.BaseComponentBuilder {
+	return u.arco.NewStack().
+		Style("content", `
+		flex: 2;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				u.arco.NewStack().
+					Style("content", `
+					border-radius: 1.25rem;
+					width: 100%;
+					height: 100%;
+				`),
+			},
+		})
+}
+
+func (u UI) outputSection() sunmao.BaseComponentBuilder {
+	return u.arco.NewStack().
+		Style("content", `
+		flex: 1;
+		`)
 }
 
 func (u UI) sidebar() sunmao.BaseComponentBuilder {
@@ -51,7 +81,6 @@ func (u UI) sidebar() sunmao.BaseComponentBuilder {
 		font-size: 1.25rem;
 		font-weight: bold;
 		margin: 0.125rem 0;
-		min-width: 192px;
 		`)
 
 	s := u.arco.NewStack().
@@ -77,6 +106,7 @@ func (u UI) sidebar() sunmao.BaseComponentBuilder {
 
 func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 	return u.arco.NewTree().
+		Id("SubcommandMenuTree").
 		Properties(structToMap(
 			TreeProperties{
 				Data: u.menuItems(),
@@ -87,7 +117,20 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 		.arco-tree-node {
 			color: #fff;
 		}
-		`)
+		`).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onSelect",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/UpdateSubcommand",
+					Parameters: UpdateSubcommandParams[string]{
+						Path:       "{{ SubcommandMenuTree.selectedNodes[0].path }}",
+						Subcommand: "{{ SubcommandMenuTree.selectedKeys[0] }}",
+					},
+				},
+			},
+		})
 }
 
 func (u UI) menuItems() []TreeNodeProperties {

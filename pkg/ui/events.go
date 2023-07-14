@@ -34,10 +34,9 @@ func (u UI) GetOrCreateSession(connId int) *session {
 	return s
 }
 
-type UpdateSubcommandParams[T int | string] struct {
-	Path            Path
-	SubcommandIndex T
-	Values          []string
+type UpdateSubcommandParams[T string | Path] struct {
+	Path       T
+	Subcommand string
 }
 
 type UpdateCheckedOptionsParams[T []string | string] struct {
@@ -63,11 +62,10 @@ func (u UI) registerEvents() {
 
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		s := u.GetOrCreateSession(connId)
-
-		p := toStruct[UpdateSubcommandParams[int]](m.Params)
+		p := toStruct[UpdateSubcommandParams[Path]](m.Params)
 		form := p.Path.traverseForm(s.f)
-		form.Choice = p.Values[p.SubcommandIndex]
-		form.Subcommands[form.Choice].Clear()
+		form.Choice = p.Subcommand
+		form.Clear()
 		return nil
 	})
 
