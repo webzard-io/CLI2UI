@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: Subcommands
+command:
+  name: subcommands
+  subcommands:
+    - name: Subcommand 1
+      subcommands:
+        - name: Subcommand 2
+          subcommands:
+            - name: Subcommand 3
+              subcommands:
+                - name: Subcommand 4
+                  subcommands:
+                    - name: Subcommand 5
+                      subcommands:
+                        - name: Subcommand 6
