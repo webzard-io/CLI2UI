@@ -137,17 +137,18 @@ func (u UI) stringComponent(o config.Option, p Path) (sunmao.BaseComponentBuilde
 		})).
 		Event(updateValueEvent("value", p, o))
 
-	for _, a := range o.Annotations {
-		switch a {
-		case config.TypeAnnotationDate:
-			comp = u.arco.NewDatePicker().
-				Id(p.optionValueInputId(o.Name)).
-				Properties(structToMap(DatePickerProperties[string]{
-					Disabled: "{{ exec.state.isRunning }}",
-				})).
-				Event(updateValueEvent("dateString", p, o))
-		}
+	switch o.Annotations.Format {
+	case config.FormatAnnotationDate:
+		comp = u.arco.NewDatePicker().
+			Id(p.optionValueInputId(o.Name)).
+			Properties(structToMap(DatePickerProperties[string]{
+				Disabled: "{{ exec.state.isRunning }}",
+			})).
+			Event(updateValueEvent("dateString", p, o))
+
 	}
+
+	// TODO(xinxi.guo): implement validation using annotations
 
 	return comp, vs
 }

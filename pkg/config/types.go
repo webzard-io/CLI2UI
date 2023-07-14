@@ -81,22 +81,26 @@ const (
 	OptionTypeEnum    OptionType = "enum"
 )
 
-type TypeAnnotation string
+type TypeAnnotations struct {
+	Format FormatAnnotation `json:"format,omitempty" yaml:"format,omitempty"`
+}
+
+type FormatAnnotation string
 
 const (
-	TypeAnnotationDate TypeAnnotation = "date"
+	FormatAnnotationDate FormatAnnotation = "date"
 )
 
 type Option struct {
-	Name        string           `json:"name" yaml:"name"`
-	Type        OptionType       `json:"type" yaml:"type"`
-	Display     string           `json:"display,omitempty" yaml:"display,omitempty"`
-	Long        bool             `json:"long,omitempty" yaml:"long,omitempty"` // if true, the flag will be specified in the form of `--flag` instead of `-flag`
-	Description string           `json:"description,omitempty" yaml:"description,omitempty"`
-	Required    bool             `json:"required,omitempty" yaml:"required,omitempty"`
-	Default     any              `json:"default,omitempty" yaml:"default,omitempty"`
-	Options     []string         `json:"options,omitempty" yaml:"options,omitempty"` // only required when Type=enum
-	Annotations []TypeAnnotation `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+	Name        string          `json:"name" yaml:"name"`
+	Type        OptionType      `json:"type" yaml:"type"`
+	Display     string          `json:"display,omitempty" yaml:"display,omitempty"`
+	Long        bool            `json:"long,omitempty" yaml:"long,omitempty"` // if true, the flag will be specified in the form of `--flag` instead of `-flag`
+	Description string          `json:"description,omitempty" yaml:"description,omitempty"`
+	Required    bool            `json:"required,omitempty" yaml:"required,omitempty"`
+	Default     any             `json:"default,omitempty" yaml:"default,omitempty"`
+	Options     []string        `json:"options,omitempty" yaml:"options,omitempty"` // only required when Type=enum
+	Annotations TypeAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
 func (o Option) DisplayName() string {

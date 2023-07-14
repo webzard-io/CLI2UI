@@ -16,9 +16,9 @@
                 "display": "Date Picker",
                 "required": true,
                 "type": "string",
-                "annotations": [
-                    "date"
-                ]
+                "annotations": {
+                    "format": "date"
+                } 
             }
         ]
     }
