@@ -1,4 +1,4 @@
-name: Go package
+name: Common
 
 on: [push]
 
@@ -9,10 +9,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.19'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Build Frontend
+        run: cd ui && rm yarn.lock && yarn install && yarn build 
 
       - name: Build
         run: go build -v ./...

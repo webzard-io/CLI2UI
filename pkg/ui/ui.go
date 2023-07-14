@@ -2,14 +2,20 @@ package ui
 
 import (
 	"CLI2UI/pkg/config"
+	client "CLI2UI/ui"
+	"errors"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/arco"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
 
-func NewUI(c config.CLI) *UI {
-	r := runtime.New("ui", "patch")
+func NewUI(c config.CLI) (*UI, error) {
+	if client.Error != nil {
+		return nil, errors.New("failed to load prebuilt UI")
+	}
+
+	r := runtime.New(client.FS, "patch")
 	app := sunmao.NewApp()
 	arco := arco.NewArcoApp(app)
 	c2u := NewCLI2UIApp(app)
@@ -21,7 +27,7 @@ func NewUI(c config.CLI) *UI {
 		c2u:  c2u,
 		cli:  &c,
 		fTpl: &fTpl,
-	}
+	}, nil
 }
 
 func (u UI) Run() error {

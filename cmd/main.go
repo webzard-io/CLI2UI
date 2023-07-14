@@ -28,7 +28,11 @@ func main() {
 				return err
 			}
 
-			ui := ui.NewUI(*cfg)
+			ui, err := ui.NewUI(*cfg)
+			if err != nil {
+				return err
+			}
+
 			return ui.Run()
 		},
 		Commands: []*cli.Command{
