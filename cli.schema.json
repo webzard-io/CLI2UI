@@ -92,6 +92,9 @@
                         "type": "string"
                     },
                     "type": "array"
+                },
+                "annotations": {
+                    "$ref": "#/$defs/TypeAnnotations"
                 }
             },
             "additionalProperties": false,
@@ -100,6 +103,15 @@
                 "name",
                 "type"
             ]
+        },
+        "TypeAnnotations": {
+            "properties": {
+                "format": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "type": "object"
         }
     }
 }
