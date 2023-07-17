@@ -1,7 +1,8 @@
-package ui
+package naive
 
 import (
 	"CLI2UI/pkg/config"
+	"CLI2UI/pkg/ui"
 	"fmt"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
@@ -23,7 +24,7 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 	p := Path{}
 
 	return u.arco.NewLayout().
-		Properties(structToMap(LayoutProperties{
+		Properties(ui.StructToMap(ui.LayoutProperties{
 			ShowHeader: true,
 		})).
 		Style("header", `
@@ -54,7 +55,7 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 
 func (u UI) stopButton() sunmao.BaseComponentBuilder {
 	return u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Type:     "primary",
 			Status:   "default",
 			Size:     "default",
@@ -76,9 +77,9 @@ func (u UI) stopButton() sunmao.BaseComponentBuilder {
 
 func (u UI) terminal() sunmao.BaseComponentBuilder {
 	return u.arco.NewCollapse().
-		Properties(structToMap(CollapseProperties{
+		Properties(ui.StructToMap(ui.CollapseProperties{
 			DefaultActiveKey: []string{"0"},
-			Options: []CollapseItemProperties{
+			Options: []ui.CollapseItemProperties{
 				{
 					Key:            "0",
 					Header:         "Result (Standard I/O)",
@@ -106,7 +107,7 @@ func (u UI) terminal() sunmao.BaseComponentBuilder {
 
 func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
 	return u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Type:     "secondary",
 			Status:   "default",
 			Size:     "default",
@@ -135,7 +136,7 @@ func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
 
 func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
 	copy := u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Type:   "secondary",
 			Status: "default",
 			Size:   "default",
@@ -155,7 +156,7 @@ func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
 	code := u.arco.NewText().Content("{{ `$ ${dryRun.state}` }}")
 
 	close := u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Type:   "default",
 			Status: "default",
 			Size:   "default",
@@ -173,7 +174,7 @@ func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
 		})
 
 	modal := u.arco.NewModal().Id("DryRunModal").
-		Properties(structToMap(ModalProperties{
+		Properties(ui.StructToMap(ui.ModalProperties{
 			Title:         "Dry Run Result",
 			Mask:          true,
 			Closable:      true,
@@ -199,7 +200,7 @@ func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
 
 func (u UI) runButton() sunmao.BaseComponentBuilder {
 	return u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Text:     "Run",
 			Type:     "primary",
 			Status:   "default",
@@ -231,8 +232,8 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 	if len(c.Subcommands) > 0 {
 		cs = append(cs, u.subcommandsTab(p, c))
 		for i, c := range c.Subcommands {
-			pre := p.append(c.Name)
-			s := u.commandStack(pre, c).Slot(sunmao.Container{
+			pre := p.Append(c.Name)
+			s := u.commandStack(Path{pre}, c).Slot(sunmao.Container{
 				ID:   p.commandStackId(),
 				Slot: "content",
 			}, fmt.Sprintf("{{ %s.activeTab === %d }}", p.subcommandTabsId(), i))
@@ -242,7 +243,7 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 
 	return u.arco.NewStack().
 		Id(p.commandStackId()).
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 			Spacing:   6,
 		})).
@@ -253,25 +254,25 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 }
 
 func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder {
-	tabs := []TabProperties{}
+	tabs := []ui.TabProperties{}
 	values := []string{}
 
 	for _, c := range c.Subcommands {
-		tabs = append(tabs, TabProperties{
+		tabs = append(tabs, ui.TabProperties{
 			Title:         c.DisplayName(),
 			DestroyOnHide: true,
 		})
 		values = append(values, c.Name)
 	}
 
-	form := p.traverseForm(u.fTpl)
+	form := p.TraverseForm(u.fTpl)
 	form.Choice = values[0]
 
 	activeTab := fmt.Sprintf("{{ %s.activeTab }}", p.subcommandTabsId())
 
 	return u.arco.NewTabs().
 		Id(p.subcommandTabsId()).
-		Properties(structToMap(TabsProperties{
+		Properties(ui.StructToMap(ui.TabsProperties{
 			Type:        "line",
 			TabPosition: "top",
 			Size:        "default",
@@ -299,7 +300,7 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 
 	cb := u.arco.NewCheckbox().
 		Id(p.optionsCheckboxId()).
-		Properties(structToMap(CheckboxProperties[string]{
+		Properties(ui.StructToMap(ui.CheckboxProperties[string]{
 			Options:              os,
 			DefaultCheckedValues: required,
 			Direction:            "horizontal",
@@ -324,7 +325,7 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 		})
 
 	cbWrapper := u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "horizontal",
 			Justify:   "flex-end",
 		})).Children(map[string][]sunmao.BaseComponentBuilder{
@@ -339,7 +340,7 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 
 	s := u.arco.NewStack().
 		Id(p.optionValuesFormId()).
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 			Spacing:   6,
 		})).
@@ -351,14 +352,14 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 	return s
 }
 
-func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, []string, []sunmao.BaseComponentBuilder) {
-	os := []CheckboxOptionProperties{}
+func (u UI) parseOptions(p Path, c config.Command) ([]ui.CheckboxOptionProperties, []string, []sunmao.BaseComponentBuilder) {
+	os := []ui.CheckboxOptionProperties{}
 	required := []string{}
 	inputs := []sunmao.BaseComponentBuilder{}
 
 	for _, f := range c.Flags {
 		inputs = append(inputs, u.optionInput(p, f))
-		os = append(os, CheckboxOptionProperties{
+		os = append(os, ui.CheckboxOptionProperties{
 			Label:    f.DisplayName(),
 			Value:    f.Name,
 			Disabled: f.Required,
@@ -371,7 +372,7 @@ func (u UI) parseOptions(p Path, c config.Command) ([]CheckboxOptionProperties, 
 
 	for _, a := range c.Args {
 		inputs = append(inputs, u.optionInput(p, a))
-		os = append(os, CheckboxOptionProperties{
+		os = append(os, ui.CheckboxOptionProperties{
 			Label:    a.DisplayName(),
 			Value:    a.Name,
 			Disabled: a.Required,
@@ -394,18 +395,18 @@ func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	}
 
 	return u.arco.NewFormControl().
-		Properties(structToMap(FormControlProperties{
-			Label: TextProperties{
+		Properties(ui.StructToMap(ui.FormControlProperties{
+			Label: ui.TextProperties{
 				Format: "plain",
 				Raw:    o.DisplayName(),
 			},
 			Layout:     "horizontal",
 			Required:   o.Required,
 			LabelAlign: "left",
-			LabelCol: ColumnProperties{
+			LabelCol: ui.ColumnProperties{
 				Span: 4,
 			},
-			WrapperCol: ColumnProperties{
+			WrapperCol: ui.ColumnProperties{
 				Span: 20,
 			},
 		})).
@@ -424,7 +425,7 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	case config.OptionTypeNumber:
 		return u.arco.NewNumberInput().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(NumberInputProperties[string]{
+			Properties(ui.StructToMap(ui.NumberInputProperties[string]{
 				Size:     "default",
 				Max:      99,
 				Step:     1,
@@ -434,7 +435,7 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	case config.OptionTypeArray:
 		return u.c2u.NewArrayInput().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(ArrayInputProperties[string]{
+			Properties(ui.StructToMap(ui.ArrayInputProperties[string]{
 				Value:    []string{""},
 				Type:     "string",
 				Disabled: "{{ exec.state.isRunning }}",
@@ -443,23 +444,23 @@ func (u UI) inputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	case config.OptionTypeBoolean:
 		return u.arco.NewSwitch().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(SwitchProperties[string]{
+			Properties(ui.StructToMap(ui.SwitchProperties[string]{
 				Type:     "circle",
 				Size:     "default",
 				Disabled: "{{ exec.state.isRunning }}",
 			})).
 			Event(updateValueEvent("value", p, o))
 	case config.OptionTypeEnum:
-		options := []SelectOptionProperties{}
+		options := []ui.SelectOptionProperties{}
 		for _, o := range o.Options {
-			options = append(options, SelectOptionProperties{
+			options = append(options, ui.SelectOptionProperties{
 				Text:  o,
 				Value: o,
 			})
 		}
 		return u.arco.NewSelect().
 			Id(p.optionValueInputId(o.Name)).
-			Properties(structToMap(SelectProperties[string]{
+			Properties(ui.StructToMap(ui.SelectProperties[string]{
 				Bordered:            true,
 				UnmountOnExit:       true,
 				Options:             options,
@@ -486,7 +487,7 @@ func (u UI) headerElements() []sunmao.BaseComponentBuilder {
 		`)
 
 	help := u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Shape: "square",
 			Text:  "Help",
 			Type:  "default",
@@ -510,13 +511,13 @@ func (u UI) helpModal() sunmao.BaseComponentBuilder {
 		height: 24rem;
 		overflow: scroll;
 		`).
-		Content(TextDisplayProperties{
+		Content(ui.TextDisplayProperties{
 			Text:   u.cli.Help,
 			Format: "code",
 		})
 
 	close := u.arco.NewButton().
-		Properties(structToMap(ButtonProperties[string]{
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
 			Type:   "default",
 			Status: "default",
 			Size:   "default",
@@ -534,7 +535,7 @@ func (u UI) helpModal() sunmao.BaseComponentBuilder {
 		})
 
 	modal := u.arco.NewModal().Id("HelpModal").
-		Properties(structToMap(ModalProperties{
+		Properties(ui.StructToMap(ui.ModalProperties{
 			Title:         "Help",
 			Mask:          true,
 			Closable:      true,

@@ -1,38 +1,12 @@
-package ui
+package naive
 
 import (
-	"CLI2UI/pkg/config"
-	"CLI2UI/pkg/executor"
+	"CLI2UI/pkg/ui"
 	"time"
 
 	"github.com/labstack/gommon/log"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 )
-
-var sessions = map[int]*session{}
-
-type session struct {
-	f    *config.Form
-	exec *executor.Executor
-	hbCh chan struct{}
-}
-
-func (u UI) GetOrCreateSession(connId int) *session {
-	s, ok := sessions[connId]
-	if !ok {
-		f := u.fTpl.Clone()
-		hbCh := make(chan struct{})
-		exec := executor.NewExecutor()
-
-		s = &session{
-			f:    f,
-			exec: &exec,
-			hbCh: hbCh,
-		}
-		sessions[connId] = s
-	}
-	return s
-}
 
 type UpdateSubcommandParams[T int | string] struct {
 	Path            Path
@@ -62,20 +36,20 @@ func (u UI) registerEvents() {
 	u.arco.Component(formatState.AsComponent())
 
 	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
-		s := u.GetOrCreateSession(connId)
+		s := ui.GetOrCreateSession(*u.fTpl, connId)
 
-		p := toStruct[UpdateSubcommandParams[int]](m.Params)
-		form := p.Path.traverseForm(s.f)
+		p := ui.ToStruct[UpdateSubcommandParams[int]](m.Params)
+		form := p.Path.TraverseForm(s.Form)
 		form.Choice = p.Values[p.SubcommandIndex]
 		form.Subcommands[form.Choice].Clear()
 		return nil
 	})
 
 	u.r.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
-		s := u.GetOrCreateSession(connId)
+		s := ui.GetOrCreateSession(*u.fTpl, connId)
 
-		p := toStruct[UpdateOptionValueParams](m.Params)
-		form := p.Path.traverseForm(s.f)
+		p := ui.ToStruct[UpdateOptionValueParams](m.Params)
+		form := p.Path.TraverseForm(s.Form)
 
 		_, ok := form.Args[p.OptionName]
 		if ok {
@@ -88,18 +62,18 @@ func (u UI) registerEvents() {
 	})
 
 	u.r.Handle("Heartbeat", func(m *runtime.Message, connId int) error {
-		s := u.GetOrCreateSession(connId)
-		s.hbCh <- struct{}{}
+		s := ui.GetOrCreateSession(*u.fTpl, connId)
+		s.HeatbeatCh <- struct{}{}
 		return nil
 	})
 
 	u.r.Handle("Run", func(m *runtime.Message, connId int) error {
-		sess := u.GetOrCreateSession(connId)
+		sess := ui.GetOrCreateSession(*u.fTpl, connId)
 
-		script, f := u.cli.Script(*sess.f)
+		script, f := u.cli.Script(*sess.Form)
 		formatState.SetState(f, &connId)
 
-		finishedCh, err := sess.exec.Run(script)
+		finishedCh, err := sess.Exec.Run(script)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -108,13 +82,13 @@ func (u UI) registerEvents() {
 		go func() {
 			for {
 				select {
-				case <-sess.exec.StateCh:
-					err := execState.SetState(sess.exec.State, &connId)
+				case <-sess.Exec.StateCh:
+					err := execState.SetState(sess.Exec.State, &connId)
 					if err != nil {
 						log.Error(err)
 					}
 				case <-finishedCh:
-					err := execState.SetState(sess.exec.State, &connId)
+					err := execState.SetState(sess.Exec.State, &connId)
 					if err != nil {
 						log.Error(err)
 					}
@@ -124,24 +98,24 @@ func (u UI) registerEvents() {
 		}()
 
 		// force an update to the state so the run button is disabled
-		sess.exec.StateCh <- struct{}{}
+		sess.Exec.StateCh <- struct{}{}
 
 		go func() {
-			for sess.exec.State.IsRunning {
+			for sess.Exec.State.IsRunning {
 				// TODO(xinxi.guo): this can be extended to send more useful messages
 				err := u.r.Ping(&connId, "Ping")
 
 				// this fails when a WebSocket connection drops **loudly**
 				if err != nil {
-					sess.exec.StopCh <- struct{}{}
+					sess.Exec.StopCh <- struct{}{}
 					return
 				}
 
 				select {
-				case <-sess.hbCh:
+				case <-sess.HeatbeatCh:
 				// this fails when a WebSocket connection drops **silently**
 				case <-time.After(5 * time.Second):
-					sess.exec.StopCh <- struct{}{}
+					sess.Exec.StopCh <- struct{}{}
 					return
 				}
 
@@ -153,26 +127,26 @@ func (u UI) registerEvents() {
 	})
 
 	u.r.Handle("Stop", func(m *runtime.Message, connId int) error {
-		s := u.GetOrCreateSession(connId)
-		s.exec.StopCh <- struct{}{}
+		s := ui.GetOrCreateSession(*u.fTpl, connId)
+		s.Exec.StopCh <- struct{}{}
 		return nil
 	})
 
 	u.r.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
-		u.GetOrCreateSession(connId)
+		ui.GetOrCreateSession(*u.fTpl, connId)
 		return nil
 	})
 
 	u.r.Handle("DryRun", func(m *runtime.Message, connId int) error {
-		sess := u.GetOrCreateSession(connId)
-		s, _ := u.cli.Script(*sess.f)
+		sess := ui.GetOrCreateSession(*u.fTpl, connId)
+		s, _ := u.cli.Script(*sess.Form)
 		return dryRunState.SetState(s, &connId)
 	})
 
 	u.r.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
-		s := u.GetOrCreateSession(connId)
-		p := toStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
-		f := p.Path.traverseForm(s.f)
+		s := ui.GetOrCreateSession(*u.fTpl, connId)
+		p := ui.ToStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
+		f := p.Path.TraverseForm(s.Form)
 		updateCheckedOptions(&f.Flags, p.CheckedValues)
 		updateCheckedOptions(&f.Args, p.CheckedValues)
 		return nil

@@ -23,11 +23,12 @@ type StackProperties struct {
 }
 
 type LayoutProperties struct {
-	ShowHeader              bool `json:"showHeader"`
-	ShowFooter              bool `json:"showFooter"`
-	ShowSideBar             bool `json:"showSideBar"`
-	SidebarCollapsible      bool `json:"sidebarCollapsible"`
-	SidebarDefaultCollapsed bool `json:"sidebarDefaultCollapsed"`
+	ShowHeader              bool   `json:"showHeader"`
+	ShowFooter              bool   `json:"showFooter"`
+	ShowSideBar             bool   `json:"showSideBar"`
+	SidebarCollapsible      bool   `json:"sidebarCollapsible"`
+	SidebarDefaultCollapsed bool   `json:"sidebarDefaultCollapsed"`
+	Width                   string `json:"width"`
 }
 
 type ModalProperties struct {
@@ -187,4 +188,21 @@ type CollapseProperties struct {
 
 type DatePickerProperties[T string | bool] struct {
 	Disabled T `json:"disabled"`
+}
+
+type TreeNodeProperties struct {
+	Title      string               `json:"title"`
+	Key        string               `json:"key"`
+	Children   []TreeNodeProperties `json:"children"`
+	Selectable bool                 `json:"selectable"`
+	Checkable  bool                 `json:"checkable"`
+}
+
+type TreeProperties struct {
+	Data                            []TreeNodeProperties `json:"data"`
+	Size                            string               `json:"size"`
+	Multiple                        bool                 `json:"multiple"`
+	AutoExpandParent                bool                 `json:"autoExpandParent"`
+	AutoExpandParentWhenDataChanges bool                 `json:"autoExpandParentWhenDataChanges"`
+	DefaultExpandKeys               []string             `json:"defaultExpandKeys"`
 }
