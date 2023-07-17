@@ -11,6 +11,7 @@ import (
 func (u UI) buildPage() {
 	cs := []sunmao.BaseComponentBuilder{
 		u.layout(),
+		u.dryRunModal(),
 	}
 
 	for _, c := range cs {
@@ -69,6 +70,52 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 			"content": {
 				u.commandStack(Path{}, u.CLI.Command),
 				u.checkbox(Path{}, u.CLI.Command),
+				u.Arco.NewStack(),
+				u.buttons(),
+			},
+		})
+}
+
+func (u UI) buttons() sunmao.BaseComponentBuilder {
+	return u.Arco.NewStack().
+		Style("content", `
+			place-self: end end;
+			position: sticky;
+			bottom: 0.25rem;
+			right: 0.25rem;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				u.dryRunButton(),
+			},
+		})
+}
+
+func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
+	return u.Arco.NewButton().
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
+			Type:     "secondary",
+			Status:   "default",
+			Size:     "default",
+			Shape:    "square",
+			Text:     "Dry run",
+			Disabled: "{{ exec.state.isRunning }}",
+		})).
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/DryRun",
+				},
+			},
+			{
+				Type:        "onClick",
+				ComponentId: "DryRunModal",
+				Method: sunmao.EventMethod{
+					Name: "openModal",
+				},
 			},
 		})
 }
@@ -400,4 +447,68 @@ func menuItems(c config.Command, i []ui.TreeNodeProperties) []ui.TreeNodePropert
 	}
 
 	return i
+}
+
+func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
+	copy := u.Arco.NewButton().
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
+			Type:   "secondary",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Copy",
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Parameters: "{{ navigator.clipboard.writeText(dryRun.state); }}",
+				},
+			},
+		})
+
+	code := u.Arco.NewText().Content("{{ `$ ${dryRun.state}` }}")
+
+	close := u.Arco.NewButton().
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
+			Type:   "default",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Close",
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "DryRunModal",
+				Method: sunmao.EventMethod{
+					Name: "closeModal",
+				},
+			},
+		})
+
+	modal := u.Arco.NewModal().Id("DryRunModal").
+		Properties(ui.StructToMap(ui.ModalProperties{
+			Title:         "Dry Run Result",
+			Mask:          true,
+			Closable:      true,
+			MaskClosable:  true,
+			UnmountOnExit: true,
+		})).
+		Style("content", `
+		width: 80vw;
+		.arco-modal-content {
+			background: black;
+			color: white;
+			font-size: 1rem;
+			font-family: monospace;
+		}
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {code},
+			"footer":  {copy, close},
+		})
+
+	return modal
 }

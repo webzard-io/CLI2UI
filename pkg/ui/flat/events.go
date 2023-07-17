@@ -1,14 +1,15 @@
 package flat
 
 import (
+	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/ui"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 )
 
 type UpdateSubcommandParams[T string | ui.Path] struct {
-	Path       T
-	Subcommand string
+	Path       T      `json:"path"`
+	Subcommand string `json:"subcommand"`
 }
 
 func (u UI) registerEvents() {
@@ -28,7 +29,10 @@ func (u UI) registerEvents() {
 		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 		p := ui.ToStruct[UpdateSubcommandParams[ui.Path]](m.Params)
 
-		form := p.Path.TraverseForm(s.Form)
+		form := p.Path.TraverseFormWithCallback(s.Form, func(s string, f *config.Form) {
+			f.Choice = s
+		})
+
 		form.Choice = p.Subcommand
 		form.Clear()
 
@@ -49,6 +53,12 @@ func (u UI) registerEvents() {
 		}
 
 		return nil
+	})
+
+	u.Runtime.Handle("DryRun", func(m *runtime.Message, connId int) error {
+		sess := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s, _ := u.CLI.Script(*sess.Form)
+		return dryRunState.SetState(s, &connId)
 	})
 
 	u.Runtime.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {

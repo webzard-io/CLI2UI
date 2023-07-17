@@ -75,8 +75,15 @@ func ToStruct[T any](s any) T {
 }
 
 func (p Path) TraverseForm(f *config.Form) *config.Form {
+	return p.TraverseFormWithCallback(f, nil)
+}
+
+func (p Path) TraverseFormWithCallback(f *config.Form, cb func(string, *config.Form)) *config.Form {
 	form := f
 	for _, c := range p {
+		if cb != nil {
+			cb(c, form)
+		}
 		form = form.Subcommands[c]
 	}
 	return form
