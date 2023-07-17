@@ -46,3 +46,8 @@ func UpdateCheckedOptions(v *map[string]*config.OptionValue, checked []string) {
 		}
 	}
 }
+
+type UpdateCheckedOptionsParams[T []string | string] struct {
+	Path          Path
+	CheckedValues T
+}

@@ -316,8 +316,8 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/UpdateCheckedOptions",
-					Parameters: UpdateCheckedOptionsParams[string]{
-						Path:          p,
+					Parameters: ui.UpdateCheckedOptionsParams[string]{
+						Path:          p.Path,
 						CheckedValues: fmt.Sprintf("{{ %s.checkedValues }}", p.OptionsCheckboxId()),
 					},
 				},

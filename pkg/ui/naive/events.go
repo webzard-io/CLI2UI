@@ -14,11 +14,6 @@ type UpdateSubcommandParams[T int | string] struct {
 	Values          []string
 }
 
-type UpdateCheckedOptionsParams[T []string | string] struct {
-	Path          Path
-	CheckedValues T
-}
-
 func (u UI) registerEvents() {
 	execState := u.Runtime.NewServerState("exec", nil)
 	u.Arco.Component(execState.AsComponent())
@@ -139,7 +134,7 @@ func (u UI) registerEvents() {
 
 	u.Runtime.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
 		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
-		p := ui.ToStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
+		p := ui.ToStruct[ui.UpdateCheckedOptionsParams[[]string]](m.Params)
 		f := p.Path.TraverseForm(s.Form)
 		ui.UpdateCheckedOptions(&f.Flags, p.CheckedValues)
 		ui.UpdateCheckedOptions(&f.Args, p.CheckedValues)
