@@ -1,7 +1,8 @@
-package ui
+package flat
 
 import (
 	"CLI2UI/pkg/config"
+	"CLI2UI/pkg/ui"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
@@ -18,7 +19,7 @@ func (u UI) buildPage() {
 
 func (u UI) layout() sunmao.BaseComponentBuilder {
 	return u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "horizontal",
 		})).
 		Style("content", `
@@ -36,7 +37,7 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 
 func (u UI) mainContent() sunmao.BaseComponentBuilder {
 	return u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "horizontal",
 		})).
 		Style("content", `
@@ -72,7 +73,7 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 
 func (u UI) outputSection() sunmao.BaseComponentBuilder {
 	stdoutCard := u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
 		Style("content", `
@@ -93,7 +94,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		})
 
 	stderrCard := u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
 		Style("content", `
@@ -114,7 +115,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		})
 
 	return u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
 		Style("content", `
@@ -139,7 +140,7 @@ func (u UI) sidebar() sunmao.BaseComponentBuilder {
 		`)
 
 	s := u.arco.NewStack().
-		Properties(structToMap(StackProperties{
+		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 			Spacing:   6,
 		})).
@@ -162,8 +163,8 @@ func (u UI) sidebar() sunmao.BaseComponentBuilder {
 func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 	return u.arco.NewTree().
 		Id("SubcommandMenuTree").
-		Properties(structToMap(
-			TreeProperties{
+		Properties(ui.StructToMap(
+			ui.TreeProperties{
 				Data: u.menuItems(),
 				Size: "large",
 			},
@@ -188,16 +189,16 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 		})
 }
 
-func (u UI) menuItems() []TreeNodeProperties {
-	return menuItems(u.cli.Command, []TreeNodeProperties{})
+func (u UI) menuItems() []ui.TreeNodeProperties {
+	return menuItems(u.cli.Command, []ui.TreeNodeProperties{})
 }
 
-func menuItems(c config.Command, i []TreeNodeProperties) []TreeNodeProperties {
+func menuItems(c config.Command, i []ui.TreeNodeProperties) []ui.TreeNodeProperties {
 	for _, sc := range c.Subcommands {
-		tnp := TreeNodeProperties{
+		tnp := ui.TreeNodeProperties{
 			Title:      sc.DisplayName(),
 			Key:        sc.Name,
-			Children:   menuItems(sc, []TreeNodeProperties{}),
+			Children:   menuItems(sc, []ui.TreeNodeProperties{}),
 			Selectable: true,
 		}
 		i = append(i, tnp)

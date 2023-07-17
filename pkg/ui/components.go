@@ -31,7 +31,7 @@ func (b *CLI2UIAppBuilder) NewTextDisplay() *TextDisplayComponentBuilder {
 }
 
 func (b *TextDisplayComponentBuilder) Content(v TextDisplayProperties) *TextDisplayComponentBuilder {
-	b.Properties(structToMap(v))
+	b.Properties(StructToMap(v))
 	return b
 }
 
