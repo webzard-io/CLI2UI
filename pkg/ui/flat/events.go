@@ -35,6 +35,31 @@ func (u UI) registerEvents() {
 		return pathState.SetState(p.Path, &connId)
 	})
 
+	u.Runtime.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+
+		p := ui.ToStruct[ui.UpdateOptionValueParams](m.Params)
+		form := p.Path.TraverseForm(s.Form)
+
+		_, ok := form.Args[p.OptionName]
+		if ok {
+			form.Args[p.OptionName].Value = p.Value
+		} else {
+			form.Flags[p.OptionName].Value = p.Value
+		}
+
+		return nil
+	})
+
+	u.Runtime.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		p := ui.ToStruct[ui.UpdateCheckedOptionsParams[[]string]](m.Params)
+		f := p.Path.TraverseForm(s.Form)
+		ui.UpdateCheckedOptions(&f.Flags, p.CheckedValues)
+		ui.UpdateCheckedOptions(&f.Args, p.CheckedValues)
+		return nil
+	})
+
 	u.Runtime.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
 		ui.GetOrCreateSession(*u.FormTemplate, connId)
 		return nil

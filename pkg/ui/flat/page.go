@@ -62,7 +62,8 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		border-radius: 0.5rem;
 		padding: 0.5rem;
 		overflow: auto;
-		position: relative;
+		display: grid;
+		grid-template-columns: 24rem 1fr;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
@@ -79,7 +80,8 @@ func (u UI) checkbox(p Path, c config.Command) sunmao.BaseComponentBuilder {
 			Direction: "vertical",
 		})).
 		Style("content", `
-			position: absolute;
+			place-self: start end;
+			position: sticky;
 			top: 0.25rem;
 			right: 0.25rem;
 			background-color: rgba(225, 225, 225, 0.8);
@@ -218,9 +220,7 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 			Direction: "vertical",
 		})).
 		Style("content", `
-		flex: 1;
 		gap: 0.5rem;
-		max-width: 24rem;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": cs,
@@ -238,6 +238,7 @@ func (u UI) commandOptionForm(p Path, c config.Command) sunmao.BaseComponentBuil
 	}
 
 	return u.Arco.NewStack().
+		Id(p.OptionValuesFormId()).
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
@@ -259,7 +260,11 @@ func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {u.InputType(p.Path, o)},
-		})
+		}).
+		Slot(sunmao.Container{
+			ID:   p.OptionValuesFormId(),
+			Slot: "content",
+		}, fmt.Sprintf("{{ %s.checkedValues.some(o => o === \"%s\") }}", p.OptionsCheckboxId(), o.Name))
 }
 
 func (u UI) outputSection() sunmao.BaseComponentBuilder {
