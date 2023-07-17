@@ -130,25 +130,18 @@ func (u UI) commandOptionForm(p ui.Path, c config.Command) sunmao.BaseComponentB
 }
 
 func (u UI) optionInput(p ui.Path, o config.Option) sunmao.BaseComponentBuilder {
-	cs := []sunmao.BaseComponentBuilder{u.InputType(p, o)}
-	if o.Description != "" {
-		cs = append(cs, u.Arco.NewText().
-			Content(o.Description).
-			Style("content", "color: var(--color-text-3);"))
-	}
-
 	return u.Arco.NewFormControl().
 		Properties(ui.StructToMap(ui.FormControlProperties{
 			Label: ui.TextProperties{
 				Format: "plain",
 				Raw:    o.DisplayName(),
 			},
-			Layout:     "vertical",
-			Required:   o.Required,
-			LabelAlign: "top",
+			Layout:   "vertical",
+			Required: o.Required,
+			Help:     o.Description,
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": cs,
+			"content": {u.InputType(p, o)},
 		})
 }
 

@@ -70,6 +70,7 @@ command:
       flags:
         - name: a
           display: All
+          description: List status for all the containers
           type: boolean
         - name: q
           display: Quite
