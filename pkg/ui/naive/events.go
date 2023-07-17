@@ -19,24 +19,18 @@ type UpdateCheckedOptionsParams[T []string | string] struct {
 	CheckedValues T
 }
 
-type UpdateOptionValueParams struct {
-	Path       Path
-	OptionName string
-	Value      any
-}
-
 func (u UI) registerEvents() {
-	execState := u.r.NewServerState("exec", nil)
-	u.arco.Component(execState.AsComponent())
+	execState := u.Runtime.NewServerState("exec", nil)
+	u.Arco.Component(execState.AsComponent())
 
-	dryRunState := u.r.NewServerState("dryRun", "")
-	u.arco.Component(dryRunState.AsComponent())
+	dryRunState := u.Runtime.NewServerState("dryRun", "")
+	u.Arco.Component(dryRunState.AsComponent())
 
-	formatState := u.r.NewServerState("format", "")
-	u.arco.Component(formatState.AsComponent())
+	formatState := u.Runtime.NewServerState("format", "")
+	u.Arco.Component(formatState.AsComponent())
 
-	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 
 		p := ui.ToStruct[UpdateSubcommandParams[int]](m.Params)
 		form := p.Path.TraverseForm(s.Form)
@@ -45,10 +39,10 @@ func (u UI) registerEvents() {
 		return nil
 	})
 
-	u.r.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 
-		p := ui.ToStruct[UpdateOptionValueParams](m.Params)
+		p := ui.ToStruct[ui.UpdateOptionValueParams](m.Params)
 		form := p.Path.TraverseForm(s.Form)
 
 		_, ok := form.Args[p.OptionName]
@@ -61,16 +55,16 @@ func (u UI) registerEvents() {
 		return nil
 	})
 
-	u.r.Handle("Heartbeat", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.fTpl, connId)
-		s.HeatbeatCh <- struct{}{}
+	u.Runtime.Handle("Heartbeat", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s.HeartbeatCh <- struct{}{}
 		return nil
 	})
 
-	u.r.Handle("Run", func(m *runtime.Message, connId int) error {
-		sess := ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("Run", func(m *runtime.Message, connId int) error {
+		sess := ui.GetOrCreateSession(*u.FormTemplate, connId)
 
-		script, f := u.cli.Script(*sess.Form)
+		script, f := u.CLI.Script(*sess.Form)
 		formatState.SetState(f, &connId)
 
 		finishedCh, err := sess.Exec.Run(script)
@@ -103,7 +97,7 @@ func (u UI) registerEvents() {
 		go func() {
 			for sess.Exec.State.IsRunning {
 				// TODO(xinxi.guo): this can be extended to send more useful messages
-				err := u.r.Ping(&connId, "Ping")
+				err := u.Runtime.Ping(&connId, "Ping")
 
 				// this fails when a WebSocket connection drops **loudly**
 				if err != nil {
@@ -112,7 +106,7 @@ func (u UI) registerEvents() {
 				}
 
 				select {
-				case <-sess.HeatbeatCh:
+				case <-sess.HeartbeatCh:
 				// this fails when a WebSocket connection drops **silently**
 				case <-time.After(5 * time.Second):
 					sess.Exec.StopCh <- struct{}{}
@@ -126,29 +120,29 @@ func (u UI) registerEvents() {
 		return nil
 	})
 
-	u.r.Handle("Stop", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("Stop", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 		s.Exec.StopCh <- struct{}{}
 		return nil
 	})
 
-	u.r.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
-		ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
+		ui.GetOrCreateSession(*u.FormTemplate, connId)
 		return nil
 	})
 
-	u.r.Handle("DryRun", func(m *runtime.Message, connId int) error {
-		sess := ui.GetOrCreateSession(*u.fTpl, connId)
-		s, _ := u.cli.Script(*sess.Form)
+	u.Runtime.Handle("DryRun", func(m *runtime.Message, connId int) error {
+		sess := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s, _ := u.CLI.Script(*sess.Form)
 		return dryRunState.SetState(s, &connId)
 	})
 
-	u.r.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 		p := ui.ToStruct[UpdateCheckedOptionsParams[[]string]](m.Params)
 		f := p.Path.TraverseForm(s.Form)
-		updateCheckedOptions(&f.Flags, p.CheckedValues)
-		updateCheckedOptions(&f.Args, p.CheckedValues)
+		ui.UpdateCheckedOptions(&f.Flags, p.CheckedValues)
+		ui.UpdateCheckedOptions(&f.Args, p.CheckedValues)
 		return nil
 	})
 }

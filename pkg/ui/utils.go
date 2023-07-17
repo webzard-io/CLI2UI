@@ -3,6 +3,7 @@ package ui
 import (
 	"CLI2UI/pkg/config"
 	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 
@@ -46,6 +47,22 @@ func (p Path) String() string {
 
 func (p Path) Append(s string) Path {
 	return append(p, s)
+}
+
+func (p Path) OptionsCheckboxId() string {
+	return fmt.Sprintf("%sOptionsCheckbox", p)
+}
+
+func (p Path) OptionValuesFormId() string {
+	return fmt.Sprintf("%sOptionValuesForm", p)
+}
+
+func (p Path) OptionValueInputId(option string) string {
+	return fmt.Sprintf("%s%sOptionValueInput", p, KebabToPascalCase(option))
+}
+
+func (p Path) CommandStackId() string {
+	return fmt.Sprintf("%sCommandStack", p)
 }
 
 func ToStruct[T any](s any) T {

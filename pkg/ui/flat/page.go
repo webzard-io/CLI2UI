@@ -13,12 +13,12 @@ func (u UI) buildPage() {
 	}
 
 	for _, c := range cs {
-		u.arco.Component(c)
+		u.Arco.Component(c)
 	}
 }
 
 func (u UI) layout() sunmao.BaseComponentBuilder {
-	return u.arco.NewStack().
+	return u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "horizontal",
 		})).
@@ -36,7 +36,7 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) mainContent() sunmao.BaseComponentBuilder {
-	return u.arco.NewStack().
+	return u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "horizontal",
 		})).
@@ -54,13 +54,13 @@ func (u UI) mainContent() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) optionSection() sunmao.BaseComponentBuilder {
-	return u.arco.NewStack().
+	return u.Arco.NewStack().
 		Style("content", `
 		flex: 2;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.arco.NewStack().
+				u.Arco.NewStack().
 					Style("content", `
 					flex: 1;
 					background-color: white;
@@ -72,7 +72,7 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) outputSection() sunmao.BaseComponentBuilder {
-	stdoutCard := u.arco.NewStack().
+	stdoutCard := u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
@@ -84,7 +84,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.arco.NewText().
+				u.Arco.NewText().
 					Style("content", `
 					font-size: 1.25rem;
 					font-weight: bold;
@@ -93,7 +93,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 			},
 		})
 
-	stderrCard := u.arco.NewStack().
+	stderrCard := u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
@@ -105,7 +105,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.arco.NewText().
+				u.Arco.NewText().
 					Style("content", `
 					font-size: 1.25rem;
 					font-weight: bold;
@@ -114,7 +114,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 			},
 		})
 
-	return u.arco.NewStack().
+	return u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
@@ -131,15 +131,15 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) sidebar() sunmao.BaseComponentBuilder {
-	title := u.arco.NewText().
-		Content(u.cli.Name).
+	title := u.Arco.NewText().
+		Content(u.CLI.Name).
 		Style("content", `
 		font-size: 1.25rem;
 		font-weight: bold;
 		margin: 0.125rem 0;
 		`)
 
-	s := u.arco.NewStack().
+	s := u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 			Spacing:   6,
@@ -161,7 +161,7 @@ func (u UI) sidebar() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) commandMenu() sunmao.BaseComponentBuilder {
-	return u.arco.NewTree().
+	return u.Arco.NewTree().
 		Id("SubcommandMenuTree").
 		Properties(ui.StructToMap(
 			ui.TreeProperties{
@@ -190,7 +190,7 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) menuItems() []ui.TreeNodeProperties {
-	return menuItems(u.cli.Command, []ui.TreeNodeProperties{})
+	return menuItems(u.CLI.Command, []ui.TreeNodeProperties{})
 }
 
 func menuItems(c config.Command, i []ui.TreeNodeProperties) []ui.TreeNodeProperties {
