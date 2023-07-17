@@ -3,6 +3,7 @@ package flat
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/ui"
+	"fmt"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
 )
@@ -60,6 +61,7 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		background-color: white;
 		border-radius: 0.5rem;
 		padding: 0.5rem;
+		overflow: auto;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
@@ -68,10 +70,11 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		})
 }
 
-func (u UI) commandStack(p ui.Path, c config.Command) sunmao.BaseComponentBuilder {
+func (u UI) commandStack(p ui.Path, c config.Command) *sunmao.StackComponentBuilder {
+	cs := []sunmao.BaseComponentBuilder{}
+
 	title := u.Arco.NewText().
-		Id(p.CommandStackId()).
-		Content(u.CLI.Command.DisplayName()).
+		Content(c.DisplayName()).
 		Style("content", `
 		align-self: flex-start;
 		font-size: 1.25rem;
@@ -81,6 +84,33 @@ func (u UI) commandStack(p ui.Path, c config.Command) sunmao.BaseComponentBuilde
 		border-radius: 0.5rem;
 		`)
 
+	cs = append(cs, title)
+	cs = append(cs, u.commandOptionForm(p, c))
+
+	for _, sc := range c.Subcommands {
+		path := p.Append(sc.Name)
+		cs = append(cs, u.commandStack(path, sc).
+			Slot(sunmao.Container{
+				ID:   p.CommandStackId(),
+				Slot: "content",
+			}, fmt.Sprintf("{{ path.state.some(o => o === \"%s\") }}", sc.Name)))
+	}
+
+	return u.Arco.NewStack().
+		Id(p.CommandStackId()).
+		Properties(ui.StructToMap(ui.StackProperties{
+			Direction: "vertical",
+		})).
+		Style("content", `
+		flex: 1;
+		gap: 0.5rem;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": cs,
+		})
+}
+
+func (u UI) commandOptionForm(p ui.Path, c config.Command) sunmao.BaseComponentBuilder {
 	inputs := []sunmao.BaseComponentBuilder{}
 	for _, f := range c.Flags {
 		inputs = append(inputs, u.optionInput(p, f))
@@ -90,27 +120,12 @@ func (u UI) commandStack(p ui.Path, c config.Command) sunmao.BaseComponentBuilde
 		inputs = append(inputs, u.optionInput(p, a))
 	}
 
-	form := u.Arco.NewStack().
+	return u.Arco.NewStack().
 		Properties(ui.StructToMap(ui.StackProperties{
 			Direction: "vertical",
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": inputs,
-		})
-
-	return u.Arco.NewStack().
-		Properties(ui.StructToMap(ui.StackProperties{
-			Direction: "vertical",
-		})).
-		Style("content", `
-		flex: 1;
-		gap: 0.5rem;
-		`).
-		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {
-				title,
-				form,
-			},
 		})
 }
 
@@ -213,7 +228,6 @@ func (u UI) sidebar() sunmao.BaseComponentBuilder {
 		Style("content", `
 		padding: 0.75rem;
 		color: #fff;
-		overflow: auto;
 		background-color: rgba(11, 21, 48, 0.9); 
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{

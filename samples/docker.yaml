@@ -32,7 +32,8 @@ command:
       description: Search image on DockerHub
       flags:
         - name: limit
-          display: Limit the number of result
+          display: Limit
+          description: Limit the number of result
           type: number
           long: true
       args:

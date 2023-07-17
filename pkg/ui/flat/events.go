@@ -27,10 +27,12 @@ func (u UI) registerEvents() {
 	u.Runtime.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 		p := ui.ToStruct[UpdateSubcommandParams[ui.Path]](m.Params)
+
 		form := p.Path.TraverseForm(s.Form)
 		form.Choice = p.Subcommand
 		form.Clear()
-		return nil
+
+		return pathState.SetState(p.Path, &connId)
 	})
 
 	u.Runtime.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
