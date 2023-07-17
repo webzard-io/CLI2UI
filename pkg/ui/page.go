@@ -42,6 +42,8 @@ func (u UI) mainContent() sunmao.BaseComponentBuilder {
 		Style("content", `
 		flex: 1;
 		background-color: rgb(241, 245, 249);
+		gap: 0.5rem;
+		padding: 0.5rem;
 		`).Children(map[string][]sunmao.BaseComponentBuilder{
 		"content": {
 			u.optionSection(),
@@ -59,19 +61,72 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 			"content": {
 				u.arco.NewStack().
 					Style("content", `
-					border-radius: 1.25rem;
-					width: 100%;
-					height: 100%;
+					flex: 1;
+					background-color: white;
+					border-radius: 0.5rem;
+					padding: 0.5rem;
 				`),
 			},
 		})
 }
 
 func (u UI) outputSection() sunmao.BaseComponentBuilder {
-	return u.arco.NewStack().
+	stdoutCard := u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "vertical",
+		})).
+		Style("content", `
+		flex: 1.5;
+		background-color: white;
+		border-radius: 0.5rem;
+		padding: 0.5rem;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				u.arco.NewText().
+					Style("content", `
+					font-size: 1.25rem;
+					font-weight: bold;
+					`).
+					Content("Standard Output"),
+			},
+		})
+
+	stderrCard := u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "vertical",
+		})).
 		Style("content", `
 		flex: 1;
-		`)
+		background-color: white;
+		border-radius: 0.5rem;
+		padding: 0.5rem;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				u.arco.NewText().
+					Style("content", `
+					font-size: 1.25rem;
+					font-weight: bold;
+					`).
+					Content("Standard Error"),
+			},
+		})
+
+	return u.arco.NewStack().
+		Properties(structToMap(StackProperties{
+			Direction: "vertical",
+		})).
+		Style("content", `
+		flex: 1;
+		gap: 0.5rem;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				stdoutCard,
+				stderrCard,
+			},
+		})
 }
 
 func (u UI) sidebar() sunmao.BaseComponentBuilder {
