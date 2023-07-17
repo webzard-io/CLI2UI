@@ -21,6 +21,9 @@ func (u UI) registerEvents() {
 	formatState := u.Runtime.NewServerState("format", "")
 	u.Arco.Component(formatState.AsComponent())
 
+	pathState := u.Runtime.NewServerState("path", []string{})
+	u.Arco.Component(pathState.AsComponent())
+
 	u.Runtime.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
 		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 		p := ui.ToStruct[UpdateSubcommandParams[ui.Path]](m.Params)

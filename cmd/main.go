@@ -2,7 +2,7 @@ package main
 
 import (
 	"CLI2UI/pkg/config"
-	"CLI2UI/pkg/ui/naive"
+	"CLI2UI/pkg/ui/flat"
 	"encoding/json"
 	"log"
 	"os"
@@ -28,7 +28,7 @@ func main() {
 				return err
 			}
 
-			ui, err := naive.NewUI(*cfg)
+			ui, err := flat.NewUI(*cfg)
 			if err != nil {
 				return err
 			}

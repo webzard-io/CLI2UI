@@ -57,17 +57,83 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 	return u.Arco.NewStack().
 		Style("content", `
 		flex: 2;
+		background-color: white;
+		border-radius: 0.5rem;
+		padding: 0.5rem;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.Arco.NewStack().
-					Style("content", `
-					flex: 1;
-					background-color: white;
-					border-radius: 0.5rem;
-					padding: 0.5rem;
-				`),
+				u.commandStack(ui.Path{}, u.CLI.Command),
 			},
+		})
+}
+
+func (u UI) commandStack(p ui.Path, c config.Command) sunmao.BaseComponentBuilder {
+	title := u.Arco.NewText().
+		Id(p.CommandStackId()).
+		Content(u.CLI.Command.DisplayName()).
+		Style("content", `
+		align-self: flex-start;
+		font-size: 1.25rem;
+		font-weight: bold;
+		background-color: var(--color-secondary);
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+		`)
+
+	inputs := []sunmao.BaseComponentBuilder{}
+	for _, f := range c.Flags {
+		inputs = append(inputs, u.optionInput(p, f))
+	}
+
+	for _, a := range c.Args {
+		inputs = append(inputs, u.optionInput(p, a))
+	}
+
+	form := u.Arco.NewStack().
+		Properties(ui.StructToMap(ui.StackProperties{
+			Direction: "vertical",
+		})).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": inputs,
+		})
+
+	return u.Arco.NewStack().
+		Properties(ui.StructToMap(ui.StackProperties{
+			Direction: "vertical",
+		})).
+		Style("content", `
+		flex: 1;
+		gap: 0.5rem;
+		`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {
+				title,
+				form,
+			},
+		})
+}
+
+func (u UI) optionInput(p ui.Path, o config.Option) sunmao.BaseComponentBuilder {
+	cs := []sunmao.BaseComponentBuilder{u.InputType(p, o)}
+	if o.Description != "" {
+		cs = append(cs, u.Arco.NewText().
+			Content(o.Description).
+			Style("content", "color: var(--color-text-3);"))
+	}
+
+	return u.Arco.NewFormControl().
+		Properties(ui.StructToMap(ui.FormControlProperties{
+			Label: ui.TextProperties{
+				Format: "plain",
+				Raw:    o.DisplayName(),
+			},
+			Layout:     "vertical",
+			Required:   o.Required,
+			LabelAlign: "top",
+		})).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": cs,
 		})
 }
 
