@@ -78,6 +78,7 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 
 func (u UI) buttons() sunmao.BaseComponentBuilder {
 	return u.Arco.NewStack().
+		Id("Buttons").
 		Style("content", `
 			place-self: end end;
 			position: sticky;
@@ -86,9 +87,61 @@ func (u UI) buttons() sunmao.BaseComponentBuilder {
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
+				u.runButton(),
+				u.stopButton(),
 				u.dryRunButton(),
 			},
 		})
+}
+
+func (u UI) runButton() sunmao.BaseComponentBuilder {
+	return u.Arco.NewButton().
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
+			Text:   "Run",
+			Type:   "primary",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+		})).
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/Run",
+				},
+			},
+		}).
+		Slot(sunmao.Container{
+			ID:   "Buttons",
+			Slot: "content",
+		}, "{{ !exec.state || !exec.state.isRunning }}")
+}
+
+func (u UI) stopButton() sunmao.BaseComponentBuilder {
+	return u.Arco.NewButton().
+		Properties(ui.StructToMap(ui.ButtonProperties[string]{
+			Type:   "primary",
+			Status: "default",
+			Size:   "default",
+			Shape:  "square",
+			Text:   "Stop",
+		})).
+		Style("content", "width: 100%;").
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onClick",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/Stop",
+				},
+			},
+		}).
+		Slot(sunmao.Container{
+			ID:   "Buttons",
+			Slot: "content",
+		}, "{{ exec.state.isRunning }}")
 }
 
 func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
@@ -250,6 +303,12 @@ func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder
 		`)
 
 	cs = append(cs, title)
+
+	if c.Description != "" {
+		desc := u.Arco.NewText().Content(c.Description)
+		cs = append(cs, desc)
+	}
+
 	cs = append(cs, u.commandOptionForm(p, c))
 
 	for _, sc := range c.Subcommands {
@@ -333,6 +392,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 					font-weight: bold;
 					`).
 					Content("Standard Output"),
+				u.C2U.NewTerminal().Text("{{ exec.state.stdout }}"),
 			},
 		})
 
@@ -354,6 +414,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 					font-weight: bold;
 					`).
 					Content("Standard Error"),
+				u.C2U.NewTerminal().Text("{{ exec.state.stderr }}"),
 			},
 		})
 
