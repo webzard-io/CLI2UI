@@ -316,8 +316,8 @@ func (u UI) optionsInputForm(p Path, c config.Command) sunmao.BaseComponentBuild
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/UpdateCheckedOptions",
-					Parameters: UpdateCheckedOptionsParams[string]{
-						Path:          p,
+					Parameters: ui.UpdateCheckedOptionsParams[string]{
+						Path:          p.Path,
 						CheckedValues: fmt.Sprintf("{{ %s.checkedValues }}", p.OptionsCheckboxId()),
 					},
 				},
@@ -387,13 +387,6 @@ func (u UI) parseOptions(p Path, c config.Command) ([]ui.CheckboxOptionPropertie
 }
 
 func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
-	cs := []sunmao.BaseComponentBuilder{u.InputType(p.Path, o)}
-	if o.Description != "" {
-		cs = append(cs, u.Arco.NewText().
-			Content(o.Description).
-			Style("content", "color: var(--color-text-2);"))
-	}
-
 	return u.Arco.NewFormControl().
 		Properties(ui.StructToMap(ui.FormControlProperties{
 			Label: ui.TextProperties{
@@ -409,9 +402,10 @@ func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 			WrapperCol: ui.ColumnProperties{
 				Span: 20,
 			},
+			Help: o.Description,
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": cs,
+			"content": {u.InputType(p.Path, o)},
 		}).
 		Slot(sunmao.Container{
 			ID:   p.OptionValuesFormId(),

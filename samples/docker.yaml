@@ -1,17 +1,19 @@
 # yaml-language-server: $schema=../cli.schema.json
-name: docker 容器
+name: docker
 optionDelim: " "
 help: A self-sufficient runtime for containers
 command:
   name: docker
-  description: 管理 docker
+  description: docker container manager
   flags:
     - name: config
-      display: 配置文件
+      display: Config File
+      description: Path to config file
       type: string
       long: true
     - name: log-level
-      display: 日志等级
+      display: Log Level
+      description: Loudness of the logger
       type: enum
       long: true
       default: info
@@ -23,50 +25,53 @@ command:
         - fatal
   subcommands:
     - name: images
-      display: 所有镜像
-      description: 获取所有本地镜像
+      display: All Images
+      description: Retrieve information of all the 
     - name: search
-      display: 搜索镜像
+      display: Search for Image
+      description: Search image on DockerHub
       flags:
         - name: limit
-          display: 限制搜索结果数量
+          display: Limit
+          description: Limit the number of result
           type: number
           long: true
       args:
         - name: name
-          display: 关键词
+          display: Keyword
           required: true
           type: string
     - name: volume
-      display: 卷
+      display: Volume
       subcommands:
         - name: create
-          display: 创建
+          display: Create
           flags:
             - name: driver
-              display: 驱动
+              display: Driver
               type: string
               long: true
           args:
             - name: name
-              display: 名称
+              display: Name
               type: string
               required: true
         - name: rm
-          display: 删除
+          display: Remove
           args:
             - name: name
-              display: 名称
+              display: Name
               type: string
               required: true
         - name: ls
-          display: 查询
+          display: List
     - name: ps
-      display: 容器状态
+      display: Status
       flags:
         - name: a
-          display: 全部
+          display: All
+          description: List status for all the containers
           type: boolean
         - name: q
-          display: 静默
+          display: Quite
           type: boolean

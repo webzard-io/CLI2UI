@@ -104,7 +104,7 @@ func parseForm(c *Command, f *Form) {
 		dv := f.Default
 		if dv == nil {
 			// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
-			dv = fmt.Sprintf("<%s>", f.Name)
+			dv = fmt.Sprintf("<%s>", f.DisplayName())
 		}
 		flags[f.Name] = &OptionValue{
 			Long:         f.Long,
@@ -118,10 +118,10 @@ func parseForm(c *Command, f *Form) {
 	for _, a := range c.Args {
 		dv := a.Default
 		if dv == nil {
-			dv = fmt.Sprintf("<%s>", a.Name)
+			dv = fmt.Sprintf("<%s>", a.DisplayName())
 		}
 		args[a.Name] = &OptionValue{
-			Value:        fmt.Sprintf("<%s>", a.Name),
+			Value:        dv,
 			required:     a.Required,
 			Enabled:      a.Required,
 			defaultValue: dv,
