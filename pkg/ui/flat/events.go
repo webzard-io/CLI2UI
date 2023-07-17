@@ -12,17 +12,17 @@ type UpdateSubcommandParams[T string | ui.Path] struct {
 }
 
 func (u UI) registerEvents() {
-	execState := u.r.NewServerState("exec", nil)
-	u.arco.Component(execState.AsComponent())
+	execState := u.Runtime.NewServerState("exec", nil)
+	u.Arco.Component(execState.AsComponent())
 
-	dryRunState := u.r.NewServerState("dryRun", "")
-	u.arco.Component(dryRunState.AsComponent())
+	dryRunState := u.Runtime.NewServerState("dryRun", "")
+	u.Arco.Component(dryRunState.AsComponent())
 
-	formatState := u.r.NewServerState("format", "")
-	u.arco.Component(formatState.AsComponent())
+	formatState := u.Runtime.NewServerState("format", "")
+	u.Arco.Component(formatState.AsComponent())
 
-	u.r.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
+		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
 		p := ui.ToStruct[UpdateSubcommandParams[ui.Path]](m.Params)
 		form := p.Path.TraverseForm(s.Form)
 		form.Choice = p.Subcommand
@@ -30,8 +30,8 @@ func (u UI) registerEvents() {
 		return nil
 	})
 
-	u.r.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
-		ui.GetOrCreateSession(*u.fTpl, connId)
+	u.Runtime.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
+		ui.GetOrCreateSession(*u.FormTemplate, connId)
 		return nil
 	})
 }

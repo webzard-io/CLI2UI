@@ -1,6 +1,10 @@
 package ui
 
-import "github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
+import (
+	"CLI2UI/pkg/config"
+
+	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
+)
 
 type CLI2UIAppBuilder struct {
 	*sunmao.AppBuilder
@@ -114,4 +118,95 @@ func (b *CLI2UIAppBuilder) NewArrayInput() *ArrayInputBuilder {
 	}
 	t.Inner = t
 	return t.Type("cli2ui/v1/arrayInput")
+}
+
+type Validator[T any] interface {
+	Validate(T) bool
+}
+
+func (u BaseUI) stringComponent(o config.Option, p Path) (sunmao.BaseComponentBuilder, []Validator[string]) {
+	var comp sunmao.BaseComponentBuilder
+	vs := []Validator[string]{}
+
+	comp = u.Arco.NewInput().
+		Id(p.OptionValueInputId(o.Name)).
+		Properties(StructToMap(InputProperties[string]{
+			Size:     "default",
+			Disabled: "{{ exec.state.isRunning }}",
+		})).
+		Event(UpdateValueEvent("value", p, o))
+
+	switch o.Annotations.Format {
+	case config.FormatAnnotationDate:
+		comp = u.Arco.NewDatePicker().
+			Id(p.OptionValueInputId(o.Name)).
+			Properties(StructToMap(DatePickerProperties[string]{
+				Disabled: "{{ exec.state.isRunning }}",
+			})).
+			Event(UpdateValueEvent("dateString", p, o))
+
+	}
+
+	// TODO(xinxi.guo): implement validation using annotations
+
+	return comp, vs
+}
+
+func (u BaseUI) InputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
+	// TODO(xinxi.guo): typeComponent() will ultimately replace all these
+	switch o.Type {
+	case config.OptionTypeNumber:
+		return u.Arco.NewNumberInput().
+			Id(p.OptionValueInputId(o.Name)).
+			Properties(StructToMap(NumberInputProperties[string]{
+				Size:     "default",
+				Max:      99,
+				Step:     1,
+				Disabled: "{{ exec.state.isRunning }}",
+			})).
+			Event(UpdateValueEvent("value", p, o))
+	case config.OptionTypeArray:
+		return u.C2U.NewArrayInput().
+			Id(p.OptionValueInputId(o.Name)).
+			Properties(StructToMap(ArrayInputProperties[string]{
+				Value:    []string{""},
+				Type:     "string",
+				Disabled: "{{ exec.state.isRunning }}",
+			})).
+			Event(UpdateValueEvent("value", p, o))
+	case config.OptionTypeBoolean:
+		return u.Arco.NewSwitch().
+			Id(p.OptionValueInputId(o.Name)).
+			Properties(StructToMap(SwitchProperties[string]{
+				Type:     "circle",
+				Size:     "default",
+				Disabled: "{{ exec.state.isRunning }}",
+			})).
+			Event(UpdateValueEvent("value", p, o))
+	case config.OptionTypeEnum:
+		options := []SelectOptionProperties{}
+		for _, o := range o.Options {
+			options = append(options, SelectOptionProperties{
+				Text:  o,
+				Value: o,
+			})
+		}
+		return u.Arco.NewSelect().
+			Id(p.OptionValueInputId(o.Name)).
+			Properties(StructToMap(SelectProperties[string]{
+				Bordered:            true,
+				UnmountOnExit:       true,
+				Options:             options,
+				Size:                "default",
+				AutoAlignPopupWidth: true,
+				Position:            "bottom",
+				MountToBody:         true,
+				Disabled:            "{{ exec.state.isRunning }}",
+			})).
+			Event(UpdateValueEvent("value", p, o))
+	}
+
+	// TODO(xinxi.guo): implement validation
+	comp, _ := u.stringComponent(o, p)
+	return comp
 }

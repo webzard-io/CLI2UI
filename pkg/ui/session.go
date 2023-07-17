@@ -8,9 +8,9 @@ import (
 var sessions = map[int]*session{}
 
 type session struct {
-	Form       *config.Form
-	Exec       *executor.Executor
-	HeatbeatCh chan struct{}
+	Form        *config.Form
+	Exec        *executor.Executor
+	HeartbeatCh chan struct{}
 }
 
 func GetOrCreateSession(template config.Form, connId int) *session {
@@ -21,9 +21,9 @@ func GetOrCreateSession(template config.Form, connId int) *session {
 		exec := executor.NewExecutor()
 
 		s = &session{
-			Form:       f,
-			Exec:       &exec,
-			HeatbeatCh: hbCh,
+			Form:        f,
+			Exec:        &exec,
+			HeartbeatCh: hbCh,
 		}
 		sessions[connId] = s
 	}
