@@ -62,15 +62,131 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		border-radius: 0.5rem;
 		padding: 0.5rem;
 		overflow: auto;
+		position: relative;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.commandStack(ui.Path{}, u.CLI.Command),
+				u.commandStack(Path{}, u.CLI.Command),
+				u.checkbox(Path{}, u.CLI.Command),
 			},
 		})
 }
 
-func (u UI) commandStack(p ui.Path, c config.Command) *sunmao.StackComponentBuilder {
+func (u UI) checkbox(p Path, c config.Command) sunmao.BaseComponentBuilder {
+	container := u.Arco.NewStack().
+		Id("CheckboxWrapper").
+		Properties(ui.StructToMap(ui.StackProperties{
+			Direction: "vertical",
+		})).
+		Style("content", `
+			position: absolute;
+			top: 0.25rem;
+			right: 0.25rem;
+			background-color: rgba(225, 225, 225, 0.8);
+			border-radius: 0.5rem;
+			padding: 0.5rem;
+			gap: 0.25rem;
+			min-width: 8rem;
+			`).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": {u.checkboxStack(p, c)},
+		})
+
+	return container
+}
+
+func (u UI) checkboxStack(p Path, c config.Command) *sunmao.StackComponentBuilder {
+	cs := []sunmao.BaseComponentBuilder{}
+
+	title := u.Arco.NewText().
+		Content(c.DisplayName()).
+		Style("content", `
+		align-self: flex-start;
+		font-size: 0.75rem;
+		font-weight: bold;
+		background-color: var(--color-secondary);
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+		`)
+
+	cs = append(cs, title)
+	cs = append(cs, u.checkboxItems(p, c))
+
+	for _, sc := range c.Subcommands {
+		path := p.Append(sc.Name)
+		items := u.checkboxStack(Path{path}, sc).
+			Slot(sunmao.Container{
+				ID:   "CheckboxWrapper",
+				Slot: "content",
+			}, fmt.Sprintf("{{ path.state.some(o => o === \"%s\") }}", sc.Name))
+		cs = append(cs, items)
+	}
+
+	return u.Arco.NewStack().
+		Properties(ui.StructToMap(ui.StackProperties{
+			Direction: "vertical",
+		})).
+		Children(map[string][]sunmao.BaseComponentBuilder{
+			"content": cs,
+		})
+}
+
+func (u UI) checkboxItems(p Path, c config.Command) sunmao.BaseComponentBuilder {
+	os := []ui.CheckboxOptionProperties{}
+	required := []string{}
+
+	for _, f := range c.Flags {
+		os = append(os, ui.CheckboxOptionProperties{
+			Label:    f.DisplayName(),
+			Value:    f.Name,
+			Disabled: f.Required,
+		})
+
+		if f.Required {
+			required = append(required, f.Name)
+		}
+	}
+
+	for _, a := range c.Args {
+		os = append(os, ui.CheckboxOptionProperties{
+			Label:    a.DisplayName(),
+			Value:    a.Name,
+			Disabled: a.Required,
+		})
+
+		if a.Required {
+			required = append(required, a.Name)
+		}
+	}
+
+	if len(os) == 0 {
+		return u.Arco.NewStack()
+	}
+
+	return u.Arco.NewCheckbox().
+		Id(p.OptionsCheckboxId()).
+		Properties(ui.StructToMap(ui.CheckboxProperties[string]{
+			Options:              os,
+			DefaultCheckedValues: required,
+			Direction:            "vertical",
+			Disabled:             "{{ exec.state.isRunning }}",
+		})).
+		Event([]sunmao.EventHandler{
+			{
+				Type:        "onChange",
+				ComponentId: "$utils",
+				Method: sunmao.EventMethod{
+					Name: "binding/v1/UpdateCheckedOptions",
+					Parameters: ui.UpdateCheckedOptionsParams[string]{
+						Path:          p.Path,
+						CheckedValues: fmt.Sprintf("{{ %s.checkedValues }}", p.OptionsCheckboxId()),
+					},
+				},
+			},
+		})
+}
+
+func (u UI) commandStack(p Path, c config.Command) *sunmao.StackComponentBuilder {
 	cs := []sunmao.BaseComponentBuilder{}
 
 	title := u.Arco.NewText().
@@ -89,7 +205,7 @@ func (u UI) commandStack(p ui.Path, c config.Command) *sunmao.StackComponentBuil
 
 	for _, sc := range c.Subcommands {
 		path := p.Append(sc.Name)
-		cs = append(cs, u.commandStack(path, sc).
+		cs = append(cs, u.commandStack(Path{path}, sc).
 			Slot(sunmao.Container{
 				ID:   p.CommandStackId(),
 				Slot: "content",
@@ -104,13 +220,14 @@ func (u UI) commandStack(p ui.Path, c config.Command) *sunmao.StackComponentBuil
 		Style("content", `
 		flex: 1;
 		gap: 0.5rem;
+		max-width: 24rem;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": cs,
 		})
 }
 
-func (u UI) commandOptionForm(p ui.Path, c config.Command) sunmao.BaseComponentBuilder {
+func (u UI) commandOptionForm(p Path, c config.Command) sunmao.BaseComponentBuilder {
 	inputs := []sunmao.BaseComponentBuilder{}
 	for _, f := range c.Flags {
 		inputs = append(inputs, u.optionInput(p, f))
@@ -129,7 +246,7 @@ func (u UI) commandOptionForm(p ui.Path, c config.Command) sunmao.BaseComponentB
 		})
 }
 
-func (u UI) optionInput(p ui.Path, o config.Option) sunmao.BaseComponentBuilder {
+func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	return u.Arco.NewFormControl().
 		Properties(ui.StructToMap(ui.FormControlProperties{
 			Label: ui.TextProperties{
@@ -141,7 +258,7 @@ func (u UI) optionInput(p ui.Path, o config.Option) sunmao.BaseComponentBuilder 
 			Help:     o.Description,
 		})).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {u.InputType(p, o)},
+			"content": {u.InputType(p.Path, o)},
 		})
 }
 
