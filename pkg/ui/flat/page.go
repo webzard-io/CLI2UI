@@ -383,6 +383,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		background-color: white;
 		border-radius: 0.5rem;
 		padding: 0.5rem;
+		overflow: hidden;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
@@ -405,6 +406,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		background-color: white;
 		border-radius: 0.5rem;
 		padding: 0.5rem;
+		overflow: hidden;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
@@ -425,6 +427,8 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		Style("content", `
 		flex: 1;
 		gap: 0.5rem;
+		height: 100%;
+		overflow: hidden;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
