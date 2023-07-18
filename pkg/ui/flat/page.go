@@ -517,7 +517,7 @@ func menuItems(c config.Command, i []ui.TreeNodeProperties) []ui.TreeNodePropert
 func (u UI) dryRunModal() sunmao.BaseComponentBuilder {
 	copy := u.Arco.NewButton().
 		Properties(ui.StructToMap(ui.ButtonProperties[string]{
-			Type:   "secondary",
+			Type:   "primary",
 			Status: "default",
 			Size:   "default",
 			Shape:  "square",
