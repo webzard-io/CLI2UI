@@ -61,7 +61,7 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		flex: 2;
 		background-color: white;
 		border-radius: 0.5rem;
-		padding: 0.5rem;
+		padding: 0.75rem;
 		overflow: auto;
 		display: grid;
 		grid-template-columns: 24rem 1fr;
@@ -382,7 +382,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 		flex: 1.5;
 		background-color: white;
 		border-radius: 0.5rem;
-		padding: 0.5rem;
+		padding: 0.75rem;
 		overflow: hidden;
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
