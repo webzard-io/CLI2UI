@@ -51,7 +51,16 @@ type CLI struct {
 	OptionDelim  string  `json:"optionDelim,omitempty" yaml:"optionDelim,omitempty"`   // the delimiter used for flags between key and value (e.g. FlagDelim="=" will have --key=value)
 	Command      Command `json:"command" yaml:"command"`                               // the entry of the CLI, make sure the name to this Command is the path to the binary to be called
 	ExplicitBool bool    `json:"explicitBool,omitempty" yaml:"explicitBool,omitempty"` // if true, boolean flags will be specified in the form of `--flag=true` instead of `--flag`
+	UI           UI      `json:"ui,omitempty" yaml:"ui,omitempty"`                     // the preferred UI style
 }
+
+type UI string
+
+const (
+	UnknownUI UI = ""
+	UIFlat    UI = "flat"
+	UINaive   UI = "naive"
+)
 
 type Format string
 

@@ -2,7 +2,9 @@ package main
 
 import (
 	"CLI2UI/pkg/config"
+	"CLI2UI/pkg/ui"
 	"CLI2UI/pkg/ui/flat"
+	"CLI2UI/pkg/ui/naive"
 	"encoding/json"
 	"log"
 	"os"
@@ -13,6 +15,8 @@ import (
 
 func main() {
 	app := &cli.App{
+		Name:  "CLI2UI",
+		Usage: "Usage: cli2ui <config>",
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() != 1 {
 				return cli.Exit("Usage: cli2ui <config>", 1)
@@ -28,7 +32,15 @@ func main() {
 				return err
 			}
 
-			ui, err := flat.NewUI(*cfg)
+			var newUI func(config.CLI) (ui.UI, error)
+			switch cfg.UI {
+			case config.UINaive:
+				newUI = naive.NewUI
+			default:
+				newUI = flat.NewUI
+			}
+
+			ui, err := newUI(*cfg)
 			if err != nil {
 				return err
 			}

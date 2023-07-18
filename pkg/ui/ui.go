@@ -11,7 +11,7 @@ import (
 )
 
 type UI interface {
-	Run()
+	Run() error
 }
 
 func NewUI(c config.CLI) (*BaseUI, error) {
@@ -40,4 +40,8 @@ type BaseUI struct {
 	C2U          *CLI2UIAppBuilder
 	CLI          *config.CLI
 	FormTemplate *config.Form
+}
+
+func (BaseUI) Run() error {
+	return errors.New("cannot run BaseUI")
 }

@@ -18,6 +18,9 @@
                 },
                 "explicitBool": {
                     "type": "boolean"
+                },
+                "ui": {
+                    "type": "string"
                 }
             },
             "additionalProperties": false,

@@ -5,7 +5,7 @@ import (
 	"CLI2UI/pkg/ui"
 )
 
-func NewUI(c config.CLI) (*UI, error) {
+func NewUI(c config.CLI) (ui.UI, error) {
 	base, err := ui.NewUI(c)
 	return &UI{base}, err
 }
