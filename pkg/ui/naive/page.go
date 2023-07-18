@@ -108,7 +108,7 @@ func (u UI) terminal() sunmao.BaseComponentBuilder {
 func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
 	return u.Arco.NewButton().
 		Properties(ui.StructToMap(ui.ButtonProperties[string]{
-			Type:     "secondary",
+			Type:     "primary",
 			Status:   "default",
 			Size:     "default",
 			Shape:    "square",
