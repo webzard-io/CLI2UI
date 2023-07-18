@@ -43,6 +43,9 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 			if explicitBool {
 				script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, optionDelim, tv)
 			} else {
+				if !v.Value.(bool) {
+					continue
+				}
 				script = fmt.Sprintf("%s %s%s", script, prefix, k)
 			}
 		default:
@@ -104,7 +107,11 @@ func parseForm(c *Command, f *Form) {
 		dv := f.Default
 		if dv == nil {
 			// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
-			dv = fmt.Sprintf("<%s>", f.DisplayName())
+			if f.Type == OptionTypeBoolean {
+				dv = false
+			} else {
+				dv = fmt.Sprintf("<%s>", f.DisplayName())
+			}
 		}
 		flags[f.Name] = &OptionValue{
 			Long:         f.Long,
@@ -118,7 +125,12 @@ func parseForm(c *Command, f *Form) {
 	for _, a := range c.Args {
 		dv := a.Default
 		if dv == nil {
-			dv = fmt.Sprintf("<%s>", a.DisplayName())
+			// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
+			if a.Type == OptionTypeBoolean {
+				dv = false
+			} else {
+				dv = fmt.Sprintf("<%s>", a.DisplayName())
+			}
 		}
 		args[a.Name] = &OptionValue{
 			Value:        dv,
