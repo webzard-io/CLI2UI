@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: Kail
+optionDelim: " "
+command:
+  name: kail
+  description: Tail for kubernetes pods 
+  flags:
+    - name: ignore
+      display: Ignore
+      description: Ignore selector
+      type: string
+      long: true
+    - name: label
+      display: Label
+      type: string
+      long: true
+    - name: pod
+      display: Pod
+      type: string
+      long: true
+    - name: ns
+      display: Namespace
+      type: string
+      long: true
+    - name: ignore-ns
+      display: Ignore Namespace
+      type: string
+      long: true
+    - name: svc
+      display: Service
+      type: string
+      long: true
+    - name: rc
+      display: Replication Controller
+      type: string
+      long: true
+    - name: rs
+      display: Replica Set
+      type: string
+      long: true
+    - name: ds
+      display: Daemon Set
+      type: string
+      long: true
+    - name: deploy
+      display: Deployment
+      type: string
+      long: true
+    - name: sts
+      display: Stateful Set
+      type: string
+      long: true
+    - name: job
+      display: Job
+      type: string
+      long: true
+    - name: node
+      display: Node
+      type: string
+      long: true
+    - name: ing
+      display: Ingress
+      type: string
+      long: true
+    - name: context
+      display: Kubernetes Context
+      type: string
+      long: true
+    - name: current-ns
+      display: Current Namespace
+      description: Use namespace from current context
+      type: string
+      long: true
+    - name: containers
+      display: Containers
+      type: string
+      long: true
+    - name: dry-run
+      display: Dry run
+      description: Print matching pods and exit
+      type: boolean
+      long: true
+    - name: log-file
+      display: Log File
+      type: string
+      long: true
+    - name: log-level
+      display: Log Level
+      type: enum
+      long: true
+      options:
+        - debug
+        - info
+        - error
+    - name: since
+      display: Since
+      description: Display logs generated since given duration, like 5s, 2m, 1.5h or 2h45m.
+      type: string
+      long: true
+    - name: output
+      display: Output Format
+      description: Log output mode
+      type: enum
+      long: true
+      options:
+        - default
+        - raw
+        - json
+        - json-pretty
+        - zerolog

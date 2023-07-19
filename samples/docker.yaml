@@ -11,6 +11,21 @@ command:
       description: Path to config file
       type: string
       long: true
+    - name: context
+      display: Context
+      description: Name of the context to use to connect to the daemon
+      type: string
+      long: true
+    - name: debug
+      display: Debug Mode
+      description: Enable debug mode
+      type: boolean
+      long: true
+    - name: host
+      display: Daemon Host
+      description: Daemon sockets to connect
+      type: array
+      long: true
     - name: log-level
       display: Log Level
       description: Loudness of the logger
@@ -23,7 +38,161 @@ command:
         - warn
         - error
         - fatal
+    - name: tls
+      display: TLS
+      description: Use TLS
+      type: boolean
+      long: true
+    - name: tlscacert
+      display: TLS CA Certificate
+      description: CA certificate to trust
+      type: string
+      long: true
+    - name: tlscert
+      type: string
+      display: TLS Certificate 
+      description: Path to TLS certificate
+      long: true
+    - name: tlskey
+      type: string
+      display: TLS Key
+      description: Path to TLS key
+      long: true
+    - name: version
+      type: boolean
+      display: Print Version
+      description: Print the version and quit
+      long: true
   subcommands:
+    - name: run
+      display: Run
+      description: Create and run a new container from an image 
+      args:
+        - name: image
+          display: Image
+          description: Image of the container to be created
+          type: string
+          required: true
+        - name: command
+          display: Command
+          description: Command to run in the container
+          type: string
+      flags:
+        - name: detach
+          display: Detach
+          description: Run container in background and print container ID
+          type: boolean
+          long: true
+        - name: entrypoint
+          display: Entrypoint
+          description: Overwrite the default ENTRYPOINT of the image
+          type: string
+          long: true
+        - name: env
+          display: Environment Variables
+          type: array
+          long: true
+        - name: env-file
+          display: Envs File
+          description: Read in a file of environment variables
+          type: string
+          long: true
+        - name: name
+          display: Container Name
+          description: Assign a name to the container
+          type: string
+          long: true
+        - name: pid
+          display: PID
+          description: PID namespace to use
+          type: string
+          long: true
+        - name: restart
+          display: Restart
+          description: Restart policy to apply when a container exits
+          type: enum
+          options:
+            - "no"
+            - on-failure
+            - always
+            - unless-stopped
+        - name: rm
+          display: Remove
+          description: Automatically remove the container when it exits
+          type: boolean
+          long: true
+        - name: user
+          display: User
+          description: "Username or UID (format: <name|uid>[:<group|gid>])"
+          type: string
+          long: true
+        - name: uts
+          display: UTS
+          description: UTS namespace to use
+          type: string
+          long: true
+        - name: volume
+          display: Volume
+          description: Bind mount a volume
+          type: array
+          long: true
+        - name: workdir
+          display: Working Directory
+          description: Working directory inside the container
+          type: string
+          long: true
+    - name: exec
+      display: Execute
+      description: Execute a command in a running container 
+      args:
+        - name: container
+          display: Container
+          description: The container the command is executed within
+          type: string
+        - name: command
+          display: Command
+          description: The command to be executed
+          type: string
+      flags:
+        - name: detach
+          display: Detach
+          description: "Detached mode: run command in the background"
+          type: boolean
+          long: true
+        - name: env
+          display: Environment Variables
+          type: array
+          long: true
+        - name: env-file
+          display: Envs File
+          description: Read in a file of environment variables
+          type: string
+          long: true
+        - name: interactive
+          display: Interactive
+          description: Keep STDIN open even if not attached
+          type: boolean
+          long: true
+        - name: privileged
+          display: Privileged
+          description: Give extended privileges to the command
+          type: boolean
+          long: true
+        - name: tty
+          display: TTY
+          description: Allocate a pseudo-TTY
+          type: boolean
+          long: true
+        - name: user
+          display: User
+          description: "Username or UID (format: <name|uid>[:<group|gid>])"
+          type: string
+          long: true
+        - name: workdir
+          display: Working Directory
+          description: Working directory inside the container
+          type: string
+          long: true
     - name: images
       display: All Images
       description: Retrieve information of all the 
@@ -55,9 +224,12 @@ command:
             - name: name
               display: Name
               type: string
-              required: true
         - name: rm
           display: Remove
+          flags:
+            - name: f
+              display: Force
+              type: boolean
           args:
             - name: name
               display: Name
@@ -65,6 +237,11 @@ command:
               required: true
         - name: ls
           display: List
+          flags:
+            - name: quite
+              display: Quite
+              type: boolean
+              long: true
     - name: ps
       display: Status
       flags:
