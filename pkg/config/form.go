@@ -19,6 +19,8 @@ type OptionValue struct {
 	Enabled      bool
 	required     bool
 	defaultValue any
+	index        int
+	name         string
 }
 
 func (c CLI) Script(f Form) (string, Format) {
@@ -26,8 +28,8 @@ func (c CLI) Script(f Form) (string, Format) {
 }
 
 func parseScript(f *Form, script string, optionDelim string, explicitBool bool) (string, Format) {
-	for _, k := range orderedKeys(f.Flags) {
-		v := f.Flags[k]
+	as, fs := sortedOptions(f)
+	for _, v := range fs {
 		if !v.Enabled {
 			continue
 		}
@@ -41,20 +43,19 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 		switch tv := v.Value.(type) {
 		case bool:
 			if explicitBool {
-				script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, optionDelim, tv)
+				script = fmt.Sprintf("%s %s%s%s%v", script, prefix, v.name, optionDelim, tv)
 			} else {
 				if !v.Value.(bool) {
 					continue
 				}
-				script = fmt.Sprintf("%s %s%s", script, prefix, k)
+				script = fmt.Sprintf("%s %s%s", script, prefix, v.name)
 			}
 		default:
-			script = fmt.Sprintf("%s %s%s%s%v", script, prefix, k, optionDelim, tv)
+			script = fmt.Sprintf("%s %s%s%s%v", script, prefix, v.name, optionDelim, tv)
 		}
 	}
 
-	for _, k := range orderedKeys(f.Args) {
-		v := f.Args[k]
+	for _, v := range as {
 		if !v.Enabled {
 			continue
 		}
@@ -67,18 +68,6 @@ func parseScript(f *Form, script string, optionDelim string, explicitBool bool) 
 
 	script = fmt.Sprintf("%s %s", script, f.Choice)
 	return parseScript((f.Subcommands)[f.Choice], script, optionDelim, explicitBool)
-}
-
-func orderedKeys(m map[string]*OptionValue) []string {
-	keys := []string{}
-
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	sort.Strings(keys)
-
-	return keys
 }
 
 func (c CLI) Form() Form {
@@ -119,10 +108,11 @@ func parseForm(c *Command, f *Form) {
 			required:     f.Required,
 			Enabled:      f.Required,
 			defaultValue: dv,
+			name:         f.Name,
 		}
 	}
 
-	for _, a := range c.Args {
+	for i, a := range c.Args {
 		dv := a.Default
 		if dv == nil {
 			// TODO(xinxi.guo): type system has to be enhanced to make use of `Option.Default`, this is a workaround for now
@@ -137,6 +127,8 @@ func parseForm(c *Command, f *Form) {
 			required:     a.Required,
 			Enabled:      a.Required,
 			defaultValue: dv,
+			name:         a.Name,
+			index:        i,
 		}
 	}
 
@@ -179,6 +171,8 @@ func (f Form) Clone() *Form {
 			Enabled:      v.Enabled,
 			required:     v.required,
 			defaultValue: v.defaultValue,
+			name:         v.name,
+			index:        v.index,
 		}
 	}
 
@@ -189,6 +183,8 @@ func (f Form) Clone() *Form {
 			Enabled:      v.Enabled,
 			required:     v.required,
 			defaultValue: v.defaultValue,
+			name:         v.name,
+			index:        v.index,
 		}
 	}
 
@@ -201,4 +197,36 @@ func (f Form) Clone() *Form {
 
 func (o *OptionValue) ResetValue() {
 	o.Value = o.defaultValue
+}
+
+type optionValueSorter []*OptionValue
+
+func (o optionValueSorter) Len() int {
+	return len(o)
+}
+
+func (o optionValueSorter) Swap(i, j int) {
+	o[i], o[j] = o[j], o[i]
+}
+
+func (o optionValueSorter) Less(i, j int) bool {
+	return o[i].index >= o[j].index && o[i].name < o[j].name
+}
+
+func sortedOptions(f *Form) ([]*OptionValue, []*OptionValue) {
+	as := []*OptionValue{}
+	fs := []*OptionValue{}
+
+	for _, a := range f.Args {
+		as = append(as, a)
+	}
+
+	for _, f := range f.Flags {
+		fs = append(fs, f)
+	}
+
+	sort.Sort(optionValueSorter(as))
+	sort.Sort(optionValueSorter(fs))
+
+	return as, fs
 }
