@@ -68,8 +68,8 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
-				u.commandStack(Path{}, u.CLI.Command),
-				u.checkbox(Path{}, u.CLI.Command),
+				u.commandStack(Path{}, u.CLIs[0].Command),
+				u.checkbox(Path{}, u.CLIs[0].Command),
 				u.Arco.NewStack(),
 				u.buttons(),
 			},
@@ -440,7 +440,7 @@ func (u UI) outputSection() sunmao.BaseComponentBuilder {
 
 func (u UI) sidebar() sunmao.BaseComponentBuilder {
 	title := u.Arco.NewText().
-		Content(u.CLI.Name).
+		Content(u.CLIs[0].Name).
 		Style("content", `
 		font-size: 1.25rem;
 		font-weight: bold;
@@ -497,7 +497,7 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) menuItems() []ui.TreeNodeProperties {
-	return menuItems(u.CLI.Command, []ui.TreeNodeProperties{})
+	return menuItems(u.CLIs[0].Command, []ui.TreeNodeProperties{})
 }
 
 func menuItems(c config.Command, i []ui.TreeNodeProperties) []ui.TreeNodeProperties {

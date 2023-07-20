@@ -25,7 +25,7 @@ func (u UI) registerEvents() {
 	u.Arco.Component(formatState.AsComponent())
 
 	u.Runtime.Handle("UpdateSubcommand", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s := ui.GetOrCreateSession(0, u.FormTemplates, connId)
 
 		p := ui.ToStruct[UpdateSubcommandParams[int]](m.Params)
 		form := p.Path.TraverseForm(s.Form)
@@ -35,7 +35,7 @@ func (u UI) registerEvents() {
 	})
 
 	u.Runtime.Handle("UpdateOptionValue", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s := ui.GetOrCreateSession(0, u.FormTemplates, connId)
 
 		p := ui.ToStruct[ui.UpdateOptionValueParams](m.Params)
 		form := p.Path.TraverseForm(s.Form)
@@ -51,15 +51,15 @@ func (u UI) registerEvents() {
 	})
 
 	u.Runtime.Handle("Heartbeat", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s := ui.GetOrCreateSession(0, u.FormTemplates, connId)
 		s.HeartbeatCh <- struct{}{}
 		return nil
 	})
 
 	u.Runtime.Handle("Run", func(m *runtime.Message, connId int) error {
-		sess := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		sess := ui.GetOrCreateSession(0, u.FormTemplates, connId)
 
-		script, f := u.CLI.Script(*sess.Form)
+		script, f := u.CLIs[0].Script(*sess.Form)
 		formatState.SetState(f, &connId)
 
 		finishedCh, err := sess.Exec.Run(script)
@@ -116,24 +116,24 @@ func (u UI) registerEvents() {
 	})
 
 	u.Runtime.Handle("Stop", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s := ui.GetOrCreateSession(0, u.FormTemplates, connId)
 		s.Exec.StopCh <- struct{}{}
 		return nil
 	})
 
 	u.Runtime.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
-		ui.GetOrCreateSession(*u.FormTemplate, connId)
+		ui.GetOrCreateSession(0, u.FormTemplates, connId)
 		return nil
 	})
 
 	u.Runtime.Handle("DryRun", func(m *runtime.Message, connId int) error {
-		sess := ui.GetOrCreateSession(*u.FormTemplate, connId)
-		s, _ := u.CLI.Script(*sess.Form)
+		sess := ui.GetOrCreateSession(0, u.FormTemplates, connId)
+		s, _ := u.CLIs[0].Script(*sess.Form)
 		return dryRunState.SetState(s, &connId)
 	})
 
 	u.Runtime.Handle("UpdateCheckedOptions", func(m *runtime.Message, connId int) error {
-		s := ui.GetOrCreateSession(*u.FormTemplate, connId)
+		s := ui.GetOrCreateSession(0, u.FormTemplates, connId)
 		p := ui.ToStruct[ui.UpdateCheckedOptionsParams[[]string]](m.Params)
 		f := p.Path.TraverseForm(s.Form)
 		ui.UpdateCheckedOptions(&f.Flags, p.CheckedValues)
