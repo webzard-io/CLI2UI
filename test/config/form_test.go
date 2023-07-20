@@ -1,32 +1,23 @@
 package config_test
 
 import (
-	"CLI2UI/pkg/config"
 	"testing"
 )
 
 func TestScriptGeneration(t *testing.T) {
 	f := docker.Form()
 
-	f.Flags["config"] = &config.OptionValue{
-		Value:   "this-config.yaml",
-		Long:    true,
-		Enabled: true,
-	}
+	f.Flags["config"].Enabled = true
+	f.Flags["config"].Value = "this-config.yaml"
 
-	f.Flags["log-level"] = &config.OptionValue{
-		Value:   "info",
-		Long:    true,
-		Enabled: true,
-	}
+	f.Flags["log-level"].Enabled = true
+	f.Flags["log-level"].Value = "info"
 
 	f.Choice = "volume"
 
 	f.Subcommands["volume"].Choice = "create"
-	f.Subcommands["volume"].Subcommands["create"].Args["name"] = &config.OptionValue{
-		Value:   "new-volume",
-		Enabled: true,
-	}
+	f.Subcommands["volume"].Subcommands["create"].Args["name"].Enabled = true
+	f.Subcommands["volume"].Subcommands["create"].Args["name"].Value = "new-volume"
 
 	s, _ := docker.Script(f)
 
