@@ -14,7 +14,7 @@ type UI interface {
 	Run() error
 }
 
-func NewUI(c config.CLI) (*BaseUI, error) {
+func NewUI(c ...config.CLI) (*BaseUI, error) {
 	if client.Error != nil {
 		return nil, errors.New("failed to load prebuilt UI")
 	}
@@ -23,23 +23,29 @@ func NewUI(c config.CLI) (*BaseUI, error) {
 	app := sunmao.NewApp()
 	arco := arco.NewArcoApp(app)
 	c2u := NewCLI2UIApp(app)
-	fTpl := c.Form()
+
+	tpls := []*config.Form{}
+
+	for _, cli := range c {
+		f := cli.Form()
+		tpls = append(tpls, &f)
+	}
 
 	return &BaseUI{
-		Runtime:      r,
-		Arco:         arco,
-		C2U:          c2u,
-		CLI:          &c,
-		FormTemplate: &fTpl,
+		Runtime:       r,
+		Arco:          arco,
+		C2U:           c2u,
+		CLIs:          c,
+		FormTemplates: tpls,
 	}, nil
 }
 
 type BaseUI struct {
-	Runtime      *runtime.Runtime
-	Arco         *arco.ArcoAppBuilder
-	C2U          *CLI2UIAppBuilder
-	CLI          *config.CLI
-	FormTemplate *config.Form
+	Runtime       *runtime.Runtime
+	Arco          *arco.ArcoAppBuilder
+	C2U           *CLI2UIAppBuilder
+	CLIs          []config.CLI
+	FormTemplates []*config.Form
 }
 
 func (BaseUI) Run() error {

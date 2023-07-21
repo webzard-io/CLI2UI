@@ -44,7 +44,7 @@ func (u UI) layout() sunmao.BaseComponentBuilder {
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"header": u.headerElements(),
 			"content": {
-				u.commandStack(p, u.CLI.Command),
+				u.commandStack(p, u.CLIs[0].Command),
 				u.runButton(),
 				u.dryRunButton(),
 				u.terminal(),
@@ -265,7 +265,7 @@ func (u UI) subcommandsTab(p Path, c config.Command) sunmao.BaseComponentBuilder
 		values = append(values, c.Name)
 	}
 
-	form := p.TraverseForm(u.FormTemplate)
+	form := p.TraverseForm(u.FormTemplates[0])
 	form.Choice = values[0]
 
 	activeTab := fmt.Sprintf("{{ %s.activeTab }}", p.subcommandTabsId())
@@ -415,7 +415,7 @@ func (u UI) optionInput(p Path, o config.Option) sunmao.BaseComponentBuilder {
 
 func (u UI) headerElements() []sunmao.BaseComponentBuilder {
 	title := u.Arco.NewText().
-		Content(u.CLI.Name).Style("content",
+		Content(u.CLIs[0].Name).Style("content",
 		`
 		font-size: 1.25rem;
 		font-weight: bold;
@@ -447,7 +447,7 @@ func (u UI) helpModal() sunmao.BaseComponentBuilder {
 		overflow: scroll;
 		`).
 		Content(ui.TextDisplayProperties{
-			Text:   u.CLI.Help,
+			Text:   u.CLIs[0].Help,
 			Format: "code",
 		})
 
