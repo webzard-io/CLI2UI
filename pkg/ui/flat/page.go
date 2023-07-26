@@ -488,8 +488,8 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/UpdateSubcommand",
 					Parameters: UpdateSubcommandParams[string]{
-						Path:       "{{ SubcommandMenuTree.selectedNodes[0].path }}",
-						Subcommand: "{{ SubcommandMenuTree.selectedKeys[0] }}",
+						Path:       "{{ SubcommandMenuTree.selectedNodes[0].myPath }}",
+						Subcommand: "{{ SubcommandMenuTree.selectedNodes[0].subcommand }}",
 					},
 				},
 			},
@@ -497,16 +497,20 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 }
 
 func (u UI) menuItems() []ui.TreeNodeProperties {
-	return menuItems(u.CLIs[0].Command, []ui.TreeNodeProperties{})
+	p := Path{}
+	return menuItems(u.CLIs[0].Command, []ui.TreeNodeProperties{}, p)
 }
 
-func menuItems(c config.Command, i []ui.TreeNodeProperties) []ui.TreeNodeProperties {
+func menuItems(c config.Command, i []ui.TreeNodeProperties, p Path) []ui.TreeNodeProperties {
 	for _, sc := range c.Subcommands {
+		path := Path{p.Append(sc.Name)}
 		tnp := ui.TreeNodeProperties{
 			Title:      sc.DisplayName(),
-			Key:        sc.Name,
-			Children:   menuItems(sc, []ui.TreeNodeProperties{}),
+			Key:        path.menuItemKey(),
+			Children:   menuItems(sc, []ui.TreeNodeProperties{}, path),
+			Subcommand: sc.Name,
 			Selectable: true,
+			MyPath:     path.Path,
 		}
 		i = append(i, tnp)
 	}

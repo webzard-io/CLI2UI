@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: CloudTower Admin
+command:
+  name: ./cloudtower-admin
+  display: CloudTower Admin
+  subcommands:
+    - name: deploy
+      display: Deploy
+    - name: diagnose
+      display: diagnose
+    - name: logs
+      display: Logs
+      subcommands:
+        - name: k8s
+          args:
+            - name: Service
+              type: enum
+              required: true
+              options:
+                - agent-mesh-hub
+                - import-data
+                - observer
+                - openresty
+                - postgres
+                - prepare-static
+                - prisma
+                - prisma-worker
+                - rollback
+                - server
+          flags:
+            - name: f
+              display: Follow
+              type: boolean
+    - name: ps
+      display: Show Status
+      subcommands:
+        - name: host
+          args:
+            - name: Service
+              type: enum
+              required: true
+              options:
+                - containerd
+                - kubelet
+          flags:
+            - name: o
+              display: Output Format
+              type: enum
+              options:
+                - table
+                - json
+                - yaml
+        - name: k8s
+          args:
+            - name: Service
+              type: enum
+              required: true
+              options:
+                - agent-mesh-hub
+                - import-data
+                - observer
+                - openresty
+                - postgres
+                - prepare-static
+                - prisma
+                - prisma-worker
+                - rollback
+                - server
+    - name: upgrade
+      args:
+        - name: path-to-upgrade-bundle
+          type: string
