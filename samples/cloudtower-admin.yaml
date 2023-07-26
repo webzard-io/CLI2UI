@@ -7,11 +7,12 @@ command:
     - name: deploy
       display: Deploy
     - name: diagnose
-      display: diagnose
+      display: Diagnose
     - name: logs
       display: Logs
       subcommands:
         - name: k8s
+          display: K8s
           args:
             - name: Service
               type: enum
@@ -35,6 +36,7 @@ command:
       display: Show Status
       subcommands:
         - name: host
+          display: Host
           args:
             - name: Service
               type: enum
@@ -51,6 +53,7 @@ command:
                 - json
                 - yaml
         - name: k8s
+          display: K8s
           args:
             - name: Service
               type: enum
@@ -67,6 +70,9 @@ command:
                 - rollback
                 - server
     - name: upgrade
+      display: Upgrade
       args:
-        - name: path-to-upgrade-bundle
+        - name: path
+          display: Path
+          description: Path to upgrade.tar.gz
           type: string

@@ -3,6 +3,7 @@ package flat
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/ui"
+	"encoding/json"
 	"fmt"
 
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/sunmao"
@@ -69,7 +70,7 @@ func (u UI) optionSection() sunmao.BaseComponentBuilder {
 		Children(map[string][]sunmao.BaseComponentBuilder{
 			"content": {
 				u.commandStack(Path{}, u.CLIs[0].Command),
-				u.checkbox(Path{}, u.CLIs[0].Command),
+				u.checkbox(u.CLIs[0].Command),
 				u.Arco.NewStack(),
 				u.buttons(),
 			},
@@ -173,7 +174,7 @@ func (u UI) dryRunButton() sunmao.BaseComponentBuilder {
 		})
 }
 
-func (u UI) checkbox(p Path, c config.Command) sunmao.BaseComponentBuilder {
+func (u UI) checkbox(c config.Command) sunmao.BaseComponentBuilder {
 	container := u.Arco.NewStack().
 		Id("CheckboxWrapper").
 		Properties(ui.StructToMap(ui.StackProperties{
@@ -191,7 +192,7 @@ func (u UI) checkbox(p Path, c config.Command) sunmao.BaseComponentBuilder {
 			min-width: 8rem;
 			`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {u.checkboxStack(p, c)},
+			"content": {u.checkboxStack(Path{}, c)},
 		})
 
 	return container
@@ -216,11 +217,12 @@ func (u UI) checkboxStack(p Path, c config.Command) *sunmao.StackComponentBuilde
 
 	for _, sc := range c.Subcommands {
 		path := p.Append(sc.Name)
+		ps, _ := json.Marshal(path)
 		items := u.checkboxStack(Path{path}, sc).
 			Slot(sunmao.Container{
 				ID:   "CheckboxWrapper",
 				Slot: "content",
-			}, fmt.Sprintf("{{ path.state.some(o => o === \"%s\") }}", sc.Name))
+			}, fmt.Sprintf("{{ %s.every(v => path.state.includes(v)) }}", string(ps)))
 		cs = append(cs, items)
 	}
 
