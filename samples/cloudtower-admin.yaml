@@ -3,6 +3,16 @@ name: CloudTower Admin
 command:
   name: ./cloudtower-admin
   display: CloudTower Admin
+  flags:
+    - name: v
+      display: Verbosity
+      type: enum
+      options:
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+        - "4"
   subcommands:
     - name: deploy
       display: Deploy
