@@ -190,21 +190,21 @@ type DatePickerProperties[T string | bool] struct {
 	Disabled T `json:"disabled"`
 }
 
-type TreeNodeProperties[T string | bool] struct {
-	Title      string                  `json:"title"`
-	Key        string                  `json:"key"`
-	Children   []TreeNodeProperties[T] `json:"children"`
-	Selectable T                       `json:"selectable"`
-	Checkable  bool                    `json:"checkable"`
-	Subcommand string                  `json:"subcommand"`
-	MyPath     Path                    `json:"myPath"`
+type TreeNodeProperties struct {
+	Title      string               `json:"title"`
+	Key        string               `json:"key"`
+	Children   []TreeNodeProperties `json:"children"`
+	Selectable any                  `json:"selectable"`
+	Checkable  bool                 `json:"checkable"`
+	Subcommand string               `json:"subcommand"`
+	MyPath     Path                 `json:"myPath"`
 }
 
-type TreeProperties[T string | bool] struct {
-	Data                            []TreeNodeProperties[T] `json:"data"`
-	Size                            string                  `json:"size"`
-	Multiple                        bool                    `json:"multiple"`
-	AutoExpandParent                bool                    `json:"autoExpandParent"`
-	AutoExpandParentWhenDataChanges bool                    `json:"autoExpandParentWhenDataChanges"`
-	DefaultExpandKeys               []string                `json:"defaultExpandKeys"`
+type TreeProperties struct {
+	Data                            []TreeNodeProperties `json:"data"`
+	Size                            string               `json:"size"`
+	Multiple                        bool                 `json:"multiple"`
+	AutoExpandParent                bool                 `json:"autoExpandParent"`
+	AutoExpandParentWhenDataChanges bool                 `json:"autoExpandParentWhenDataChanges"`
+	DefaultExpandKeys               []string             `json:"defaultExpandKeys"`
 }

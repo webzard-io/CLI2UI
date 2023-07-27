@@ -473,7 +473,7 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 	return u.Arco.NewTree().
 		Id("SubcommandMenuTree").
 		Properties(ui.StructToMap(
-			ui.TreeProperties[string]{
+			ui.TreeProperties{
 				Data: u.menuItems(),
 				Size: "large",
 			},
@@ -498,18 +498,18 @@ func (u UI) commandMenu() sunmao.BaseComponentBuilder {
 		})
 }
 
-func (u UI) menuItems() []ui.TreeNodeProperties[string] {
+func (u UI) menuItems() []ui.TreeNodeProperties {
 	p := Path{}
-	return menuItems(u.CLIs[0].Command, []ui.TreeNodeProperties[string]{}, p)
+	return menuItems(u.CLIs[0].Command, []ui.TreeNodeProperties{}, p)
 }
 
-func menuItems(c config.Command, i []ui.TreeNodeProperties[string], p Path) []ui.TreeNodeProperties[string] {
+func menuItems(c config.Command, i []ui.TreeNodeProperties, p Path) []ui.TreeNodeProperties {
 	for _, sc := range c.Subcommands {
 		path := Path{p.Append(sc.Name)}
-		tnp := ui.TreeNodeProperties[string]{
+		tnp := ui.TreeNodeProperties{
 			Title:      sc.DisplayName(),
 			Key:        path.menuItemKey(),
-			Children:   menuItems(sc, []ui.TreeNodeProperties[string]{}, path),
+			Children:   menuItems(sc, []ui.TreeNodeProperties{}, path),
 			Subcommand: sc.Name,
 			Selectable: "{{ !exec.state.isRunning }}",
 			MyPath:     path.Path,
