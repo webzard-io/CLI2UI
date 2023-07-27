@@ -10,7 +10,7 @@ import (
 )
 
 type UpdateSubcommandParams[T string | ui.Path] struct {
-	Path       T      `json:"path"`
+	Path       T      `json:"myPath"`
 	Subcommand string `json:"subcommand"`
 }
 

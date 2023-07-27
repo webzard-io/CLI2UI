@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../cli.schema.json
+name: CloudTower Admin
+command:
+  name: ./cloudtower-admin
+  display: CloudTower Admin
+  flags:
+    - name: v
+      display: Verbosity
+      type: enum
+      options:
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+  subcommands:
+    - name: deploy
+      display: Deploy
+    - name: diagnose
+      display: Diagnose
+    - name: logs
+      display: Logs
+      subcommands:
+        - name: k8s
+          display: K8s
+          args:
+            - name: Service
+              type: enum
+              required: true
+              options:
+                - agent-mesh-hub
+                - import-data
+                - observer
+                - openresty
+                - postgres
+                - prepare-static
+                - prisma
+                - prisma-worker
+                - rollback
+                - server
+          flags:
+            - name: f
+              display: Follow
+              type: boolean
+    - name: ps
+      display: Show Status
+      subcommands:
+        - name: host
+          display: Host
+          args:
+            - name: Service
+              type: enum
+              required: true
+              options:
+                - containerd
+                - kubelet
+          flags:
+            - name: o
+              display: Output Format
+              type: enum
+              options:
+                - table
+                - json
+                - yaml
+        - name: k8s
+          display: K8s
+          args:
+            - name: Service
+              type: enum
+              required: true
+              options:
+                - agent-mesh-hub
+                - import-data
+                - observer
+                - openresty
+                - postgres
+                - prepare-static
+                - prisma
+                - prisma-worker
+                - rollback
+                - server
+    - name: upgrade
+      display: Upgrade
+      args:
+        - name: path
+          display: Path
+          description: Path to upgrade.tar.gz
+          type: string

@@ -194,8 +194,10 @@ type TreeNodeProperties struct {
 	Title      string               `json:"title"`
 	Key        string               `json:"key"`
 	Children   []TreeNodeProperties `json:"children"`
-	Selectable bool                 `json:"selectable"`
+	Selectable any                  `json:"selectable"`
 	Checkable  bool                 `json:"checkable"`
+	Subcommand string               `json:"subcommand"`
+	MyPath     Path                 `json:"myPath"`
 }
 
 type TreeProperties struct {
