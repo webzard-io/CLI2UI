@@ -128,12 +128,17 @@ func (u BaseUI) stringComponent(o config.Option, p Path) (sunmao.BaseComponentBu
 	var comp sunmao.BaseComponentBuilder
 	vs := []Validator[string]{}
 
+	props := InputProperties[string]{
+		Size:     "default",
+		Disabled: "{{ exec.state.isRunning }}",
+	}
+	if o.Default != nil {
+		props.DefaultValue = o.Default.(string)
+	}
+
 	comp = u.Arco.NewInput().
 		Id(p.OptionValueInputId(o.Name)).
-		Properties(StructToMap(InputProperties[string]{
-			Size:     "default",
-			Disabled: "{{ exec.state.isRunning }}",
-		})).
+		Properties(StructToMap(props)).
 		Event(UpdateValueEvent("value", p, o))
 
 	switch o.Annotations.Format {
@@ -156,14 +161,18 @@ func (u BaseUI) InputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 	// TODO(xinxi.guo): typeComponent() will ultimately replace all these
 	switch o.Type {
 	case config.OptionTypeNumber:
+		props := NumberInputProperties[string]{
+			Size:     "default",
+			Max:      99,
+			Step:     1,
+			Disabled: "{{ exec.state.isRunning }}",
+		}
+		if o.Default != nil {
+			props.DefaultValue = o.Default.(int)
+		}
 		return u.Arco.NewNumberInput().
 			Id(p.OptionValueInputId(o.Name)).
-			Properties(StructToMap(NumberInputProperties[string]{
-				Size:     "default",
-				Max:      99,
-				Step:     1,
-				Disabled: "{{ exec.state.isRunning }}",
-			})).
+			Properties(StructToMap(props)).
 			Event(UpdateValueEvent("value", p, o))
 	case config.OptionTypeArray:
 		return u.C2U.NewArrayInput().
@@ -175,13 +184,17 @@ func (u BaseUI) InputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 			})).
 			Event(UpdateValueEvent("value", p, o))
 	case config.OptionTypeBoolean:
+		props := SwitchProperties[string]{
+			Type:     "circle",
+			Size:     "default",
+			Disabled: "{{ exec.state.isRunning }}",
+		}
+		if o.Default != nil {
+			props.DefaultChecked = o.Default.(bool)
+		}
 		return u.Arco.NewSwitch().
 			Id(p.OptionValueInputId(o.Name)).
-			Properties(StructToMap(SwitchProperties[string]{
-				Type:     "circle",
-				Size:     "default",
-				Disabled: "{{ exec.state.isRunning }}",
-			})).
+			Properties(StructToMap(props)).
 			Event(UpdateValueEvent("value", p, o))
 	case config.OptionTypeEnum:
 		options := []SelectOptionProperties{}
@@ -191,18 +204,22 @@ func (u BaseUI) InputType(p Path, o config.Option) sunmao.BaseComponentBuilder {
 				Value: o,
 			})
 		}
+		props := SelectProperties[string]{
+			Bordered:            true,
+			UnmountOnExit:       true,
+			Options:             options,
+			Size:                "default",
+			AutoAlignPopupWidth: true,
+			Position:            "bottom",
+			MountToBody:         true,
+			Disabled:            "{{ exec.state.isRunning }}",
+		}
+		if o.Default != nil {
+			props.DefaultValue = o.Default.(string)
+		}
 		return u.Arco.NewSelect().
 			Id(p.OptionValueInputId(o.Name)).
-			Properties(StructToMap(SelectProperties[string]{
-				Bordered:            true,
-				UnmountOnExit:       true,
-				Options:             options,
-				Size:                "default",
-				AutoAlignPopupWidth: true,
-				Position:            "bottom",
-				MountToBody:         true,
-				Disabled:            "{{ exec.state.isRunning }}",
-			})).
+			Properties(StructToMap(props)).
 			Event(UpdateValueEvent("value", p, o))
 	}
 
