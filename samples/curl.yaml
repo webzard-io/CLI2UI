@@ -6,6 +6,7 @@ command:
   flags:
     - name: L
       type: boolean
+      default: true
     - name: o
       type: string
   args:

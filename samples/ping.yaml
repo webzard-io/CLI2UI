@@ -7,7 +7,9 @@ command:
   flags:
     - name: c
       type: number
+      default: 2
   args:
     - name: host
       type: string
       required: true
+      default: 114.114.114.114
