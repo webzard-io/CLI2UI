@@ -58,6 +58,7 @@ func (u UI) registerEvents() {
 
 	u.Runtime.Handle("Run", func(m *runtime.Message, connId int) error {
 		sess := ui.GetOrCreateSession(0, u.FormTemplates, connId)
+		p := ui.ToStruct[ui.RunParams](m.Params)
 
 		script, f := u.CLIs[0].Script(*sess.Form)
 		formatState.SetState(f, &connId)
@@ -90,6 +91,10 @@ func (u UI) registerEvents() {
 		sess.Exec.StateCh <- struct{}{}
 
 		go func() {
+			if !p.DieWithConn.(bool) {
+				return
+			}
+
 			for sess.Exec.State.IsRunning {
 				// TODO(xinxi.guo): this can be extended to send more useful messages
 				err := u.Runtime.Ping(&connId, "Ping")

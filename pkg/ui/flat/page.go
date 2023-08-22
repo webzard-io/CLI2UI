@@ -111,6 +111,9 @@ func (u UI) runButton() sunmao.BaseComponentBuilder {
 				ComponentId: "$utils",
 				Method: sunmao.EventMethod{
 					Name: "binding/v1/Run",
+					Parameters: ui.RunParams{
+						DieWithConn: "{{ dieWithConnCheckbox.isCheckAll }}",
+					},
 				},
 			},
 		}).
@@ -192,7 +195,21 @@ func (u UI) checkbox(c config.Command) sunmao.BaseComponentBuilder {
 			min-width: 8rem;
 			`).
 		Children(map[string][]sunmao.BaseComponentBuilder{
-			"content": {u.checkboxStack(Path{}, c)},
+			"content": {
+				u.Arco.NewCheckbox().
+					Id("dieWithConnCheckbox").
+					Properties(ui.StructToMap(ui.CheckboxProperties[string]{
+						Options: []ui.CheckboxOptionProperties{
+							{
+								Label:    "Die with Connection",
+								Value:    "dieWithConn",
+								Disabled: false,
+							},
+						},
+						DefaultCheckedValues: []string{"dieWithConn"},
+					})),
+				u.checkboxStack(Path{}, c),
+			},
 		})
 
 	return container
