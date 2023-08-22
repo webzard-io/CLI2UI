@@ -86,3 +86,60 @@ command:
           display: Path
           description: Path to upgrade.tar.gz
           type: string
+    - name: config
+      display: Configure CloudTower
+      flags:
+        - name: e
+          display: URL to ELF cluster
+          type: string
+          description: Specify when CloudTower is not running in a VM in the target ELF cluster
+        - name: u
+          display: Username
+          type: string
+          description: Specify when CloudTower is not running in a VM in the target ELF cluster
+        - name: p
+          display: Password
+          type: string
+          description: Specify when CloudTower is not running in a VM in the target ELF cluster
+      subcommands:
+        - name: base
+          display: CPU/Memory
+          flags:
+            - name: c
+              display: Number of cores
+              type: number
+            - name: m
+              display: Memory in GB
+              type: number
+        - name: dns
+          display: DNS
+          args:
+            - name: ns
+              display: Nameservers
+              type: string
+              description: Comma delimited list of nameservers
+              required: true
+        - name: nics
+          display: IP
+          flags:
+            - name: i
+              display: IP Address
+              type: string
+              required: true
+            - name: s
+              display: Subnet Mask
+              type: string
+              required: true
+            - name: g
+              display: Gateway
+              type: string
+              required: true
+            - name: d
+              display: DNS
+              type: string
+              required: true
+            - name: f
+              display: Force
+              type: boolean
+              required: true
+
