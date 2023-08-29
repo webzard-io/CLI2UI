@@ -2,6 +2,8 @@ package naive
 
 import (
 	"CLI2UI/pkg/ui"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -62,7 +64,17 @@ func (u UI) registerEvents() {
 		script, f := u.CLIs[0].Script(*sess.Form)
 		formatState.SetState(f, &connId)
 
-		finishedCh, err := sess.Exec.Run(script)
+		stdoutFile, err := os.OpenFile(fmt.Sprintf("stdout-%d.log", connId), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+
+		stderrFile, err := os.OpenFile(fmt.Sprintf("stdout-%d.err", connId), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+
+		finishedCh, err := sess.Exec.Run(nil, stdoutFile, stderrFile, script)
 		if err != nil {
 			log.Error(err)
 			return err
@@ -77,6 +89,8 @@ func (u UI) registerEvents() {
 						log.Error(err)
 					}
 				case <-finishedCh:
+					stdoutFile.Close()
+					stderrFile.Close()
 					err := execState.SetState(sess.Exec.State, &connId)
 					if err != nil {
 						log.Error(err)
