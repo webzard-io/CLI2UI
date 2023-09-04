@@ -51,3 +51,7 @@ type UpdateCheckedOptionsParams[T []string | string] struct {
 	Path          Path
 	CheckedValues T
 }
+
+type RunParams struct {
+	DieWithConn any
+}
