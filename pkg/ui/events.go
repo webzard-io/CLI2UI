@@ -55,3 +55,8 @@ type UpdateCheckedOptionsParams[T []string | string] struct {
 type RunParams struct {
 	DieWithConn any
 }
+
+type SessionProtocolParams struct {
+	ClientId        string `json:"clientId"`
+	ServerSignature string `json:"serverSignature"`
+}
