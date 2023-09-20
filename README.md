@@ -4,6 +4,20 @@ CLI2UI is a simple tool that converts a CLI command to a fully functional web UI
 
 ## Usage
 
+First one has to compile the frontend:
+
+```bash
+cd ui/
+yarn
+yarn build
+```
+
+Then compile CLI2UI:
+
+```bash
+go build -o cli2ui cmd/main.go
+```
+
 Simply run the binary with a well-defined config file (samples are found under `/samples`, JSON schema is also provided `cli.schema.json`):
 
 ```bash
