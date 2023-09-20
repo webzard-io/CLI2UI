@@ -3,31 +3,42 @@ package ui
 import (
 	"CLI2UI/pkg/config"
 	"CLI2UI/pkg/executor"
+
+	"github.com/google/uuid"
 )
 
-var sessions = map[int]*session{}
+var ServerSignature = uuid.NewString()
+var sessions = map[string]*session{}
+var connIdToClientId = map[int]string{}
 
 type session struct {
-	Form        *config.Form
-	Exec        *executor.Executor
-	HeartbeatCh chan struct{}
-	cliIndex    int
+	Form          *config.Form
+	Exec          *executor.Executor
+	HeartbeatCh   chan struct{}
+	cliIndex      int
+	CurrentConnId *int
+}
+
+func UpdateConnIdToClientId(connId int, clientId string) {
+	connIdToClientId[connId] = clientId
 }
 
 func GetOrCreateSession(cliIndex int, templates []*config.Form, connId int) *session {
-	s, ok := sessions[connId]
+	sId := connIdToClientId[connId]
+	s, ok := sessions[sId]
 	if !ok {
 		f := templates[cliIndex].Clone()
 		hbCh := make(chan struct{})
 		exec := executor.NewExecutor()
 
 		s = &session{
-			Form:        f,
-			Exec:        &exec,
-			HeartbeatCh: hbCh,
-			cliIndex:    cliIndex,
+			Form:          f,
+			Exec:          &exec,
+			HeartbeatCh:   hbCh,
+			cliIndex:      cliIndex,
+			CurrentConnId: &connId,
 		}
-		sessions[connId] = s
+		sessions[sId] = s
 	}
 
 	if cliIndex != s.cliIndex {

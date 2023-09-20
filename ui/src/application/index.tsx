@@ -15,36 +15,45 @@ export function renderApp(options: MainOptions) {
     modulesPatch,
   } = options;
   const ws = new WebSocket(wsUrl);
-  ws.onopen = () => {
+
+  ws.addEventListener('open', () => {
     ws.send(JSON.stringify({
       type: 'Action',
-      handler: 'EstablishedConnection',
-      params: {},
+      handler: 'ConnectionEstablished',
+      params: {
+        clientId: localStorage.getItem('clientId'),
+        serverSignature: localStorage.getItem('serverSignature')
+      },
       store: null
     }))
-  };
-  ws.onclose = () => {
+  });
+
+  ws.addEventListener('close', () => {
     if (reloadWhenWsDisconnected) {
       setTimeout(() => {
         window.location.reload();
       }, 1500);
     }
-  };
+  });
 
   ws.addEventListener('message', e => {
     const data = JSON.parse(e.data)
     
-    if (data.handler !== 'Heartbeat') {
-      return
-    }
+    if (data.handler === 'Heartbeat') {
+      if (data.params.hasOwnProperty('serverSignature')) {
+        localStorage.setItem('clientId', data.params.clientId)
+        localStorage.setItem('serverSignature', data.params.serverSignature)
+        // FIXME(xinxi.guo): this is a workaround, right after clientId is set, websocket does not work as expected
+        window.location.reload();
+      }
 
-    ws.send(JSON.stringify({
-      type: 'Action',
-      handler: 'Heartbeat',
-      // TODO(xinxi.guo): this can be extended later
-      params: "Pong",
-      store: null
-    }))
+      ws.send(JSON.stringify({
+        type: 'Action',
+        handler: 'Heartbeat',
+        params: "Pong",
+        store: null
+      }))
+    }
   })
 
   ReactDOM.render(

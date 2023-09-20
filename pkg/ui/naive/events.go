@@ -4,6 +4,7 @@ import (
 	"CLI2UI/pkg/ui"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/labstack/gommon/log"
 	"github.com/yuyz0112/sunmao-ui-go-binding/pkg/runtime"
 )
@@ -69,6 +70,8 @@ func (u UI) registerEvents() {
 			return err
 		}
 
+		sess.CurrentConnId = &connId
+
 		go func() {
 			for {
 				select {
@@ -126,8 +129,23 @@ func (u UI) registerEvents() {
 		return nil
 	})
 
-	u.Runtime.Handle("EstablishedConnection", func(m *runtime.Message, connId int) error {
-		ui.GetOrCreateSession(0, u.FormTemplates, connId)
+	u.Runtime.Handle("ConnectionEstablished", func(m *runtime.Message, connId int) error {
+		p := ui.ToStruct[ui.SessionProtocolParams](m.Params)
+		if p.ServerSignature != ui.ServerSignature {
+			clientId := uuid.NewString()
+			err := u.Runtime.Ping(&connId, ui.SessionProtocolParams{
+				ClientId:        clientId,
+				ServerSignature: ui.ServerSignature,
+			})
+			if err != nil {
+				return err
+			}
+			ui.UpdateConnIdToClientId(connId, clientId)
+		}
+		s := ui.GetOrCreateSession(0, u.FormTemplates, connId)
+		*s.CurrentConnId = connId
+		// TODO(xinxi.guo): UI won't be updated according to the form, thus clear the form to be consistent
+		s.Form.Clear()
 		return nil
 	})
 
