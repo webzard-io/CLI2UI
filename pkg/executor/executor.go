@@ -1,6 +1,9 @@
 package executor
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/go-cmd/cmd"
 	"github.com/google/shlex"
 )
@@ -18,7 +21,7 @@ type state struct {
 	IsRunning bool   `json:"isRunning"`
 }
 
-func (e *Executor) Run(script string) (chan struct{}, error) {
+func (e *Executor) Run(stdin io.Reader, stdout io.Writer, stderr io.Writer, script string) (chan struct{}, error) {
 	e.resetState()
 	e.State.IsRunning = true
 
@@ -32,7 +35,7 @@ func (e *Executor) Run(script string) (chan struct{}, error) {
 		Streaming: true,
 	}, frags[0], frags[1:]...)
 
-	finStatusCh := c.Start()
+	finStatusCh := c.StartWithStdin(stdin)
 
 	stdioStatusCh := make(chan struct{})
 	go func() {
@@ -44,13 +47,15 @@ func (e *Executor) Run(script string) (chan struct{}, error) {
 					c.Stdout = nil
 					continue
 				}
-				e.State.Stdout = e.State.Stdout + line + "\r\n"
+				e.State.Stdout = fmt.Sprintln(e.State.Stdout, line)
+				fmt.Fprintln(stdout, line)
 			case line, open := <-c.Stderr:
 				if !open {
 					c.Stderr = nil
 					continue
 				}
-				e.State.Stderr = e.State.Stderr + line + "\r\n"
+				e.State.Stderr = fmt.Sprintln(e.State.Stderr, line)
+				fmt.Fprintln(stderr, line)
 			}
 			e.StateCh <- struct{}{}
 		}
